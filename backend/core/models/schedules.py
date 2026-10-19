@@ -53,3 +53,18 @@ class ScheduleException(Base, TimeStampMixin):
     reason: Mapped[ReasonType] = mapped_column(String(50), nullable=False)
 
     doctor: Mapped["Doctor"] = relationship(back_populates="schedule_exception")
+
+
+class WaitlistEntry(Base):
+    __tablename__ = "waitlist_entries"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    patient_id: Mapped[int] = mapped_column(
+        ForeignKey("patients.user_id", ondelete="RESTRICT"), nullable=False
+    )
+    doctor_id: Mapped[int] = mapped_column(
+        ForeignKey("doctors.user_id", ondelete="RESTRICT"), nullable=False
+    )
+    service_id: Mapped[int] = mapped_column(
+        ForeignKey("services.id", ondelete="RESTRICT"), nullable=False
+    )
