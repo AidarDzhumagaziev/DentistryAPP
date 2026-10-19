@@ -6,6 +6,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from base import Base
+from mixins import TimeStampMixin
 
 from common.enums.enums_db import CabinetType, _cabinet_type_values
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from appointments import Appointment
 
 
-class Service(Base):
+class Service(Base, TimeStampMixin):
     __tablename__ = "services"
     __table_args__ = (
         CheckConstraint("duration_min > 0"),

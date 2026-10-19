@@ -4,13 +4,14 @@ from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from base import Base
+from mixins import TimeStampMixin
 
 if TYPE_CHECKING:
     from schedules import WorkSchedule, ScheduleException
     from appointments import Appointment
 
 
-class Doctor(Base):
+class Doctor(Base, TimeStampMixin):
     __tablename__ = "doctors"
 
     user_id: Mapped[int] = mapped_column(

@@ -8,13 +8,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from common.enums.enums_db import _reason_type_values, ReasonType
 
 from base import Base
+from mixins import TimeStampMixin
 
 if TYPE_CHECKING:
     from cabinets import Cabinet
     from doctors import Doctor
 
 
-class WorkSchedule(Base):
+class WorkSchedule(Base, TimeStampMixin):
     __tablename__ = "work_schedules"
     __table_args__ = (
         CheckConstraint("weekday >= 1 AND weekday <= 7"),
@@ -36,7 +37,7 @@ class WorkSchedule(Base):
     doctor: Mapped["Doctor"] = relationship(back_populates="work_schedules")
 
 
-class ScheduleException(Base):
+class ScheduleException(Base, TimeStampMixin):
     __tablename__ = "schedule_exceptions"
     __table_args__ = (
         CheckConstraint("date_to > date_from"),

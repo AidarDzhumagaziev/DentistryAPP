@@ -8,7 +8,7 @@ from base import Base
 from mixins import TimeStampMixin
 
 
-class User(Base):
+class User(Base, TimeStampMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
