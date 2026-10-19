@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import CheckConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.common.enums.enums_db import CabinetType, _cabinet_type_values
-from base import Base
+from common.enums.enums_db import CabinetType, _cabinet_type_values
+from .base import Base
 
 if TYPE_CHECKING:
-    from schedules import WorkSchedule
-    from appointments import Appointment
+    from .schedules import WorkSchedule
+    from .appointments import Appointment
 
 
 class Cabinet(Base):

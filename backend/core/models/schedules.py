@@ -7,12 +7,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from common.enums.enums_db import _reason_type_values, ReasonType
 
-from base import Base
-from mixins import TimeStampMixin
+from .base import Base
+from .mixins import TimeStampMixin
 
 if TYPE_CHECKING:
-    from cabinets import Cabinet
-    from doctors import Doctor
+    from .cabinets import Cabinet
+    from .doctors import Doctor
 
 
 class WorkSchedule(Base, TimeStampMixin):

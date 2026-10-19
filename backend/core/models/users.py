@@ -4,8 +4,8 @@ from sqlalchemy import ForeignKey, LargeBinary, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
-from base import Base
-from mixins import TimeStampMixin
+from .base import Base
+from .mixins import TimeStampMixin
 
 
 class User(Base, TimeStampMixin):

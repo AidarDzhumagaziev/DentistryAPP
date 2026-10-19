@@ -17,12 +17,12 @@ __all__ = [
 ]
 
 
-from base import Base
-from mixins import TimeStampMixin, CreatedAtMixin
-from users import User, Role
-from patients import Patient
-from doctors import Doctor, DoctorSpecialization, Specialization
-from cabinets import Cabinet
-from services import Service
-from schedules import WorkSchedule, ScheduleException, WaitlistEntry
-from appointments import Appointment
+from .base import Base
+from .mixins import TimeStampMixin, CreatedAtMixin
+from .users import User, Role
+from .patients import Patient
+from .doctors import Doctor, DoctorSpecialization, Specialization
+from .cabinets import Cabinet
+from .services import Service
+from .schedules import WorkSchedule, ScheduleException, WaitlistEntry
+from .appointments import Appointment

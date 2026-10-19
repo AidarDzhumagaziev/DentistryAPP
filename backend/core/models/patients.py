@@ -5,11 +5,11 @@ from datetime import date
 from sqlalchemy import Date, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from base import Base
-from mixins import TimeStampMixin
+from .base import Base
+from .mixins import TimeStampMixin
 
 if TYPE_CHECKING:
-    from appointments import Appointment
+    from .appointments import Appointment
 
 
 class Patient(Base, TimeStampMixin):

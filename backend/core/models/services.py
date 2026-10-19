@@ -5,13 +5,13 @@ from decimal import Decimal
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from base import Base
-from mixins import TimeStampMixin
-
 from common.enums.enums_db import CabinetType, _cabinet_type_values
 
+from .base import Base
+from .mixins import TimeStampMixin
+
 if TYPE_CHECKING:
-    from appointments import Appointment
+    from .appointments import Appointment
 
 
 class Service(Base, TimeStampMixin):

@@ -5,16 +5,16 @@ from datetime import datetime
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from common.enums.enums_db import AppointmentStatus
-from base import Base
-from mixins import CreatedAtMixin
-from common.enums.enums_db import _appointment_status_values, AppointmentStatus
+from common.enums.enums_db import AppointmentStatus, _appointment_status_values
+
+from .base import Base
+from .mixins import CreatedAtMixin
 
 if TYPE_CHECKING:
-    from doctors import Doctor
-    from patients import Patient
-    from services import Service
-    from cabinets import Cabinet
+    from .doctors import Doctor
+    from .patients import Patient
+    from .services import Service
+    from .cabinets import Cabinet
 
 
 class Appointment(Base, CreatedAtMixin):

@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from base import Base
-from mixins import TimeStampMixin
+from .base import Base
+from .mixins import TimeStampMixin
 
 if TYPE_CHECKING:
-    from schedules import WorkSchedule, ScheduleException
-    from appointments import Appointment
+    from .schedules import WorkSchedule, ScheduleException
+    from .appointments import Appointment
 
 
 class Doctor(Base, TimeStampMixin):
