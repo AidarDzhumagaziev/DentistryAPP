@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from base import Base
+
+if TYPE_CHECKING:
+    from work_schedules import WorkSchedule
 
 
 class Doctor(Base):
@@ -19,6 +24,7 @@ class Doctor(Base):
     specializations: Mapped[list["DoctorSpecialization"]] = relationship(
         back_populates="doctor", cascade="all, delete-orphan"
     )
+    work_schedules: Mapped[list["WorkSchedule"]] = relationship(back_populates="doctor")
 
 
 class Specialization(Base):

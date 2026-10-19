@@ -1,0 +1,34 @@
+from typing import TYPE_CHECKING
+
+from datetime import time
+
+from sqlalchemy import CheckConstraint, ForeignKey, SmallInteger, Time
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from base import Base
+
+if TYPE_CHECKING:
+    from cabinets import Cabinet
+    from doctors import Doctor
+
+
+class WorkSchedule(Base):
+    __tablename__ = "work_schedules"
+    __table_args__ = (
+        CheckConstraint("weekday >= 1 AND weekday <= 7"),
+        CheckConstraint("end_time > start_time"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    doctor_id: Mapped[int] = mapped_column(
+        ForeignKey("doctors.user_id", ondelete="RESTRICT"), nullable=False
+    )
+    cabinet_id: Mapped[int] = mapped_column(
+        ForeignKey("cabinets.id", ondelete="RESTRICT"), nullable=False
+    )
+    weekday: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    start_time: Mapped[time] = mapped_column(Time, nullable=False)
+    end_time: Mapped[time] = mapped_column(Time, nullable=False)
+
+    cabinet: Mapped["Cabinet"] = relationship(back_populates="work_schedules")
+    doctor: Mapped["Doctor"] = relationship(back_populates="work_schedules")

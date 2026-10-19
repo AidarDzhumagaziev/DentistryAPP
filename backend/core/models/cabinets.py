@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import CheckConstraint, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.common.enums.enums_db import CabinetType, _cabinet_type_values
 from base import Base
+
+if TYPE_CHECKING:
+    from work_schedules import WorkSchedule
 
 
 class Cabinet(Base):
@@ -12,3 +17,7 @@ class Cabinet(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     number: Mapped[int] = mapped_column(nullable=False)
     type: Mapped[CabinetType] = mapped_column(String(50), nullable=False)
+
+    work_schedules: Mapped[list["WorkSchedule"]] = relationship(
+        back_populates="cabinet"
+    )
