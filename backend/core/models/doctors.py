@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
 
 if TYPE_CHECKING:
-    from schedules import WorkSchedule
+    from schedules import WorkSchedule, ScheduleException
 
 
 class Doctor(Base):
@@ -25,6 +25,9 @@ class Doctor(Base):
         back_populates="doctor", cascade="all, delete-orphan"
     )
     work_schedules: Mapped[list["WorkSchedule"]] = relationship(back_populates="doctor")
+    schedule_exception: Mapped[list["ScheduleException"]] = relationship(
+        back_populates="doctor"
+    )
 
 
 class Specialization(Base):
