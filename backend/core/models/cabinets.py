@@ -7,7 +7,7 @@ from backend.common.enums.enums_db import CabinetType, _cabinet_type_values
 from base import Base
 
 if TYPE_CHECKING:
-    from work_schedules import WorkSchedule
+    from schedules import WorkSchedule
 
 
 class Cabinet(Base):

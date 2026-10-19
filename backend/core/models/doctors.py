@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from base import Base
 
 if TYPE_CHECKING:
-    from work_schedules import WorkSchedule
+    from schedules import WorkSchedule
 
 
 class Doctor(Base):
