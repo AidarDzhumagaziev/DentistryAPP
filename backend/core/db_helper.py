@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from core.config import settings
+
 
 class DatabaseHelper:
     def __init__(self, url, echo, echo_pool, pool_size, max_overflow) -> None:
@@ -24,3 +26,12 @@ class DatabaseHelper:
 
     async def dispose(self) -> None:
         await self.engine.dispose()
+
+
+db_helper = DatabaseHelper(
+    url=str(settings.db.url),
+    echo=settings.db.echo,
+    echo_pool=settings.db.echo_pool,
+    pool_size=settings.db.pool_size,
+    max_overflow=settings.db.max_overflow,
+)
