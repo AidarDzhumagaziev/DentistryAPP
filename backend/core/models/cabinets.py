@@ -8,6 +8,7 @@ from base import Base
 
 if TYPE_CHECKING:
     from schedules import WorkSchedule
+    from appointments import Appointment
 
 
 class Cabinet(Base):
@@ -21,3 +22,5 @@ class Cabinet(Base):
     work_schedules: Mapped[list["WorkSchedule"]] = relationship(
         back_populates="cabinet"
     )
+
+    appointments: Mapped["Appointment"] = relationship(back_populates="cabinet")

@@ -7,6 +7,7 @@ from base import Base
 
 if TYPE_CHECKING:
     from schedules import WorkSchedule, ScheduleException
+    from appointments import Appointment
 
 
 class Doctor(Base):
@@ -28,6 +29,7 @@ class Doctor(Base):
     schedule_exception: Mapped[list["ScheduleException"]] = relationship(
         back_populates="doctor"
     )
+    appointments: Mapped["Appointment"] = relationship(back_populates="doctor")
 
 
 class Specialization(Base):

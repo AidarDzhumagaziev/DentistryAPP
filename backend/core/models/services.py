@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING
+
 from decimal import Decimal
 
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from base import Base
 
 from common.enums.enums_db import CabinetType, _cabinet_type_values
+
+if TYPE_CHECKING:
+    from appointments import Appointment
 
 
 class Service(Base):
@@ -29,3 +34,5 @@ class Service(Base):
         nullable=False, default=False, server_default="false"
     )
     cabinet_type: Mapped[CabinetType] = mapped_column(String(50), nullable=False)
+
+    appointments: Mapped["Appointment"] = relationship(back_populates="service")

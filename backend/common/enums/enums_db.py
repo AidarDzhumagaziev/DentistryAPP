@@ -16,3 +16,14 @@ class ReasonType(str, Enum):
 
 
 _reason_type_values = ", ".join(f"'{r.value}'" for r in ReasonType)
+
+
+class AppointmentStatus(str, Enum):
+    SCHEDULED = "scheduled"
+    CONFIRMED = "confirmed"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no_show"
+
+
+_appointment_status_values = ", ".join(f"'{s.value}'" for s in AppointmentStatus)

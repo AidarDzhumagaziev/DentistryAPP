@@ -1,12 +1,18 @@
+from typing import TYPE_CHECKING
+
 from datetime import date
 
 from sqlalchemy import Date, ForeignKey, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from base import Base
+from mixins import TimeStampMixin
+
+if TYPE_CHECKING:
+    from appointments import Appointment
 
 
-class Patient(Base):
+class Patient(Base, TimeStampMixin):
     __tablename__ = "patients"
 
     user_id: Mapped[int] = mapped_column(
@@ -17,3 +23,5 @@ class Patient(Base):
     chronic_diseas: Mapped[str] = mapped_column(Text, nullable=False)
     no_show_count: Mapped[int] = mapped_column(nullable=False)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
+
+    appointments: Mapped["Appointment"] = relationship(back_populates="patient")
