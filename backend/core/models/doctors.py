@@ -15,7 +15,7 @@ class Doctor(Base, TimeStampMixin):
     __tablename__ = "doctors"
     __table_args__ = (
         CheckConstraint(
-            "expirience_years >= 0", name="ck_expirience_years_more_0_doctors"
+            "experience_years >= 0", name="ck_expirience_years_more_0_doctors"
         ),
     )
 
