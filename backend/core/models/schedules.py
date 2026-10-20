@@ -45,8 +45,13 @@ class WorkSchedule(Base, TimeStampMixin):
 class ScheduleException(Base, TimeStampMixin):
     __tablename__ = "schedule_exceptions"
     __table_args__ = (
-        CheckConstraint("date_to > date_from"),
-        CheckConstraint(f"reason IN ({_reason_type_values})"),
+        CheckConstraint(
+            "date_to > date_from", name="ck_date_to_more_date_from_schedule_exceptions"
+        ),
+        CheckConstraint(
+            f"reason IN ({_reason_type_values})",
+            name="ck_reason_in_range_schedule_exceptions",
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

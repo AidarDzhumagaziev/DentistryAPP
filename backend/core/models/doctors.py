@@ -51,7 +51,13 @@ class Specialization(Base):
 
 class DoctorSpecialization(Base):
     __tablename__ = "doctor_specializations"
-    __table_args__ = (UniqueConstraint("doctor_id", "specialization_id"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "doctor_id",
+            "specialization_id",
+            name="uq_doctor_id_specialization_id_doctor_specializations",
+        ),
+    )
 
     doctor_id: Mapped[int] = mapped_column(
         ForeignKey("doctors.user_id", ondelete="RESTRICT"),
