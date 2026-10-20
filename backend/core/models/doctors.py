@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -13,6 +13,11 @@ if TYPE_CHECKING:
 
 class Doctor(Base, TimeStampMixin):
     __tablename__ = "doctors"
+    __table_args__ = (
+        CheckConstraint(
+            "expirience_years >= 0", name="ck_expirience_years_more_0_doctors"
+        ),
+    )
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="RESTRICT"), primary_key=True

@@ -17,9 +17,13 @@ if TYPE_CHECKING:
 class Service(Base, TimeStampMixin):
     __tablename__ = "services"
     __table_args__ = (
-        CheckConstraint("duration_min > 0"),
-        CheckConstraint("buffer_min >= 0"),
-        CheckConstraint(f"cabinet_type IN ({_cabinet_type_values})"),
+        CheckConstraint("duration_min > 0", name="ck_duration_min_more_0_services"),
+        CheckConstraint("buffer_min >= 0", name="ck_buffer_min_more_0_services"),
+        CheckConstraint(
+            f"cabinet_type IN ({_cabinet_type_values})",
+            name="ck_cabinet_type_in_range_services",
+        ),
+        CheckConstraint("price_from > 0", name="ck_price_from_more_0_services"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

@@ -13,7 +13,12 @@ if TYPE_CHECKING:
 
 class Cabinet(Base):
     __tablename__ = "cabinets"
-    __table_args__ = (CheckConstraint(f"type IN ({_cabinet_type_values})"),)
+    __table_args__ = (
+        CheckConstraint(
+            f"type IN ({_cabinet_type_values})",
+            name="ck_type_in_range_cabinets",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     number: Mapped[int] = mapped_column(nullable=False)

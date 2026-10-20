@@ -18,8 +18,13 @@ if TYPE_CHECKING:
 class WorkSchedule(Base, TimeStampMixin):
     __tablename__ = "work_schedules"
     __table_args__ = (
-        CheckConstraint("weekday >= 1 AND weekday <= 7"),
-        CheckConstraint("end_time > start_time"),
+        CheckConstraint(
+            "weekday >= 1 AND weekday <= 7",
+            name="ck_weekday_between_1_and_7_work_schedules",
+        ),
+        CheckConstraint(
+            "end_time > start_time", name="ck_end_time_more_start_time_work_schedules"
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
