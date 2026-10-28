@@ -6,6 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins import TimeStampMixin
+from .patients import Patient
+from .doctors import Doctor
 
 
 class User(Base, TimeStampMixin):
@@ -22,6 +24,8 @@ class User(Base, TimeStampMixin):
     is_active: Mapped[bool] = mapped_column(
         nullable=False, default=True, server_default="true"
     )
+    patient_profile: Mapped["Patient"] = relationship(back_populates="user")
+    doctor_profile: Mapped["Doctor"] = relationship(back_populates="user")
 
     role: Mapped["Role"] = relationship(back_populates="users")
 

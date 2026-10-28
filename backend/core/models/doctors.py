@@ -9,6 +9,7 @@ from .mixins import TimeStampMixin
 if TYPE_CHECKING:
     from .schedules import WorkSchedule, ScheduleException
     from .appointments import Appointment
+    from .users import User
 
 
 class Doctor(Base, TimeStampMixin):
@@ -35,6 +36,7 @@ class Doctor(Base, TimeStampMixin):
     schedule_exception: Mapped[list["ScheduleException"]] = relationship(
         back_populates="doctor"
     )
+    user: Mapped["User"] = relationship(back_populates="patient")
     appointments: Mapped["Appointment"] = relationship(back_populates="doctor")
 
 
