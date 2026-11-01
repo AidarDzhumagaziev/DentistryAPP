@@ -18,6 +18,11 @@ class DatabaseConfig(BaseModel):
     }
 
 
+class RunConfig(BaseModel):
+    host: str = "0.0.0.0"
+    port: int = 8000
+
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     users: str = "/users"
@@ -37,6 +42,7 @@ class Settings(BaseSettings):
     )
     db: DatabaseConfig
     api: ApiPrefix = ApiPrefix()
+    run: RunConfig = RunConfig()
 
 
 settings = Settings()  # type: ignore
