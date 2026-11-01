@@ -18,6 +18,16 @@ class DatabaseConfig(BaseModel):
     }
 
 
+class ApiV1Prefix(BaseModel):
+    prefix: str = "/v1"
+    accounts: str = "/accounts"
+
+
+class ApiPrefix(BaseModel):
+    prefix: str = "/api"
+    v1: ApiV1Prefix = ApiV1Prefix()
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -26,6 +36,7 @@ class Settings(BaseSettings):
         env_prefix="API_CONFIG__",
     )
     db: DatabaseConfig
+    api: ApiPrefix = ApiPrefix()
 
 
 settings = Settings()  # type: ignore
