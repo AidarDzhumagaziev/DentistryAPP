@@ -27,3 +27,9 @@ class AppointmentStatus(str, Enum):
 
 
 _appointment_status_values = ", ".join(f"'{s.value}'" for s in AppointmentStatus)
+
+
+class RoleType(str, Enum):
+    PATIENT = "patient"
+    DOCTOR = "doctor"
+    ADMIN = "admin"
