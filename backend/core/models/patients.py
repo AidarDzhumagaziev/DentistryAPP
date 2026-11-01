@@ -25,5 +25,5 @@ class Patient(Base, TimeStampMixin):
     no_show_count: Mapped[int] = mapped_column(nullable=False)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
 
-    user: Mapped["User"] = relationship(back_populates="patient")
+    user: Mapped["User"] = relationship(back_populates="patient_profile")
     appointments: Mapped["Appointment"] = relationship(back_populates="patient")
