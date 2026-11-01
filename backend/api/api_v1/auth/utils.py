@@ -1,5 +1,6 @@
 import uuid
 
+import bcrypt
 import jwt
 
 from datetime import datetime, timedelta, timezone
@@ -32,3 +33,9 @@ def decode_jwt(
 ):
     decoded = jwt.decode(jwt=token, key=public_key, algorithms=[algorithm])
     return decoded
+
+
+def hash_password(password: str) -> bytes:
+    salt = bcrypt.gensalt()
+    pwd_bytes: bytes = password.encode()
+    return bcrypt.hashpw(pwd_bytes, salt)
