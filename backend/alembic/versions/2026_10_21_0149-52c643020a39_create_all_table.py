@@ -1,8 +1,8 @@
-"""init all the tables
+"""create all table
 
-Revision ID: 218063f8d6d0
+Revision ID: 52c643020a39
 Revises: 
-Create Date: 2026-10-20 01:44:34.989312
+Create Date: 2026-10-21 01:49:06.079970
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '218063f8d6d0'
+revision: str = '52c643020a39'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('number', sa.Integer(), nullable=False),
     sa.Column('type', sa.String(length=50), nullable=False),
-    sa.CheckConstraint("type IN ('general', 'surgical', 'roentgen')", name=op.f('ck_cabinets_')),
+    sa.CheckConstraint("type IN ('general', 'surgical', 'roentgen')", name='ck_type_in_range_cabinets'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_cabinets'))
     )
     op.create_table('roles',
@@ -50,9 +50,10 @@ def upgrade() -> None:
     sa.Column('cabinet_type', sa.String(length=50), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.CheckConstraint("cabinet_type IN ('general', 'surgical', 'roentgen')", name=op.f('ck_services_')),
-    sa.CheckConstraint('buffer_min >= 0', name=op.f('ck_services_')),
-    sa.CheckConstraint('duration_min > 0', name=op.f('ck_services_')),
+    sa.CheckConstraint("cabinet_type IN ('general', 'surgical', 'roentgen')", name='ck_cabinet_type_in_range_services'),
+    sa.CheckConstraint('buffer_min >= 0', name='ck_buffer_min_more_0_services'),
+    sa.CheckConstraint('duration_min > 0', name='ck_duration_min_more_0_services'),
+    sa.CheckConstraint('price_from > 0', name='ck_price_from_more_0_services'),
     sa.ForeignKeyConstraint(['specialization_id'], ['specializations.id'], name=op.f('fk_services_specialization_id_specializations'), ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_services'))
     )
@@ -79,6 +80,7 @@ def upgrade() -> None:
     sa.Column('is_active', sa.Boolean(), server_default='true', nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.CheckConstraint('experience_years >= 0', name='ck_expirience_years_more_0_doctors'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_doctors_user_id_users'), ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('user_id', name=op.f('pk_doctors'))
     )
@@ -104,8 +106,8 @@ def upgrade() -> None:
     sa.Column('ends_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('status', sa.String(length=50), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.CheckConstraint("status IN ('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show')", name=op.f('ck_appointments_')),
-    sa.CheckConstraint('ends_at > starts_at', name=op.f('ck_appointments_')),
+    sa.CheckConstraint("status IN ('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show')", name='ck_status_in_range_appointments'),
+    sa.CheckConstraint('ends_at > starts_at', name='ck_end_at_more_start_at_appointments'),
     sa.ForeignKeyConstraint(['cabinet_id'], ['cabinets.id'], name=op.f('fk_appointments_cabinet_id_cabinets'), ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['doctor_id'], ['doctors.user_id'], name=op.f('fk_appointments_doctor_id_doctors'), ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['patient_id'], ['patients.user_id'], name=op.f('fk_appointments_patient_id_patients'), ondelete='RESTRICT'),
@@ -118,7 +120,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['doctor_id'], ['doctors.user_id'], name=op.f('fk_doctor_specializations_doctor_id_doctors'), ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['specialization_id'], ['specializations.id'], name=op.f('fk_doctor_specializations_specialization_id_specializations'), ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('doctor_id', 'specialization_id', name=op.f('pk_doctor_specializations')),
-    sa.UniqueConstraint('doctor_id', 'specialization_id', name=op.f('uq_doctor_specializations_doctor_id_specialization_id'))
+    sa.UniqueConstraint('doctor_id', 'specialization_id', name='uq_doctor_id_specialization_id_doctor_specializations')
     )
     op.create_table('schedule_exceptions',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -128,8 +130,8 @@ def upgrade() -> None:
     sa.Column('reason', sa.String(length=50), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.CheckConstraint("reason IN ('vacation', 'sick_day')", name=op.f('ck_schedule_exceptions_')),
-    sa.CheckConstraint('date_to > date_from', name=op.f('ck_schedule_exceptions_')),
+    sa.CheckConstraint("reason IN ('vacation', 'sick_day')", name='ck_reason_in_range_schedule_exceptions'),
+    sa.CheckConstraint('date_to > date_from', name='ck_date_to_more_date_from_schedule_exceptions'),
     sa.ForeignKeyConstraint(['doctor_id'], ['doctors.user_id'], name=op.f('fk_schedule_exceptions_doctor_id_doctors'), ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_schedule_exceptions'))
     )
@@ -152,8 +154,8 @@ def upgrade() -> None:
     sa.Column('end_time', sa.Time(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.CheckConstraint('end_time > start_time', name=op.f('ck_work_schedules_')),
-    sa.CheckConstraint('weekday >= 1 AND weekday <= 7', name=op.f('ck_work_schedules_')),
+    sa.CheckConstraint('end_time > start_time', name='ck_end_time_more_start_time_work_schedules'),
+    sa.CheckConstraint('weekday >= 1 AND weekday <= 7', name='ck_weekday_between_1_and_7_work_schedules'),
     sa.ForeignKeyConstraint(['cabinet_id'], ['cabinets.id'], name=op.f('fk_work_schedules_cabinet_id_cabinets'), ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['doctor_id'], ['doctors.user_id'], name=op.f('fk_work_schedules_doctor_id_doctors'), ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_work_schedules'))

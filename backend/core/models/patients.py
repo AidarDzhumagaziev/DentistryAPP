@@ -10,6 +10,7 @@ from .mixins import TimeStampMixin
 
 if TYPE_CHECKING:
     from .appointments import Appointment
+    from .users import User
 
 
 class Patient(Base, TimeStampMixin):
@@ -24,4 +25,5 @@ class Patient(Base, TimeStampMixin):
     no_show_count: Mapped[int] = mapped_column(nullable=False)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
 
+    user: Mapped["User"] = relationship(back_populates="patient")
     appointments: Mapped["Appointment"] = relationship(back_populates="patient")

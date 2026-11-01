@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -9,10 +9,16 @@ from .mixins import TimeStampMixin
 if TYPE_CHECKING:
     from .schedules import WorkSchedule, ScheduleException
     from .appointments import Appointment
+    from .users import User
 
 
 class Doctor(Base, TimeStampMixin):
     __tablename__ = "doctors"
+    __table_args__ = (
+        CheckConstraint(
+            "experience_years >= 0", name="ck_expirience_years_more_0_doctors"
+        ),
+    )
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="RESTRICT"), primary_key=True
@@ -30,6 +36,7 @@ class Doctor(Base, TimeStampMixin):
     schedule_exception: Mapped[list["ScheduleException"]] = relationship(
         back_populates="doctor"
     )
+    user: Mapped["User"] = relationship(back_populates="patient")
     appointments: Mapped["Appointment"] = relationship(back_populates="doctor")
 
 
@@ -46,7 +53,13 @@ class Specialization(Base):
 
 class DoctorSpecialization(Base):
     __tablename__ = "doctor_specializations"
-    __table_args__ = (UniqueConstraint("doctor_id", "specialization_id"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "doctor_id",
+            "specialization_id",
+            name="uq_doctor_id_specialization_id_doctor_specializations",
+        ),
+    )
 
     doctor_id: Mapped[int] = mapped_column(
         ForeignKey("doctors.user_id", ondelete="RESTRICT"),

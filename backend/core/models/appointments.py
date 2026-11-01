@@ -20,8 +20,13 @@ if TYPE_CHECKING:
 class Appointment(Base, CreatedAtMixin):
     __tablename__ = "appointments"
     __table_args__ = (
-        CheckConstraint("ends_at > starts_at"),
-        CheckConstraint(f"status IN ({_appointment_status_values})"),
+        CheckConstraint(
+            "ends_at > starts_at", name="ck_end_at_more_start_at_appointments"
+        ),
+        CheckConstraint(
+            f"status IN ({_appointment_status_values})",
+            name="ck_status_in_range_appointments",
+        ),
     )
 
     id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
