@@ -15,7 +15,6 @@ from .utils import (
     decode_jwt,
     TOKEN_TYPE_FIELD,
     REFRESH_TOKEN_TYPE,
-    ACCESS_TOKEN_TYPE,
 )
 
 logger = getLogger(__name__)
@@ -60,7 +59,7 @@ def get_current_token_payload(token: str = Depends(oauth2_scheme)):
     try:
         payload = decode_jwt(token)
     except InvalidTokenError as e:
-        logger.error(f"invalid token error: {e}")
+        logger.warning(f"invalid token error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token"
         )
