@@ -20,7 +20,7 @@ class DatabaseConfig(BaseModel):
 
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
-    accounts: str = "/accounts"
+    users: str = "/users"
 
 
 class ApiPrefix(BaseModel):
