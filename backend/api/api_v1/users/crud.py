@@ -8,3 +8,8 @@ async def orm_get_users(session: AsyncSession):
     stmt = select(User).order_by(User.id).where(User.is_active == True)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_get_user_by_email(session: AsyncSession, email: str) -> User | None:
+    stmt = select(User).where(User.email == email)
+    return await session.scalar(stmt)

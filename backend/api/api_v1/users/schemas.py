@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -12,4 +12,8 @@ class UserCreate(UserBase):
 
 
 class UserRead(UserBase):
-    pass
+    model_config = ConfigDict(strict=True)
+
+    id: int
+    is_active: bool = True
+    role_id: int
