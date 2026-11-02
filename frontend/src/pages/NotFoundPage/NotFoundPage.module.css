@@ -20,7 +20,7 @@
 }
 
 .text {
-  color: gray;
+  color: var(--color-muted);
 }
 
 .button {
