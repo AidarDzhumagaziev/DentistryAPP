@@ -1,3 +1,5 @@
+import logging
+
 import uvicorn
 
 from contextlib import asynccontextmanager
@@ -7,6 +9,11 @@ from core.config import settings
 from core.db_helper import db_helper
 
 from api import router as api_router
+from core.logging import setup_logging
+
+setup_logging(log_file="logs/logger.logs", level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
