@@ -24,7 +24,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login/")
 
 
 async def validate_auth_user(
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    session: AsyncSession,
     email: str = Form(),
     password: str = Form(),
 ):

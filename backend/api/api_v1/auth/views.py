@@ -2,6 +2,7 @@ from logging import getLogger
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,9 +61,18 @@ async def registration_user(
 
 
 @router.post("/login/", response_model=TokenInfo)
-async def auth_user(user: UserRead = Depends(validate_auth_user)):
-    access_token = create_access_token(user)
-    refresh_token = create_refresh_token(user)
+async def auth_user(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
+    user = await validate_auth_user(
+        session=session, email=form_data.username, password=form_data.password
+    )
+    user_read = UserRead(
+        id=user.id, role_id=user.role_id, phone=user.phone, full_name=user.full_name  # type: ignore
+    )
+    access_token = create_access_token(user_read)
+    refresh_token = create_refresh_token(user_read)
     return TokenInfo(access_token=access_token, refresh_token=refresh_token)
 
 
