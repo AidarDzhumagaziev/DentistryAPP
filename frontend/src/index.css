@@ -1,0 +1,23 @@
+:root {
+  --color-primary: #1e88e5;
+  --color-text: #222;
+  --color-bg: #f5f7fa;
+  --color-white: #fff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
