@@ -1,13 +1,23 @@
+import { Link, NavLink } from 'react-router-dom';
 import styles from './Header.module.css';
+
+function getLinkClass({ isActive }) {
+  if (isActive) {
+    return `${styles.link} ${styles.active}`;
+  }
+  return styles.link;
+}
 
 function Header() {
   return (
     <header className={styles.header}>
-      <div className={styles.logo}>ДентаПлан</div>
+      <Link to="/" className={styles.logo}>ДентаТайм</Link>
       <nav className={styles.nav}>
-        <a href="#">Услуги</a>
-        <a href="#">Врачи</a>
-        <a href="#">Войти</a>
+        <NavLink to="/services" className={getLinkClass}>Услуги</NavLink>
+        <NavLink to="/doctors" className={getLinkClass}>Наши врачи</NavLink>
+        <Link to="/login" className={styles.loginButton}>
+          Войти
+        </Link>
       </nav>
     </header>
   );

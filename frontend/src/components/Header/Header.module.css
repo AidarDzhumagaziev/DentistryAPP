@@ -17,3 +17,23 @@
   display: flex;
   gap: 20px;
 }
+.link {
+  font-weight: 600;
+  padding: 10px 5px;
+}
+
+.link:hover {
+  color: var(--color-primary);
+}
+
+.active {
+  color: var(--color-primary);
+}
+
+.loginButton {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 700;
+}
