@@ -47,7 +47,7 @@ def validate_token_type(payload: dict, token_type: str):
     if current_token_type == token_type:
         return True
     logger.warning(
-        f"invalid token type: excepted {token_type}, got {current_token_type}"
+        f"invalid token type: expected {token_type}, got {current_token_type}"
     )
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
