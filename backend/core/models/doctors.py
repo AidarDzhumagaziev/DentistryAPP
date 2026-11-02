@@ -36,7 +36,7 @@ class Doctor(Base, TimeStampMixin):
     schedule_exception: Mapped[list["ScheduleException"]] = relationship(
         back_populates="doctor"
     )
-    user: Mapped["User"] = relationship(back_populates="patient")
+    user: Mapped["User"] = relationship(back_populates="doctor_profile")
     appointments: Mapped["Appointment"] = relationship(back_populates="doctor")
 
 
