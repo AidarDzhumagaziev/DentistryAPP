@@ -7,7 +7,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
+from core.models import User
 
 from api.api_v1.users.crud import orm_get_user_by_email, orm_get_user_by_id
 from .utils import (
@@ -91,3 +93,15 @@ async def get_current_auth_user(
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="token invalid"
     )
+
+
+async def require_role(*allowed_roles: RoleType):
+    async def checker(user: User = Depends(get_current_auth_user)) -> User:
+        if user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient access rights",
+            )
+        return user
+
+    return checker
