@@ -15,6 +15,7 @@ from .utils import (
     decode_jwt,
     TOKEN_TYPE_FIELD,
     REFRESH_TOKEN_TYPE,
+    ACCESS_TOKEN_TYPE,
 )
 
 logger = getLogger(__name__)
@@ -71,6 +72,19 @@ async def get_current_auth_user_for_refresh(
     payload: dict = Depends(get_current_token_payload),
 ):
     validate_token_type(payload, REFRESH_TOKEN_TYPE)
+    user_id = int(payload.get("sub"))  # type: ignore
+    if user := await orm_get_user_by_id(session=session, user_id=user_id):
+        return user
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="token invalid"
+    )
+
+
+async def get_current_auth_user(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    payload: dict = Depends(get_current_token_payload),
+):
+    validate_token_type(payload, ACCESS_TOKEN_TYPE)
     user_id = int(payload.get("sub"))  # type: ignore
     if user := await orm_get_user_by_id(session=session, user_id=user_id):
         return user
