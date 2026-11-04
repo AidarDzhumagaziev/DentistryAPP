@@ -1,0 +1,25 @@
+from pydantic import BaseModel
+
+from common.enums.enums_db import CabinetType
+
+
+class CabinetBase(BaseModel):
+    number: int
+    type: CabinetType
+
+
+class CabinetCreate(CabinetBase):
+    pass
+
+
+class CabinetRead(CabinetBase):
+    id: int
+
+
+class CabinetUpdate(CabinetCreate):
+    pass
+
+
+class CabinetUpdatePartial(CabinetCreate):
+    number: int | None = None  # type: ignore[assignment]
+    type: int | None = None  # type: ignore[assignment]
