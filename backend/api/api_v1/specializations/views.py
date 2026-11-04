@@ -53,7 +53,11 @@ async def get_specialization(
     return specialization
 
 
-@router.put("/{specialization_id}/")
+@router.put(
+    "/{specialization_id}/",
+    response_model=SpecializationRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
 async def update_specialization(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     specialization_update: SpecializationUpdate,
@@ -66,7 +70,11 @@ async def update_specialization(
     )
 
 
-@router.delete("/{specialization_id}/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{specialization_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
 async def delete_specialization(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     specialization: Specialization = Depends(specialization_by_id),
