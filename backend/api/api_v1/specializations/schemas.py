@@ -11,3 +11,7 @@ class SpecializationCreate(SpecializationBase):
 
 class SpecializationRead(SpecializationBase):
     id: int
+
+
+class SpecializationUpdate(SpecializationBase):
+    pass

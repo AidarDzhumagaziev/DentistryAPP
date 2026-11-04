@@ -6,8 +6,12 @@ from fastapi import APIRouter, Depends, status
 
 from api.api_v1.auth.validation import require_role
 
-from .crud import orm_create_specialization, orm_get_specializations
-from .schemas import SpecializationRead, SpecializationCreate
+from .crud import (
+    orm_create_specialization,
+    orm_get_specializations,
+    orm_update_specialization,
+)
+from .schemas import SpecializationRead, SpecializationCreate, SpecializationUpdate
 from .dependecies import specialization_by_id
 from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
@@ -46,3 +50,16 @@ async def get_specialization(
     specialization: Specialization = Depends(specialization_by_id),
 ):
     return specialization
+
+
+@router.put("/{specialization_id}/")
+async def update_specialization(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    specialization_update: SpecializationUpdate,
+    specialization: Specialization = Depends(specialization_by_id),
+):
+    return await orm_update_specialization(
+        session=session,
+        specialization=specialization,
+        specialization_update=specialization_update,
+    )
