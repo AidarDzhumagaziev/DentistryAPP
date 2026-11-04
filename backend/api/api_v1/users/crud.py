@@ -16,5 +16,5 @@ async def orm_get_user_by_email(session: AsyncSession, email: str) -> User | Non
 
 
 async def orm_get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
-    stmt = select(User).where(User.id == id)
+    stmt = select(User).where(User.id == user_id)
     return await session.scalar(stmt)
