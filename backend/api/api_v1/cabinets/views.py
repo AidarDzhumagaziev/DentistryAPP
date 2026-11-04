@@ -5,10 +5,12 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db_helper import db_helper
+from core.models import Cabinet
 
 from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
+from .dependecies import cabinet_by_id
 from .schemas import CabinetRead, CabinetCreate
 from .crud import orm_create_cabinet, orm_get_cabinets
 
@@ -33,3 +35,8 @@ async def get_cabinets(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
     return await orm_get_cabinets(session)
+
+
+@router.get("/{cabinet_id}/", response_model=CabinetRead)
+async def get_cabinet(cabinet: Cabinet = Depends(cabinet_by_id)):
+    return cabinet
