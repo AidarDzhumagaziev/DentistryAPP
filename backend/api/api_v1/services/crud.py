@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import ServiceCreate
+from .schemas import ServiceCreate, ServiceUpdate, ServiceUpdatePartial
 
 from core.models import Service
 
@@ -25,3 +25,15 @@ async def orm_get_services(session: AsyncSession):
 async def orm_get_service(session: AsyncSession, service_id: int):
     stmt = select(Service).where(Service.id == service_id)
     return await session.scalar(stmt)
+
+
+async def orm_update_service(
+    session: AsyncSession,
+    service: Service,
+    service_update: ServiceUpdate | ServiceUpdatePartial,
+    partial: bool = False,
+):
+    for name, value in service_update.model_dump(exclude_unset=partial).items():
+        setattr(service, name, value)
+    await session.commit()
+    return service

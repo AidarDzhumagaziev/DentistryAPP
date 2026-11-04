@@ -9,8 +9,8 @@ from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
 from core.models import Service
 
-from .schemas import ServiceCreate, ServiceRead
-from .crud import orm_create_service, orm_get_services
+from .schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceUpdatePartial
+from .crud import orm_create_service, orm_get_services, orm_update_service
 from .dependencies import service_by_id
 
 router = APIRouter(tags=["Services"])
@@ -41,3 +41,33 @@ async def get_service(
     service: Service = Depends(service_by_id),
 ):
     return service
+
+
+@router.put(
+    "/{service_id}/",
+    response_model=ServiceRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_service(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    service_update: ServiceUpdate,
+    service: Service = Depends(service_by_id),
+):
+    return await orm_update_service(
+        session=session, service_update=service_update, service=service
+    )
+
+
+@router.patch(
+    "/{service_id}/",
+    response_model=ServiceRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_service_partial(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    service_update: ServiceUpdatePartial,
+    service: Service = Depends(service_by_id),
+):
+    return await orm_update_service(
+        session=session, service_update=service_update, service=service, partial=True
+    )

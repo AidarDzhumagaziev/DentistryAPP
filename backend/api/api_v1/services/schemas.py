@@ -22,3 +22,18 @@ class ServiceCreate(ServiceBase):
 
 class ServiceRead(ServiceBase):
     id: int
+
+
+class ServiceUpdate(ServiceCreate):
+    pass
+
+
+class ServiceUpdatePartial(ServiceCreate):
+    name: str | None = None  # type: ignore[assignment]
+    specialization_id: int | None = None  # type: ignore[assignment]
+    description: str | None = None  # type: ignore[assignment]
+    price_from: Decimal | None = None  # type: ignore[assignment]
+    duration_min: int | None = None  # type: ignore[assignment]
+    buffer_min: int | None = None  # type: ignore[assignment]
+    requires_consultation: bool | None = None  # type: ignore[assignment]
+    cabinet_type: CabinetType | None = None  # type: ignore[assignment]
