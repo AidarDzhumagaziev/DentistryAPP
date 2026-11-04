@@ -37,3 +37,8 @@ async def orm_update_service(
         setattr(service, name, value)
     await session.commit()
     return service
+
+
+async def orm_delete_service(session: AsyncSession, service: Service):
+    await session.delete(service)
+    await session.commit()

@@ -10,7 +10,12 @@ from core.db_helper import db_helper
 from core.models import Service
 
 from .schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceUpdatePartial
-from .crud import orm_create_service, orm_get_services, orm_update_service
+from .crud import (
+    orm_create_service,
+    orm_delete_service,
+    orm_get_services,
+    orm_update_service,
+)
 from .dependencies import service_by_id
 
 router = APIRouter(tags=["Services"])
@@ -71,3 +76,15 @@ async def update_service_partial(
     return await orm_update_service(
         session=session, service_update=service_update, service=service, partial=True
     )
+
+
+@router.delete(
+    "/{service_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def delete_service(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    service: Service = Depends(service_by_id),
+):
+    await orm_delete_service(session=session, service=service)
