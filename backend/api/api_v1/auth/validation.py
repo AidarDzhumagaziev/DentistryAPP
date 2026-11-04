@@ -7,7 +7,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
+from core.models import User
 
 from api.api_v1.users.crud import orm_get_user_by_email, orm_get_user_by_id
 from .utils import (
@@ -15,6 +17,7 @@ from .utils import (
     decode_jwt,
     TOKEN_TYPE_FIELD,
     REFRESH_TOKEN_TYPE,
+    ACCESS_TOKEN_TYPE,
 )
 
 logger = getLogger(__name__)
@@ -77,3 +80,28 @@ async def get_current_auth_user_for_refresh(
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="token invalid"
     )
+
+
+async def get_current_auth_user(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    payload: dict = Depends(get_current_token_payload),
+):
+    validate_token_type(payload, ACCESS_TOKEN_TYPE)
+    user_id = int(payload.get("sub"))  # type: ignore
+    if user := await orm_get_user_by_id(session=session, user_id=user_id):
+        return user
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="token invalid"
+    )
+
+
+def require_role(*allowed_roles: RoleType):
+    async def checker(user: User = Depends(get_current_auth_user)) -> User:
+        if user.role.name not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient access rights",
+            )
+        return user
+
+    return checker

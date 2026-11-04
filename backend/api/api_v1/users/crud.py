@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from core.models import User
 
@@ -16,5 +17,5 @@ async def orm_get_user_by_email(session: AsyncSession, email: str) -> User | Non
 
 
 async def orm_get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
-    stmt = select(User).where(User.id == id)
+    stmt = select(User).options(selectinload(User.role)).where(User.id == user_id)
     return await session.scalar(stmt)
