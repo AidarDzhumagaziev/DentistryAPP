@@ -8,6 +8,7 @@ from api.api_v1.auth.validation import require_role
 
 from .crud import (
     orm_create_specialization,
+    orm_delete_specialization,
     orm_get_specializations,
     orm_update_specialization,
 )
@@ -63,3 +64,11 @@ async def update_specialization(
         specialization=specialization,
         specialization_update=specialization_update,
     )
+
+
+@router.delete("/{specialization_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_specialization(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    specialization: Specialization = Depends(specialization_by_id),
+):
+    await orm_delete_specialization(session=session, specialization=specialization)

@@ -39,3 +39,10 @@ async def orm_update_specialization(
         setattr(specialization, name, value)
     await session.commit()
     return specialization
+
+
+async def orm_delete_specialization(
+    session: AsyncSession, specialization: Specialization
+) -> None:
+    await session.delete(specialization)
+    await session.commit()
