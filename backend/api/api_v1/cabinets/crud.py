@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import CabinetCreate
+from .schemas import CabinetCreate, CabinetUpdate, CabinetUpdatePartial
 
 from core.models import Cabinet
 
@@ -23,3 +23,15 @@ async def orm_get_cabinets(session: AsyncSession):
 async def orm_get_cabinet(session: AsyncSession, cabinet_id: int):
     stmt = select(Cabinet).where(Cabinet.id == cabinet_id)
     return await session.scalar(stmt)
+
+
+async def orm_update_cabinet(
+    session: AsyncSession,
+    cabinet_update: CabinetUpdate | CabinetUpdatePartial,
+    cabinet: Cabinet,
+    partial: bool = False,
+):
+    for name, value in cabinet_update.model_dump(exclude_unset=partial).items():
+        setattr(cabinet, name, value)
+    await session.commit()
+    return cabinet

@@ -14,3 +14,12 @@ class CabinetCreate(CabinetBase):
 
 class CabinetRead(CabinetBase):
     id: int
+
+
+class CabinetUpdate(CabinetCreate):
+    pass
+
+
+class CabinetUpdatePartial(CabinetCreate):
+    number: int | None = None  # type: ignore[assignment]
+    type: int | None = None  # type: ignore[assignment]

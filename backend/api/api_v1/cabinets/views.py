@@ -11,8 +11,8 @@ from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
 from .dependecies import cabinet_by_id
-from .schemas import CabinetRead, CabinetCreate
-from .crud import orm_create_cabinet, orm_get_cabinets
+from .schemas import CabinetRead, CabinetCreate, CabinetUpdate, CabinetUpdatePartial
+from .crud import orm_create_cabinet, orm_get_cabinets, orm_update_cabinet
 
 router = APIRouter(tags=["Cabinets"])
 
@@ -40,3 +40,29 @@ async def get_cabinets(
 @router.get("/{cabinet_id}/", response_model=CabinetRead)
 async def get_cabinet(cabinet: Cabinet = Depends(cabinet_by_id)):
     return cabinet
+
+
+@router.put(
+    "/{cabinet_id}/",
+    response_model=CabinetRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_cabinet(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    cabinet_update: CabinetUpdate,
+    cabinet: Cabinet = Depends(cabinet_by_id),
+):
+    return await orm_update_cabinet(
+        session=session, cabinet_update=cabinet_update, cabinet=cabinet
+    )
+
+
+@router.patch("/{cabinet_id}/")
+async def update_partial_cabinet(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    cabinet_update: CabinetUpdatePartial,
+    cabinet: Cabinet = Depends(cabinet_by_id),
+):
+    return await orm_update_cabinet(
+        session=session, cabinet_update=cabinet_update, cabinet=cabinet, partial=True
+    )
