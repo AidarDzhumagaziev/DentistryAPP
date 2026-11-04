@@ -97,7 +97,7 @@ async def get_current_auth_user(
 
 def require_role(*allowed_roles: RoleType):
     async def checker(user: User = Depends(get_current_auth_user)) -> User:
-        if user.role not in allowed_roles:
+        if user.role.name not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient access rights",
