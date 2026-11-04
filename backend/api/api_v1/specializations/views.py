@@ -15,7 +15,7 @@ router = APIRouter(tags=["Specializations"])
 
 
 @router.post(
-    "/specializations/",
+    "/",
     response_model=SpecializationRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_role(RoleType.ADMIN))],
