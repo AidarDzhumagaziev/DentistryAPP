@@ -12,7 +12,12 @@ from common.enums.enums_db import RoleType
 
 from .dependecies import cabinet_by_id
 from .schemas import CabinetRead, CabinetCreate, CabinetUpdate, CabinetUpdatePartial
-from .crud import orm_create_cabinet, orm_get_cabinets, orm_update_cabinet
+from .crud import (
+    orm_create_cabinet,
+    orm_delete_cabinet,
+    orm_get_cabinets,
+    orm_update_cabinet,
+)
 
 router = APIRouter(tags=["Cabinets"])
 
@@ -66,3 +71,15 @@ async def update_partial_cabinet(
     return await orm_update_cabinet(
         session=session, cabinet_update=cabinet_update, cabinet=cabinet, partial=True
     )
+
+
+@router.delete(
+    "/{cabinet_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def delete_cabinet(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    cabinet: Cabinet = Depends(cabinet_by_id),
+):
+    await orm_delete_cabinet(session=session, cabinet=cabinet)

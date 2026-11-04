@@ -35,3 +35,8 @@ async def orm_update_cabinet(
         setattr(cabinet, name, value)
     await session.commit()
     return cabinet
+
+
+async def orm_delete_cabinet(session: AsyncSession, cabinet: Cabinet):
+    await session.delete(cabinet)
+    await session.commit()
