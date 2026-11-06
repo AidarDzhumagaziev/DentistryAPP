@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from core.models import Doctor, User, DoctorSpecialization
 
@@ -51,3 +51,19 @@ async def orm_get_doctors(session: AsyncSession) -> Sequence[Doctor]:
     )
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_get_doctor(session: AsyncSession, doctor_id: int) -> Doctor | None:
+    stmt = (
+        select(Doctor)
+        .join(DoctorSpecialization, DoctorSpecialization.doctor_id == Doctor.user_id)
+        .options(
+            joinedload(Doctor.user),
+            selectinload(Doctor.specializations).selectinload(
+                DoctorSpecialization.specialization
+            ),
+        )
+        .where(Doctor.user_id == doctor_id)
+        .order_by(DoctorSpecialization.specialization_id)
+    )
+    return await session.scalar(stmt)

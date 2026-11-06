@@ -5,15 +5,14 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import require_role
-from api.api_v1.specializations.schemas import SpecializationRead
-from api.api_v1.users.schemas import UserRead
 from common.enums.enums_db import RoleType
 
 from .schemas import DoctorRead, DoctorCreate
-from .crud import orm_create_doctor, orm_get_doctor_by_user_id, orm_get_doctors
-from .dependecies import get_all_doctors
+from .crud import orm_create_doctor, orm_get_doctor_by_user_id
+from .dependecies import doctor_by_id, get_all_doctors
 
 from core.db_helper import db_helper
+from core.models import Doctor
 
 router = APIRouter()
 
@@ -42,3 +41,8 @@ async def create_doctor(
 @router.get("/", response_model=list[DoctorRead])
 async def get_doctors(doctors: list[DoctorRead] = Depends(get_all_doctors)):
     return doctors
+
+
+@router.get("/{doctor_id}/", response_model=DoctorRead)
+async def get_doctor(doctor: DoctorRead = Depends(doctor_by_id)):
+    return doctor
