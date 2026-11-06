@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
+from .validation import validation_doctor
 from .schemas import DoctorRead, DoctorCreate
 from .crud import orm_create_doctor, orm_get_doctor_by_user_id
 from .dependecies import doctor_by_id, get_all_doctors
@@ -44,5 +45,6 @@ async def get_doctors(doctors: list[DoctorRead] = Depends(get_all_doctors)):
 
 
 @router.get("/{doctor_id}/", response_model=DoctorRead)
-async def get_doctor(doctor: DoctorRead = Depends(doctor_by_id)):
-    return doctor
+async def get_doctor(doctor: Doctor = Depends(doctor_by_id)):
+    doctor_read = validation_doctor(doctor)
+    return doctor_read
