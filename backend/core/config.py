@@ -34,6 +34,7 @@ class ApiV1Prefix(BaseModel):
     specializations: str = "/specializations"
     cabinets: str = "/cabinets"
     services: str = "/services"
+    doctors: str = "/doctors"
 
 
 class ApiPrefix(BaseModel):
