@@ -17,9 +17,7 @@ class User(Base, TimeStampMixin):
     email: Mapped[str] = mapped_column(String(50), nullable=True, unique=True)
     phone: Mapped[str] = mapped_column(String(12), nullable=False, unique=True)
     password_hash: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    role_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("roles.id"), nullable=False
-    )
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     is_active: Mapped[bool] = mapped_column(
         nullable=False, default=True, server_default="true"
