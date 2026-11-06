@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import CITEXT
 
 from common.enums.enums_db import CabinetType, _cabinet_type_values
 
@@ -27,7 +28,7 @@ class Service(Base, TimeStampMixin):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(150), nullable=False)
+    name: Mapped[str] = mapped_column(CITEXT, unique=True, nullable=False)
     specialization_id: Mapped[int] = mapped_column(
         ForeignKey("specializations.id", ondelete="RESTRICT"), nullable=False
     )

@@ -33,7 +33,7 @@ async def registration_user(
 ):
     stmt = select(User).where(User.email == user_create.email)
     result = await session.execute(stmt)
-    if result.first is not None:
+    if result.first() is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
