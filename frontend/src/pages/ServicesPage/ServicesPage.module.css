@@ -7,7 +7,7 @@
     background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 12px;
-    padding: 20px;
+    padding: 10px 20px;
 }
 .name{
     font-weight: bold;
@@ -16,4 +16,28 @@
 .price{
     color: var(--color-primary);
     font-weight: bold;
+}
+.page{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.filters{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.filter{
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit
+}
+.active{
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-color: var(--color-primary);
 }
