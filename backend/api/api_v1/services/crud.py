@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schemas import ServiceCreate, ServiceUpdate, ServiceUpdatePartial
@@ -24,6 +24,11 @@ async def orm_get_services(session: AsyncSession):
 
 async def orm_get_service(session: AsyncSession, service_id: int):
     stmt = select(Service).where(Service.id == service_id)
+    return await session.scalar(stmt)
+
+
+async def orm_get_service_by_name(session: AsyncSession, name: str) -> Service | None:
+    stmt = select(Service).where(Service.name == name)
     return await session.scalar(stmt)
 
 

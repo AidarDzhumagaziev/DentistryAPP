@@ -7,11 +7,11 @@ from common.enums.enums_db import CabinetType
 
 class ServiceBase(BaseModel):
     name: str = Field(max_length=150)
-    specialization_id: int
+    specialization_id: int = Field(gt=0)
     description: str
-    price_from: Decimal
+    price_from: Decimal = Field(ge=0, decimal_places=2)
     duration_min: int
-    buffer_min: int
+    buffer_min: int = Field(ge=0, le=60, default=15)
     requires_consultation: bool = False
     cabinet_type: CabinetType
 

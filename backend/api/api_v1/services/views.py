@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +13,7 @@ from .schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceUpdatePar
 from .crud import (
     orm_create_service,
     orm_delete_service,
+    orm_get_service_by_name,
     orm_get_services,
     orm_update_service,
 )
@@ -31,6 +32,12 @@ async def create_service(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     service_create: ServiceCreate,
 ):
+    exists = await orm_get_service_by_name(session, service_create.name)
+    if exists is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Service {service_create.name} already exists",
+        )
     return await orm_create_service(session, service_create)
 
 
