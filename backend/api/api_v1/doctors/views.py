@@ -5,10 +5,13 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import require_role
+from api.api_v1.specializations.schemas import SpecializationRead
+from api.api_v1.users.schemas import UserRead
 from common.enums.enums_db import RoleType
 
 from .schemas import DoctorRead, DoctorCreate
-from .crud import orm_create_doctor, orm_get_doctor_by_user_id
+from .crud import orm_create_doctor, orm_get_doctor_by_user_id, orm_get_doctors
+from .dependecies import get_all_doctors
 
 from core.db_helper import db_helper
 
@@ -34,3 +37,8 @@ async def create_doctor(
             detail=f"Doctor {doctor.user.full_name} already exists",
         )
     return await orm_create_doctor(session=session, doctor_create=doctor_create)
+
+
+@router.get("/", response_model=list[DoctorRead])
+async def get_doctors(doctors: list[DoctorRead] = Depends(get_all_doctors)):
+    return doctors
