@@ -91,3 +91,8 @@ async def orm_update_doctor(
         ]
     await session.commit()
     return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
+
+
+async def orm_delete_doctor(session: AsyncSession, doctor: Doctor):
+    await session.delete(doctor)
+    await session.commit()
