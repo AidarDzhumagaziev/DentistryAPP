@@ -31,24 +31,14 @@ async def create_doctor(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     doctor_create: DoctorCreate,
 ):
-    doctor = await orm_get_doctor_by_user_id(
-        session=session, user_id=doctor_create.user_id
-    )
-    if doctor is not None:
+    try:
+        doctor = await orm_create_doctor(session=session, doctor_create=doctor_create)
+    except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Doctor {doctor.user.full_name} already exists",
+            detail=f"Doctor for this user already exists",
         )
-    new_doctor = await orm_create_doctor(session=session, doctor_create=doctor_create)
-    doctor = await orm_get_doctor_by_user_id(
-        session=session, user_id=new_doctor.user_id
-    )
-    if doctor is None:
-        logger.error(f"Doctor {new_doctor.user_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found"
-        )
-    return validation_doctor(doctor)
+    return validation_doctor(doctor)  # type: ignore
 
 
 @router.get("/", response_model=list[DoctorRead])

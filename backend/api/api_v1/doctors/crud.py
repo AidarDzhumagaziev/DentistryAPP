@@ -9,7 +9,9 @@ from core.models import Doctor, User, DoctorSpecialization
 from .schemas import DoctorCreate
 
 
-async def orm_create_doctor(session: AsyncSession, doctor_create: DoctorCreate):
+async def orm_create_doctor(
+    session: AsyncSession, doctor_create: DoctorCreate
+) -> Doctor | None:
     doctor = Doctor(
         user_id=doctor_create.user_id,
         bio=doctor_create.bio,
@@ -25,10 +27,10 @@ async def orm_create_doctor(session: AsyncSession, doctor_create: DoctorCreate):
     session.add_all(doctor_specializations)
     await session.commit()
     await session.flush()
-    return doctor
+    return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
 
 
-async def orm_get_doctor_by_user_id(session: AsyncSession, user_id: int):
+async def orm_get_doctor_by_user_id(session: AsyncSession, doctor_id: int):
     stmt = (
         select(Doctor)
         .options(
@@ -37,7 +39,7 @@ async def orm_get_doctor_by_user_id(session: AsyncSession, user_id: int):
                 DoctorSpecialization.specialization
             ),
         )
-        .where(Doctor.user_id == user_id)
+        .where(Doctor.user_id == doctor_id)
     )
     return await session.scalar(stmt)
 
