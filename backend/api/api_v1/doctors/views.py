@@ -19,7 +19,7 @@ from core.models import Doctor
 
 logger = getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(tags=["Doctors"])
 
 
 @router.post(
