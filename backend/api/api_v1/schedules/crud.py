@@ -57,7 +57,7 @@ async def orm_get_conflicting_work_schedule(
     weekday: int,
     start_time: time,
     end_time: time,
-    exclude_schedule_id: int,
+    exclude_schedule_id: int | None = None,
 ) -> WorkSchedule | None:
     stmt = (
         select(WorkSchedule)

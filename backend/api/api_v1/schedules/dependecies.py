@@ -1,3 +1,4 @@
+from datetime import time
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Path, status
@@ -51,7 +52,7 @@ async def get_work_schedule_updating(
         else schedule.cabinet_id
     )
     validate_time_range(new_start, new_end)
-    conflict = await orm_get_conflicting_work_schedule(
+    await get_conflicting_work_schedule(
         session=session,
         cabinet_id=cabinet_id,
         weekday=schedule.weekday,
@@ -59,15 +60,28 @@ async def get_work_schedule_updating(
         end_time=new_end,
         exclude_schedule_id=schedule.id,
     )
-    if conflict is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The cabinet is occupied during this period",
-        )
-
     return await orm_update_work_schedule(
         session=session,
         schedule=schedule,
         schedule_update=schedule_update,
         partial=partial,
     )
+
+
+async def get_conflicting_work_schedule(
+    session: AsyncSession,
+    cabinet_id: int,
+    weekday: int,
+    start_time: time,
+    end_time: time,
+    exclude_schedule_id: int | None = None,
+) -> WorkSchedule | None:
+    conflict = await orm_get_conflicting_work_schedule(
+        session=session,
+        cabinet_id=cabinet_id,
+        weekday=weekday,
+        start_time=start_time,
+        end_time=end_time,
+        exclude_schedule_id=exclude_schedule_id,
+    )
+    return conflict
