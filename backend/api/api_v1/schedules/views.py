@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Path, status, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +8,9 @@ from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
 from core.db_helper import db_helper
+from core.models import WorkSchedule
 
-from .crud import orm_create_work_schedule
+from .crud import orm_create_work_schedule, orm_get_work_schedules
 from .schemas import WorkScheduleRead, WorkScheduleCreate
 
 router = APIRouter(tags=["Schedules"])
@@ -28,3 +29,11 @@ async def create_work_schedule(
     return await orm_create_work_schedule(
         session=session, work_schedule_create=work_schedule_create
     )
+
+
+@router.get("/{doctor_id}/", response_model=list[WorkScheduleRead])
+async def get_all_the_work_schedules(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor_id: Annotated[int, Path],
+):
+    return await orm_get_work_schedules(session=session, doctor_id=doctor_id)
