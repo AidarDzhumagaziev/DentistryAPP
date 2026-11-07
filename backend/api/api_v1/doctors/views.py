@@ -10,7 +10,7 @@ from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
 from .validation import validation_doctor
-from .schemas import DoctorRead, DoctorCreate, DoctorUpdate
+from .schemas import DoctorRead, DoctorCreate, DoctorUpdate, DoctorUpdatePartial
 from .crud import orm_create_doctor, orm_get_doctor_by_user_id, orm_update_doctor
 from .dependecies import doctor_by_id, get_all_doctors
 
@@ -66,6 +66,28 @@ async def update_doctor(
     try:
         updated_doctor = await orm_update_doctor(
             session=session, doctor=doctor, doctor_update=doctor_update
+        )
+    except IntegrityError:
+        logger.error(f"Doctor {doctor.user_id} not found")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
+        )
+    return validation_doctor(updated_doctor)  # type: ignore
+
+
+@router.patch(
+    "/{doctor_id}/",
+    response_model=DoctorRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_doctor_partial(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor_update: DoctorUpdatePartial,
+    doctor: Doctor = Depends(doctor_by_id),
+):
+    try:
+        updated_doctor = await orm_update_doctor(
+            session=session, doctor=doctor, doctor_update=doctor_update, partial=True
         )
     except IntegrityError:
         logger.error(f"Doctor {doctor.user_id} not found")

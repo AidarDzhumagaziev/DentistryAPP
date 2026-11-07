@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from core.models import Doctor, User, DoctorSpecialization
 
-from .schemas import DoctorCreate, DoctorUpdate
+from .schemas import DoctorCreate, DoctorUpdate, DoctorUpdatePartial
 
 
 async def orm_create_doctor(
@@ -79,14 +79,15 @@ async def orm_get_doctor(session: AsyncSession, doctor_id: int) -> Doctor | None
 async def orm_update_doctor(
     session: AsyncSession,
     doctor: Doctor,
-    doctor_update: DoctorUpdate,
+    doctor_update: DoctorUpdate | DoctorUpdatePartial,
     partial: bool = False,
 ) -> Doctor | None:
     for name, value in doctor_update.model_dump(exclude_unset=partial).items():
         setattr(doctor, name, value)
-    doctor.specializations = [
-        DoctorSpecialization(specialization_id=sid)
-        for sid in doctor_update.specializations_ids
-    ]
+    if doctor_update.specializations_ids:
+        doctor.specializations = [
+            DoctorSpecialization(specialization_id=sid)
+            for sid in doctor_update.specializations_ids
+        ]
     await session.commit()
     return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)

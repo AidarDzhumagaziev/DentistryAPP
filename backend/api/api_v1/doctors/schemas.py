@@ -26,3 +26,11 @@ class DoctorRead(DoctorBase):
 
 class DoctorUpdate(DoctorBase):
     specializations_ids: list[int] = Field(min_length=1)
+
+
+class DoctorUpdatePartial(DoctorUpdate):
+    experience_years: int | None = Field(default=None, gt=0)  # type: ignore[assignment]
+    bio: str | None = None  # type: ignore[assignment]
+    photo_url: str | None = None  # type: ignore[assignment]
+    is_active: bool | None = None  # type: ignore[assignment]
+    specializations_ids: list[int] | None = Field(default=None, min_length=1)  # type: ignore[assignment]
