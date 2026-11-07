@@ -35,6 +35,7 @@ class ApiV1Prefix(BaseModel):
     cabinets: str = "/cabinets"
     services: str = "/services"
     doctors: str = "/doctors"
+    schedules: str = "/schedules"
 
 
 class ApiPrefix(BaseModel):
