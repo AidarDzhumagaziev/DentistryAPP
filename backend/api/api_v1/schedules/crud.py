@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +18,9 @@ async def orm_create_work_schedule(
     return work_schedule
 
 
-async def orm_get_work_schedules(session: AsyncSession, doctor_id: int):
+async def orm_get_work_schedules(
+    session: AsyncSession, doctor_id: int
+) -> Sequence[WorkSchedule]:
     stmt = (
         select(WorkSchedule)
         .where(WorkSchedule.doctor_id == doctor_id)
@@ -24,3 +28,10 @@ async def orm_get_work_schedules(session: AsyncSession, doctor_id: int):
     )
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_get_work_schedule_by_id(
+    session: AsyncSession, work_schedule_id: int
+) -> WorkSchedule | None:
+    stmt = select(WorkSchedule).where(WorkSchedule.id == work_schedule_id)
+    return await session.scalar(stmt)

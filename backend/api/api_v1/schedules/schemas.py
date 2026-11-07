@@ -1,9 +1,11 @@
 from datetime import time
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class WorkScheduleBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     doctor_id: int
     cabinet_id: int
     weekday: int = Field(ge=1, le=7)

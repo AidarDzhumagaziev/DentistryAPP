@@ -12,6 +12,7 @@ from core.models import WorkSchedule
 
 from .crud import orm_create_work_schedule, orm_get_work_schedules
 from .schemas import WorkScheduleRead, WorkScheduleCreate
+from .dependecies import work_schedule_by_id
 
 router = APIRouter(tags=["Schedules"])
 
@@ -37,3 +38,8 @@ async def get_all_the_work_schedules(
     doctor_id: Annotated[int, Path],
 ):
     return await orm_get_work_schedules(session=session, doctor_id=doctor_id)
+
+
+@router.get("/{work_schedule_id}/", response_model=WorkScheduleRead)
+async def get_work_schedule(work_schedule: WorkSchedule = Depends(work_schedule_by_id)):
+    return work_schedule
