@@ -7,7 +7,6 @@ from api.api_v1.users.schemas import UserRead
 class DoctorBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    user_id: int
     experience_years: int = Field(gt=0)
     bio: str
     photo_url: str
@@ -15,9 +14,15 @@ class DoctorBase(BaseModel):
 
 
 class DoctorCreate(DoctorBase):
+    user_id: int
     specializations_ids: list[int] = Field(min_length=1)
 
 
 class DoctorRead(DoctorBase):
+    user_id: int
     user: UserRead
     specializations: list[SpecializationRead]
+
+
+class DoctorUpdate(DoctorBase):
+    specializations_ids: list[int] = Field(min_length=1)
