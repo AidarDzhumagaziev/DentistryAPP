@@ -56,14 +56,6 @@ async def create_work_schedule(
     )
 
 
-@router.get("/{doctor_id}/", response_model=list[WorkScheduleRead])
-async def get_all_the_work_schedules(
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    doctor_id: Annotated[int, Path],
-):
-    return await orm_get_work_schedules(session=session, doctor_id=doctor_id)
-
-
 @router.get("/{work_schedule_id}/", response_model=WorkScheduleRead)
 async def get_work_schedule(work_schedule: WorkSchedule = Depends(work_schedule_by_id)):
     return work_schedule

@@ -1,12 +1,14 @@
 from logging import getLogger
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Path, status, Depends, HTTPException
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import require_role
+from api.api_v1.schedules.crud import orm_get_work_schedules
+from api.api_v1.schedules.schemas import WorkScheduleRead
 from common.enums.enums_db import RoleType
 
 from .validation import validation_doctor
@@ -55,6 +57,14 @@ async def get_doctors(doctors: list[DoctorRead] = Depends(get_all_doctors)):
 async def get_doctor(doctor: Doctor = Depends(doctor_by_id)):
     doctor_read = validation_doctor(doctor)
     return doctor_read
+
+
+@router.get("/{doctor_id}/work_schedules", response_model=list[WorkScheduleRead])
+async def get_all_the_work_schedules(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor_id: Annotated[int, Path],
+):
+    return await orm_get_work_schedules(session=session, doctor_id=doctor_id)
 
 
 @router.put(
