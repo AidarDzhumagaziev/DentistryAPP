@@ -14,7 +14,6 @@ from .validation import validate_time_range
 from .crud import (
     orm_create_work_schedule,
     orm_delete_work_schedule,
-    orm_get_work_schedules,
 )
 from .schemas import (
     WorkScheduleRead,
@@ -26,7 +25,7 @@ from .dependecies import (
     work_schedule_by_id,
 )
 
-router = APIRouter(tags=["Schedules"])
+router = APIRouter(tags=["WorkSchedules"])
 
 
 @router.post(
