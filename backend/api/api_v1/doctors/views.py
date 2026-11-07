@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Annotated
 
 from fastapi import APIRouter, status, Depends, HTTPException
@@ -14,6 +15,8 @@ from .dependecies import doctor_by_id, get_all_doctors
 
 from core.db_helper import db_helper
 from core.models import Doctor
+
+logger = getLogger(__name__)
 
 router = APIRouter()
 
@@ -36,7 +39,16 @@ async def create_doctor(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Doctor {doctor.user.full_name} already exists",
         )
-    return await orm_create_doctor(session=session, doctor_create=doctor_create)
+    new_doctor = await orm_create_doctor(session=session, doctor_create=doctor_create)
+    doctor = await orm_get_doctor_by_user_id(
+        session=session, user_id=new_doctor.user_id
+    )
+    if doctor is None:
+        logger.error(f"Doctor {new_doctor.user_id} not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found"
+        )
+    return validation_doctor(doctor)
 
 
 @router.get("/", response_model=list[DoctorRead])

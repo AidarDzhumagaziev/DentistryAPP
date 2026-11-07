@@ -31,7 +31,12 @@ async def orm_create_doctor(session: AsyncSession, doctor_create: DoctorCreate):
 async def orm_get_doctor_by_user_id(session: AsyncSession, user_id: int):
     stmt = (
         select(Doctor)
-        .options(selectinload(Doctor.user))
+        .options(
+            selectinload(Doctor.user),
+            selectinload(Doctor.specializations).selectinload(
+                DoctorSpecialization.specialization
+            ),
+        )
         .where(Doctor.user_id == user_id)
     )
     return await session.scalar(stmt)
