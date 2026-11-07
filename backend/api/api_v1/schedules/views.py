@@ -13,6 +13,7 @@ from core.models import WorkSchedule
 from .validation import validate_time_range
 from .crud import (
     orm_create_work_schedule,
+    orm_delete_work_schedule,
     orm_get_work_schedules,
 )
 from .schemas import (
@@ -81,3 +82,15 @@ async def update_partial_work_schedule(
     schedule: WorkSchedule = Depends(get_work_schedule_updating),
 ):
     return schedule
+
+
+@router.delete(
+    "/{work_schedule_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def delete_work_schedule(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    schedule: WorkSchedule = Depends(work_schedule_by_id),
+):
+    await orm_delete_work_schedule(session=session, schedule=schedule)

@@ -71,3 +71,8 @@ async def orm_get_conflicting_work_schedule(
         .limit(1)
     )
     return await session.scalar(stmt)
+
+
+async def orm_delete_work_schedule(session: AsyncSession, schedule: WorkSchedule):
+    await session.delete(schedule)
+    await session.commit()
