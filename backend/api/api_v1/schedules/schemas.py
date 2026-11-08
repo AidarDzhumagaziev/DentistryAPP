@@ -1,8 +1,11 @@
-from datetime import time
+from datetime import date, time
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from common.enums.enums_db import ReasonType
 
+
+# Work schedule schema
 class WorkScheduleBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -41,3 +44,19 @@ class WorkScheduleUpdatePartial(BaseModel):
     cabinet_id: int | None = None
     start_time: time | None = None
     end_time: time | None = None
+
+
+# Schedules exception schema
+class ScheduleExceptionBase(BaseModel):
+    doctor_id: int
+    date_from: date
+    date_to: date
+    reason: ReasonType
+
+
+class ScheduleExceptionCreate(ScheduleExceptionBase):
+    pass
+
+
+class ScheduleExceptionRead(ScheduleExceptionBase):
+    id: int

@@ -1,12 +1,17 @@
-from datetime import time
+from datetime import date, time
 from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import WorkScheduleCreate, WorkScheduleUpdate, WorkScheduleUpdatePartial
+from .schemas import (
+    WorkScheduleCreate,
+    WorkScheduleUpdate,
+    WorkScheduleUpdatePartial,
+    ScheduleExceptionCreate,
+)
 
-from core.models import WorkSchedule
+from core.models import WorkSchedule, ScheduleException
 
 
 async def orm_create_work_schedule(
@@ -76,3 +81,25 @@ async def orm_get_conflicting_work_schedule(
 async def orm_delete_work_schedule(session: AsyncSession, schedule: WorkSchedule):
     await session.delete(schedule)
     await session.commit()
+
+
+# Schedule exception crud
+async def orm_create_schedule_exception(
+    session: AsyncSession, schedule_create: ScheduleExceptionCreate
+):
+    schedule = ScheduleException(**schedule_create.model_dump())
+    session.add(schedule)
+    await session.commit()
+    await session.flush()
+    return schedule
+
+
+async def orm_get_schedule_exception_by_date(
+    session: AsyncSession, doctor_id: int, date_to: date, date_from: date
+):
+    stmt = select(ScheduleException).where(
+        ScheduleException.doctor_id == doctor_id,
+        ScheduleException.date_to > date_from,
+        ScheduleException.date_from < date_to,
+    )
+    return await session.scalar(stmt)

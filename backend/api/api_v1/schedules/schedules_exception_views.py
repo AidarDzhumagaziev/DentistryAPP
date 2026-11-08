@@ -1,3 +1,40 @@
-from fastapi import APIRouter
+from typing import Annotated
 
-router = APIRouter()
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.api_v1.auth.validation import require_role
+from common.enums.enums_db import RoleType
+from core.db_helper import db_helper
+
+from .schemas import ScheduleExceptionRead, ScheduleExceptionCreate
+from .crud import orm_create_schedule_exception, orm_get_schedule_exception_by_date
+
+router = APIRouter(tags=["Schedule Exception"])
+
+
+@router.post(
+    "/",
+    response_model=ScheduleExceptionRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def create_schedule_exception(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    schedule_create: ScheduleExceptionCreate,
+):
+    schedule = await orm_get_schedule_exception_by_date(
+        session=session,
+        doctor_id=schedule_create.doctor_id,
+        date_to=schedule_create.date_to,
+        date_from=schedule_create.date_from,
+    )
+    if schedule is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Doctor already has an exception from the schedule",
+        )
+    return await orm_create_schedule_exception(
+        session=session, schedule_create=schedule_create
+    )
