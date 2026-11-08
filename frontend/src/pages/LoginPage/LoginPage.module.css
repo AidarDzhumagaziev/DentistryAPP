@@ -42,3 +42,11 @@
     cursor: pointer;
     font-family: inherit;
 }
+.error{
+    background: #fdecea;
+    color: #b42318;
+    font-size: 14px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid #b42318;
+}

@@ -7,6 +7,7 @@ function LoginPage(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login } = useAuth();
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     function handleSubmit(e) {
@@ -25,7 +26,7 @@ function LoginPage(){
             login(data.access_token, data.refresh_token)
             navigate('/');
         })
-        .catch(() => console.log('Ошибка входа'))
+        .catch(() => setError('Неверный email или пароль'))
     }
 
     return (
@@ -44,6 +45,7 @@ function LoginPage(){
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}/>
                 </label>
+                {error && <p className={styles.error}>{error}</p>}
                 <button type="submit" className={styles.button}>Войти</button>
             </form>
         </div>
