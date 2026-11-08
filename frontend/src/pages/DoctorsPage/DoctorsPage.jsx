@@ -1,26 +1,37 @@
 import FilterButtons from '../../components/FilterButtons/FilterButtons';
+import { getJson } from '../../api/client';
 import styles from './DoctorPage.module.css';
 import { useState, useEffect } from 'react';
 
 
 function DoctorsPage() {
     const [selectedId, setSelectedId] = useState(null);
-    
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const [doctors, setDoctors] = useState([]);
     useEffect(() => {
-      fetch('/api/v1/doctors/')
-      .then((response) => response.json())
-      .then((data) => setDoctors(data));
+      getJson('/api/v1/doctors/')
+      .then((data) => setDoctors(data))
+      .catch(() => setError('Не удалось загрузить врачей'))
+      .finally(() => setIsLoading(false));
     }, []);
 
     const [specializations, setSpecializations] = useState([]);
     useEffect(() => {
-      fetch('/api/v1/specializations/')
-      .then((response) => response.json())
+      getJson('/api/v1/specializations/')
       .then((data) => setSpecializations(data));
     }, []);
 
     const shownDoctors = doctors.filter((doctor) => selectedId === null  || doctor.specializations.some((s) => s.id === selectedId));
+
+   if (isLoading) {
+    return <p>Загрузка…</p>;
+  }
+
+  if (error) {
+  return <p>{error}</p>;
+  }
   return (
     <div className={styles.page}>
       <h1>Наши врачи</h1>
