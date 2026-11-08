@@ -1,0 +1,39 @@
+.grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+.card{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 10px 20px;
+}
+.name{
+    font-weight: bold;
+    font-size: 18px;
+}
+.page{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.photo{
+    height: 180px;
+    background: var(--color-primary-light);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-primary);
+}
+.specialization{
+    color: var(--color-primary);
+    font-weight: bold;
+}
+.bio{
+    color: var(--color-muted);
+}
