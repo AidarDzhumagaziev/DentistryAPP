@@ -5,6 +5,7 @@ import ServicesPage from './pages/ServicesPage/ServicesPage';
 import DoctorsPage from './pages/DoctorsPage/DoctorsPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -1,6 +1,7 @@
 import styles from './LoginPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function LoginPage(){
@@ -47,6 +48,7 @@ function LoginPage(){
                 </label>
                 {error && <p className={styles.error}>{error}</p>}
                 <button type="submit" className={styles.button}>Войти</button>
+                <Link to="/register">Нет аккаунта? Зарегистрироваться</Link>
             </form>
         </div>
     )   
