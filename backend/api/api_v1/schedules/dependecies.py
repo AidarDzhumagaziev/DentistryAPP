@@ -63,7 +63,7 @@ async def get_work_schedule_updating(
         else schedule.cabinet_id
     )
     validate_time_range(new_start, new_end)
-    conflict = await get_conflicting_work_schedule(
+    conflict = await orm_get_conflicting_work_schedule(
         session=session,
         cabinet_id=cabinet_id,
         weekday=schedule.weekday,
@@ -82,25 +82,6 @@ async def get_work_schedule_updating(
         schedule_update=schedule_update,
         partial=partial,
     )
-
-
-async def get_conflicting_work_schedule(
-    session: AsyncSession,
-    cabinet_id: int,
-    weekday: int,
-    start_time: time,
-    end_time: time,
-    exclude_schedule_id: int | None = None,
-) -> WorkSchedule | None:
-    conflict = await orm_get_conflicting_work_schedule(
-        session=session,
-        cabinet_id=cabinet_id,
-        weekday=weekday,
-        start_time=start_time,
-        end_time=end_time,
-        exclude_schedule_id=exclude_schedule_id,
-    )
-    return conflict
 
 
 # Schedule Exception dependencies

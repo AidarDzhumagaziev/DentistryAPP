@@ -14,13 +14,13 @@ from .validation import validate_time_range
 from .crud import (
     orm_create_work_schedule,
     orm_delete_work_schedule,
+    orm_get_conflicting_work_schedule,
 )
 from .schemas import (
     WorkScheduleRead,
     WorkScheduleCreate,
 )
 from .dependecies import (
-    get_conflicting_work_schedule,
     get_work_schedule_updating,
     work_schedule_by_id,
 )
@@ -39,14 +39,14 @@ async def create_work_schedule(
     work_schedule_create: WorkScheduleCreate,
 ):
     validate_time_range(work_schedule_create.start_time, work_schedule_create.end_time)
-    conflict = await get_conflicting_work_schedule(
+    conflict_cabinet = await orm_get_conflicting_work_schedule(
         session=session,
         weekday=work_schedule_create.weekday,
         start_time=work_schedule_create.start_time,
         cabinet_id=work_schedule_create.cabinet_id,
         end_time=work_schedule_create.end_time,
     )
-    if conflict is not None:
+    if conflict_cabinet is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="The cabinet is occupied during this period",
