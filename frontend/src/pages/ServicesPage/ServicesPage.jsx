@@ -1,12 +1,25 @@
 import FilterButtons from '../../components/FilterButtons/FilterButtons';
-import { services } from '../../data/services'
-import { specializations } from '../../data/specializations'
 import styles from './ServicesPage.module.css';
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
 
 
 function ServicesPage() {
   const [selectedId, setSelectedId] = useState(null);
+
+  const [services, setServices] = useState([]);
+  useEffect(() => {
+  fetch('/api/v1/services/')
+    .then((response) => response.json())
+    .then((data) => setServices(data));
+}, []);
+
+  const [specializations, setSpecializations] = useState([]);
+    useEffect(() => {
+      fetch('/api/v1/specializations/')
+      .then((response) => response.json())
+      .then((data) => setSpecializations(data));
+    }, []);
+    
   const shownServices = services.filter((service) => selectedId === null  || selectedId === service.specialization_id);
   return (
     <div className={styles.page}>
