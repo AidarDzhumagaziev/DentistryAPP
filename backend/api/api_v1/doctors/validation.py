@@ -18,6 +18,7 @@ def validation_doctor(doctor: Doctor) -> DoctorRead:
             full_name=doctor.user.full_name,
             id=doctor.user.id,
             role_id=doctor.user.role_id,
+            email=doctor.user.email,
         ),
         specializations=[
             SpecializationRead(id=spec.specialization.id, name=spec.specialization.name)
