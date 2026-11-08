@@ -41,7 +41,7 @@ function ServicesPage() {
       {shownServices.map((service) => (
         <div key={service.id} className={styles.card}>
           <p className={styles.name} >{service.name}</p>
-          <p className={styles.price} >от {service.price_from} ₽</p>
+          <p className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</p>
         </div>
       ))}
       </div>
