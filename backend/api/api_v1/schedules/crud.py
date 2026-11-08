@@ -86,7 +86,7 @@ async def orm_delete_work_schedule(session: AsyncSession, schedule: WorkSchedule
 # Schedule exception crud
 async def orm_create_schedule_exception(
     session: AsyncSession, schedule_create: ScheduleExceptionCreate
-):
+) -> ScheduleException:
     schedule = ScheduleException(**schedule_create.model_dump())
     session.add(schedule)
     await session.commit()
@@ -96,10 +96,17 @@ async def orm_create_schedule_exception(
 
 async def orm_get_schedule_exception_by_date(
     session: AsyncSession, doctor_id: int, date_to: date, date_from: date
-):
+) -> ScheduleException | None:
     stmt = select(ScheduleException).where(
         ScheduleException.doctor_id == doctor_id,
         ScheduleException.date_to > date_from,
         ScheduleException.date_from < date_to,
     )
+    return await session.scalar(stmt)
+
+
+async def orm_get_exception_by_id(
+    session: AsyncSession, schedule_id: int
+) -> ScheduleException | None:
+    stmt = select(ScheduleException).where(ScheduleException.id == schedule_id)
     return await session.scalar(stmt)

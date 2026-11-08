@@ -1,19 +1,23 @@
 from datetime import time
+from logging import getLogger
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import WorkSchedule
+from core.models import WorkSchedule, ScheduleException
 from core.db_helper import db_helper
 
 from .schemas import WorkScheduleUpdate, WorkScheduleUpdatePartial
-from .validation import validate_time_range, validate_time_to_naive
+from .validation import validate_time_range
 from .crud import (
     orm_get_conflicting_work_schedule,
     orm_get_work_schedule_by_id,
     orm_update_work_schedule,
+    orm_get_exception_by_id,
 )
+
+logger = getLogger(__name__)
 
 
 async def work_schedule_by_id(
@@ -85,3 +89,17 @@ async def get_conflicting_work_schedule(
         exclude_schedule_id=exclude_schedule_id,
     )
     return conflict
+
+
+# Schedule Exception dependencies
+async def schedule_exception_by_id(
+    schedule_id: Annotated[int, Path],
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+) -> ScheduleException:
+    schedule = await orm_get_exception_by_id(session=session, schedule_id=schedule_id)
+    if schedule is not None:
+        return schedule
+    logger.warning(f"Schedule exception {schedule_id} not found")
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="Schedule exception not found"
+    )

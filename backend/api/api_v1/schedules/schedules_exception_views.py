@@ -6,10 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
+
 from core.db_helper import db_helper
+from core.models import ScheduleException
 
 from .schemas import ScheduleExceptionRead, ScheduleExceptionCreate
-from .crud import orm_create_schedule_exception, orm_get_schedule_exception_by_date
+from .crud import (
+    orm_create_schedule_exception,
+    orm_get_schedule_exception_by_date,
+)
+from .dependecies import schedule_exception_by_id
 
 router = APIRouter(tags=["Schedule Exception"])
 
@@ -38,3 +44,10 @@ async def create_schedule_exception(
     return await orm_create_schedule_exception(
         session=session, schedule_create=schedule_create
     )
+
+
+@router.get("/{schedule_exception_id}/", response_model=ScheduleExceptionRead)
+async def get_schedule_exception(
+    schedule: ScheduleException = Depends(schedule_exception_by_id),
+):
+    return schedule
