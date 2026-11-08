@@ -105,7 +105,7 @@ async def orm_get_schedule_exception_by_date(
     return await session.scalar(stmt)
 
 
-async def orm_get_exception_by_id(
+async def orm_get_schedule_exception_by_id(
     session: AsyncSession, schedule_id: int
 ) -> ScheduleException | None:
     stmt = select(ScheduleException).where(ScheduleException.id == schedule_id)

@@ -14,7 +14,7 @@ from .crud import (
     orm_get_conflicting_work_schedule,
     orm_get_work_schedule_by_id,
     orm_update_work_schedule,
-    orm_get_exception_by_id,
+    orm_get_schedule_exception_by_id,
 )
 
 logger = getLogger(__name__)
@@ -96,7 +96,9 @@ async def schedule_exception_by_id(
     schedule_id: Annotated[int, Path],
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ) -> ScheduleException:
-    schedule = await orm_get_exception_by_id(session=session, schedule_id=schedule_id)
+    schedule = await orm_get_schedule_exception_by_id(
+        session=session, schedule_id=schedule_id
+    )
     if schedule is not None:
         return schedule
     logger.warning(f"Schedule exception {schedule_id} not found")
