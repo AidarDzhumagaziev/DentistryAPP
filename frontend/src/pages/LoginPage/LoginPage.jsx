@@ -1,9 +1,13 @@
 import styles from './LoginPage.module.css';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 function LoginPage(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -17,7 +21,10 @@ function LoginPage(){
             }
             return response.json();
         })
-        .then((data) => console.log(data))
+        .then((data) => {
+            login(data.access_token, data.refresh_token)
+            navigate('/');
+        })
         .catch(() => console.log('Ошибка входа'))
     }
 
