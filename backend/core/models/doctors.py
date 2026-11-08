@@ -37,7 +37,7 @@ class Doctor(Base, TimeStampMixin):
         back_populates="doctor"
     )
     user: Mapped["User"] = relationship(back_populates="doctor_profile")
-    appointments: Mapped["Appointment"] = relationship(back_populates="doctor")
+    appointments: Mapped[list["Appointment"]] = relationship(back_populates="doctor")
 
 
 class Specialization(Base):
