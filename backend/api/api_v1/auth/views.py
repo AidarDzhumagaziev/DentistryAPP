@@ -39,7 +39,11 @@ async def auth_user(
         session=session, email=form_data.username, password=form_data.password
     )
     user_read = UserRead(
-        id=user.id, role_id=user.role_id, phone=user.phone, full_name=user.full_name  # type: ignore
+        id=user.id,
+        role_id=user.role_id,
+        phone=user.phone,
+        full_name=user.full_name,
+        email=user.email,
     )
     access_token = create_access_token(user_read)
     refresh_token = create_refresh_token(user_read)
