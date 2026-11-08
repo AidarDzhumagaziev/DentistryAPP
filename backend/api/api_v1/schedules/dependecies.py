@@ -8,13 +8,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import WorkSchedule, ScheduleException
 from core.db_helper import db_helper
 
-from .schemas import WorkScheduleUpdate, WorkScheduleUpdatePartial
+from .schemas import (
+    WorkScheduleUpdate,
+    WorkScheduleUpdatePartial,
+    ScheduleExceptionUpdate,
+)
 from .validation import validate_time_range
 from .crud import (
     orm_get_conflicting_work_schedule,
     orm_get_work_schedule_by_id,
     orm_update_work_schedule,
     orm_get_schedule_exception_by_id,
+    orm_get_schedule_exception_by_date,
+    orm_update_schedule_exception,
 )
 
 logger = getLogger(__name__)
@@ -109,4 +115,26 @@ async def schedule_exception_by_id(
     logger.warning(f"Schedule exception {schedule_id} not found")
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND, detail="Schedule exception not found"
+    )
+
+
+async def validation_schedule_exception(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    schedule_update: ScheduleExceptionUpdate,
+    schedule: ScheduleException = Depends(schedule_exception_by_id),
+):
+    schedule_obj = await orm_get_schedule_exception_by_date(
+        session=session,
+        doctor_id=schedule.doctor_id,
+        date_to=schedule_update.date_to,
+        date_from=schedule_update.date_from,
+        exclude_schedule_id=schedule.id,
+    )
+    if schedule_obj is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Doctor already has an exception from the schedule",
+        )
+    return await orm_update_schedule_exception(
+        session=session, schedule=schedule, schedule_update=schedule_update
     )

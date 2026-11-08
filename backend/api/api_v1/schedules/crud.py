@@ -9,6 +9,7 @@ from .schemas import (
     WorkScheduleUpdate,
     WorkScheduleUpdatePartial,
     ScheduleExceptionCreate,
+    ScheduleExceptionUpdate,
 )
 
 from core.models import WorkSchedule, ScheduleException
@@ -95,12 +96,17 @@ async def orm_create_schedule_exception(
 
 
 async def orm_get_schedule_exception_by_date(
-    session: AsyncSession, doctor_id: int, date_to: date, date_from: date
+    session: AsyncSession,
+    doctor_id: int,
+    date_to: date,
+    date_from: date,
+    exclude_schedule_id: int | None,
 ) -> ScheduleException | None:
     stmt = select(ScheduleException).where(
         ScheduleException.doctor_id == doctor_id,
         ScheduleException.date_to > date_from,
         ScheduleException.date_from < date_to,
+        ScheduleException.id != exclude_schedule_id,
     )
     return await session.scalar(stmt)
 
@@ -110,3 +116,16 @@ async def orm_get_schedule_exception_by_id(
 ) -> ScheduleException | None:
     stmt = select(ScheduleException).where(ScheduleException.id == schedule_id)
     return await session.scalar(stmt)
+
+
+async def orm_update_schedule_exception(
+    session: AsyncSession,
+    schedule: ScheduleException,
+    schedule_update: ScheduleExceptionUpdate,
+    partial: bool = False,
+):
+    for name, value in schedule_update.model_dump(exclude_unset=partial).items():
+        setattr(schedule, name, value)
+    await session.commit()
+    await session.flush()
+    return schedule

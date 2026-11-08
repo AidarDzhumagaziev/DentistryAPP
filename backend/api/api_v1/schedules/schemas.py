@@ -57,10 +57,16 @@ class ScheduleExceptionBase(BaseModel):
 class ScheduleExceptionCreate(ScheduleExceptionBase):
     @model_validator(mode="after")
     def validate_time(self) -> "ScheduleExceptionCreate":
-        if self.date_to >= self.date_from:
-            raise ValueError("end_time must be greater than start_time")
+        if self.date_from >= self.date_to:
+            raise ValueError("date_from must be greater than date_to")
         return self
 
 
 class ScheduleExceptionRead(ScheduleExceptionBase):
     id: int
+
+
+class ScheduleExceptionUpdate(BaseModel):
+    date_from: date
+    date_to: date
+    reason: ReasonType
