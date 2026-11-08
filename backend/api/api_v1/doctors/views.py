@@ -7,8 +7,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import require_role
-from api.api_v1.schedules.crud import orm_get_work_schedules
-from api.api_v1.schedules.schemas import WorkScheduleRead
+from api.api_v1.schedules.crud import (
+    orm_get_schedule_exceptions_by_doctor_id,
+    orm_get_work_schedules,
+)
+from api.api_v1.schedules.schemas import ScheduleExceptionRead, WorkScheduleRead
 from common.enums.enums_db import RoleType
 
 from .validation import validation_doctor
@@ -65,6 +68,18 @@ async def get_all_the_work_schedules(
     doctor_id: Annotated[int, Path],
 ):
     return await orm_get_work_schedules(session=session, doctor_id=doctor_id)
+
+
+@router.get(
+    "/{doctor_id}/schedules_exception", response_model=list[ScheduleExceptionRead]
+)
+async def get_all_the_schedule_exception(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor_id: Annotated[int, Path],
+):
+    return await orm_get_schedule_exceptions_by_doctor_id(
+        session=session, doctor_id=doctor_id
+    )
 
 
 @router.put(

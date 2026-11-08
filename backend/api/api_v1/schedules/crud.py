@@ -119,6 +119,18 @@ async def orm_get_schedule_exception_by_id(
     return await session.scalar(stmt)
 
 
+async def orm_get_schedule_exceptions_by_doctor_id(
+    session: AsyncSession, doctor_id: int
+) -> Sequence[ScheduleException]:
+    stmt = (
+        select(ScheduleException)
+        .where(ScheduleException.doctor_id == doctor_id)
+        .order_by(ScheduleException.date_to)
+    )
+    result = await session.scalars(stmt)
+    return result.all()
+
+
 async def orm_update_schedule_exception(
     session: AsyncSession,
     schedule: ScheduleException,
