@@ -14,9 +14,8 @@ from .schemas import (
     ScheduleExceptionUpdate,
     ScheduleExceptionUpdatePartial,
 )
-from .validation import validate_time_range
+from .validation import validate_time_range, validate_schedule_no_conflict
 from .crud import (
-    orm_get_conflicting_work_schedule,
     orm_get_work_schedule_by_id,
     orm_update_work_schedule,
     orm_get_schedule_exception_by_id,
@@ -63,19 +62,15 @@ async def get_work_schedule_updating(
         else schedule.cabinet_id
     )
     validate_time_range(new_start, new_end)
-    conflict = await orm_get_conflicting_work_schedule(
+    await validate_schedule_no_conflict(
         session=session,
+        doctor_id=schedule.doctor_id,
         cabinet_id=cabinet_id,
         weekday=schedule.weekday,
         start_time=new_start,
         end_time=new_end,
         exclude_schedule_id=schedule.id,
     )
-    if conflict is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The cabinet is occupied during this period",
-        )
     return await orm_update_work_schedule(
         session=session,
         schedule=schedule,

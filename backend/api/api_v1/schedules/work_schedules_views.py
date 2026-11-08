@@ -10,11 +10,10 @@ from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
 from core.models import WorkSchedule
 
-from .validation import validate_time_range
+from .validation import validate_time_range, validate_schedule_no_conflict
 from .crud import (
     orm_create_work_schedule,
     orm_delete_work_schedule,
-    orm_get_conflicting_work_schedule,
 )
 from .schemas import (
     WorkScheduleRead,
@@ -39,18 +38,14 @@ async def create_work_schedule(
     work_schedule_create: WorkScheduleCreate,
 ):
     validate_time_range(work_schedule_create.start_time, work_schedule_create.end_time)
-    conflict_cabinet = await orm_get_conflicting_work_schedule(
+    await validate_schedule_no_conflict(
         session=session,
+        doctor_id=work_schedule_create.doctor_id,
         weekday=work_schedule_create.weekday,
         start_time=work_schedule_create.start_time,
         cabinet_id=work_schedule_create.cabinet_id,
         end_time=work_schedule_create.end_time,
     )
-    if conflict_cabinet is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="The cabinet is occupied during this period",
-        )
     return await orm_create_work_schedule(
         session=session, work_schedule_create=work_schedule_create
     )
