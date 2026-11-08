@@ -70,3 +70,9 @@ class ScheduleExceptionUpdate(BaseModel):
     date_from: date
     date_to: date
     reason: ReasonType
+
+
+class ScheduleExceptionUpdatePartial(BaseModel):
+    date_from: date | None = None  # type: ignore[assignment]
+    date_to: date | None = None  # type: ignore[assignment]
+    reason: ReasonType | None = None  # type: ignore[assignment]

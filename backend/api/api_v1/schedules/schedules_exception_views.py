@@ -66,3 +66,14 @@ async def update_schedule_exception(
     schedule: ScheduleException = Depends(validation_schedule_exception),
 ):
     return schedule
+
+
+@router.patch(
+    "/{schedule_exception_id}/",
+    response_model=ScheduleExceptionRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_schedule_exception_partial(
+    schedule: ScheduleException = Depends(validation_schedule_exception),
+):
+    return schedule

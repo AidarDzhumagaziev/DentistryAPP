@@ -10,6 +10,7 @@ from .schemas import (
     WorkScheduleUpdatePartial,
     ScheduleExceptionCreate,
     ScheduleExceptionUpdate,
+    ScheduleExceptionUpdatePartial,
 )
 
 from core.models import WorkSchedule, ScheduleException
@@ -121,7 +122,7 @@ async def orm_get_schedule_exception_by_id(
 async def orm_update_schedule_exception(
     session: AsyncSession,
     schedule: ScheduleException,
-    schedule_update: ScheduleExceptionUpdate,
+    schedule_update: ScheduleExceptionUpdate | ScheduleExceptionUpdatePartial,
     partial: bool = False,
 ):
     for name, value in schedule_update.model_dump(exclude_unset=partial).items():

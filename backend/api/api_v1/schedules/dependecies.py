@@ -12,6 +12,7 @@ from .schemas import (
     WorkScheduleUpdate,
     WorkScheduleUpdatePartial,
     ScheduleExceptionUpdate,
+    ScheduleExceptionUpdatePartial,
 )
 from .validation import validate_time_range
 from .crud import (
@@ -120,14 +121,26 @@ async def schedule_exception_by_id(
 
 async def validation_schedule_exception(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    schedule_update: ScheduleExceptionUpdate,
+    schedule_update: ScheduleExceptionUpdate | ScheduleExceptionUpdatePartial,
     schedule: ScheduleException = Depends(schedule_exception_by_id),
 ):
+    new_date_to = (
+        schedule_update.date_to if schedule_update.date_to else schedule.date_to
+    )
+    new_date_from = (
+        schedule_update.date_from if schedule_update.date_from else schedule.date_from
+    )
+    if new_date_from > new_date_to:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Date_from must be greater date_to",
+        )
+
     schedule_obj = await orm_get_schedule_exception_by_date(
         session=session,
         doctor_id=schedule.doctor_id,
-        date_to=schedule_update.date_to,
-        date_from=schedule_update.date_from,
+        date_to=new_date_to,
+        date_from=new_date_from,
         exclude_schedule_id=schedule.id,
     )
     if schedule_obj is not None:
@@ -135,6 +148,10 @@ async def validation_schedule_exception(
             status_code=status.HTTP_409_CONFLICT,
             detail="Doctor already has an exception from the schedule",
         )
+    partial = False if isinstance(schedule_update, ScheduleExceptionUpdate) else True
     return await orm_update_schedule_exception(
-        session=session, schedule=schedule, schedule_update=schedule_update
+        session=session,
+        schedule=schedule,
+        schedule_update=schedule_update,
+        partial=partial,
     )
