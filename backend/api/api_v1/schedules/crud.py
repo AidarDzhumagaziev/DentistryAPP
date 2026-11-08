@@ -45,6 +45,15 @@ async def orm_get_work_schedule_by_id(
     return await session.scalar(stmt)
 
 
+async def orm_get_work_schedule_in_day(
+    session: AsyncSession, doctor_id: int, weekday: int
+) -> WorkSchedule | None:
+    stmt = select(WorkSchedule).where(
+        WorkSchedule.doctor_id == doctor_id, WorkSchedule.weekday == weekday
+    )
+    return await session.scalar(stmt)
+
+
 async def orm_update_work_schedule(
     session: AsyncSession,
     schedule: WorkSchedule,
@@ -171,3 +180,14 @@ async def orm_delete_schedule_exception(
 ):
     await session.delete(schedule)
     await session.commit()
+
+
+async def orm_get_schedule_exception_by_day(
+    session: AsyncSession, doctor_id: int, target_date: date
+) -> ScheduleException | None:
+    stmt = select(ScheduleException).where(
+        ScheduleException.doctor_id == doctor_id,
+        ScheduleException.date_from <= target_date,
+        ScheduleException.date_to >= target_date,
+    )
+    return await session.scalar(stmt)
