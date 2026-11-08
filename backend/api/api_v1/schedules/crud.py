@@ -130,3 +130,10 @@ async def orm_update_schedule_exception(
     await session.commit()
     await session.flush()
     return schedule
+
+
+async def orm_delete_schedule_exception(
+    session: AsyncSession, schedule: ScheduleException
+):
+    await session.delete(schedule)
+    await session.commit()

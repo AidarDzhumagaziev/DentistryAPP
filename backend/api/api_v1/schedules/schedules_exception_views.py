@@ -16,6 +16,7 @@ from .schemas import (
 )
 from .crud import (
     orm_create_schedule_exception,
+    orm_delete_schedule_exception,
     orm_get_schedule_exception_by_date,
 )
 from .dependecies import schedule_exception_by_id, validation_schedule_exception
@@ -77,3 +78,15 @@ async def update_schedule_exception_partial(
     schedule: ScheduleException = Depends(validation_schedule_exception),
 ):
     return schedule
+
+
+@router.delete(
+    "/{schedule_exception_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def delete_schedule_exception(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    schedule: ScheduleException = Depends(schedule_exception_by_id),
+):
+    await orm_delete_schedule_exception(session=session, schedule=schedule)
