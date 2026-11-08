@@ -46,7 +46,7 @@ class ScheduleException(Base, TimeStampMixin):
     __tablename__ = "schedule_exceptions"
     __table_args__ = (
         CheckConstraint(
-            "date_to > date_from", name="ck_date_to_more_date_from_schedule_exceptions"
+            "date_to >= date_from", name="ck_date_to_more_date_from_schedule_exceptions"
         ),
         CheckConstraint(
             f"reason IN ({_reason_type_values})",
