@@ -1,27 +1,22 @@
 from logging import getLogger
-from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import (
-    orm_create_appointment,
-    orm_get_conflict_between_appointment,
-)
+from api.api_v1.appointments.crud import orm_get_conflict_between_appointment
 from api.api_v1.cabinets.crud import orm_get_cabinet
 from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.services.crud import orm_get_service
-from core.db_helper import db_helper
 
 from .schemas import AppointmentCreate
 
 logger = getLogger(__name__)
 
 
-async def validate_appointment_create(
-    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+async def validate_appointment(
+    session: AsyncSession,
     appointment_create: AppointmentCreate,
-):
+) -> None:
     doctor = await orm_get_doctor(
         session=session, doctor_id=appointment_create.doctor_id
     )
@@ -53,6 +48,3 @@ async def validate_appointment_create(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked"
         )
-    return await orm_create_appointment(
-        session=session, appointment_create=appointment_create
-    )
