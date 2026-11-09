@@ -12,6 +12,7 @@ from .schedules.work_schedules_views import router as schedules_router
 from .schedules.schedules_exception_views import router as schedules_exception_router
 from .slots.views import router as slots_router
 from .patients.views import router as patients_router
+from .appointments.views import router as appointments_router
 
 router = APIRouter(prefix=settings.api.v1.prefix)
 router.include_router(users_router, prefix=settings.api.v1.users)
@@ -26,3 +27,4 @@ router.include_router(
 )
 router.include_router(slots_router, prefix=settings.api.v1.slots)
 router.include_router(patients_router, prefix=settings.api.v1.patients)
+router.include_router(appointments_router, prefix=settings.api.v1.appointments)
