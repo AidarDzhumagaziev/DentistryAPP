@@ -17,7 +17,7 @@ from .crud import (
     orm_get_patients,
     orm_update_patient,
 )
-from .schemas import PatientCreate, PatientRead, PatientUpdate
+from .schemas import PatientCreate, PatientRead, PatientUpdate, PatientUpdatePartial
 
 router = APIRouter(tags=["Patients"])
 
@@ -73,4 +73,19 @@ async def update_patient(
 ):
     return await orm_update_patient(
         session=session, patient=patient, patient_update=patient_update
+    )
+
+
+@router.patch(
+    "/{patient_id}/",
+    response_model=PatientRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_patient_partial(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    patient_update: PatientUpdatePartial,
+    patient: Patient = Depends(patient_by_id),
+):
+    return await orm_update_patient(
+        session=session, patient=patient, patient_update=patient_update, partial=True
     )

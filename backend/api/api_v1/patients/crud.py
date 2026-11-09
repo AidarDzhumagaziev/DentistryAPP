@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Patient
 
-from .schemas import PatientCreate, PatientUpdate
+from .schemas import PatientCreate, PatientUpdate, PatientUpdatePartial
 
 
 async def orm_create_patient(
@@ -31,7 +31,7 @@ async def orm_get_patients(session: AsyncSession) -> Sequence[Patient]:
 
 async def orm_update_patient(
     session: AsyncSession,
-    patient_update: PatientUpdate,
+    patient_update: PatientUpdate | PatientUpdatePartial,
     patient: Patient,
     partial: bool = False,
 ) -> Patient:

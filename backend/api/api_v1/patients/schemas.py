@@ -26,3 +26,10 @@ class PatientUpdate(BaseModel):
     chronic_diseas: str
     no_show_count: int = 0
     notes: str | None = None
+
+
+class PatientUpdatePartial(PatientUpdate):
+    birth_date: date | None = None  # type: ignore[assignment]
+    allergies: str | None = None  # type: ignore[assignment]
+    chronic_diseas: str | None = None  # type: ignore[assignment]
+    no_show_count: int | None = None  # type: ignore[assignment]
