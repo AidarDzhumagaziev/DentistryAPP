@@ -11,8 +11,13 @@ from core.db_helper import db_helper
 from core.models import Patient
 
 from .dependecies import patient_by_id
-from .crud import orm_create_patient, orm_get_patient, orm_get_patients
-from .schemas import PatientCreate, PatientRead
+from .crud import (
+    orm_create_patient,
+    orm_get_patient,
+    orm_get_patients,
+    orm_update_patient,
+)
+from .schemas import PatientCreate, PatientRead, PatientUpdate
 
 router = APIRouter(tags=["Patients"])
 
@@ -54,3 +59,18 @@ async def get_patients(
 )
 async def get_patient(patient: Patient = Depends(patient_by_id)):
     return patient
+
+
+@router.put(
+    "/{patient_id}/",
+    response_model=PatientRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def update_patient(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    patient_update: PatientUpdate,
+    patient: Patient = Depends(patient_by_id),
+):
+    return await orm_update_patient(
+        session=session, patient=patient, patient_update=patient_update
+    )

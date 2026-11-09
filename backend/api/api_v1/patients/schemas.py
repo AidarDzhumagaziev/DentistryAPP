@@ -18,3 +18,11 @@ class PatientCreate(PatientBase):
 
 class PatientRead(PatientBase):
     pass
+
+
+class PatientUpdate(BaseModel):
+    birth_date: date
+    allergies: str
+    chronic_diseas: str
+    no_show_count: int = 0
+    notes: str | None = None

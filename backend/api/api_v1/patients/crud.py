@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Patient
 
-from api.api_v1.patients.schemas import PatientCreate
+from .schemas import PatientCreate, PatientUpdate
 
 
 async def orm_create_patient(
@@ -27,3 +27,16 @@ async def orm_get_patients(session: AsyncSession) -> Sequence[Patient]:
     stmt = select(Patient).order_by(Patient.user_id)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_update_patient(
+    session: AsyncSession,
+    patient_update: PatientUpdate,
+    patient: Patient,
+    partial: bool = False,
+) -> Patient:
+    for name, value in patient_update.model_dump(exclude_unset=partial).items():
+        setattr(patient, name, value)
+    await session.commit()
+    await session.flush()
+    return patient
