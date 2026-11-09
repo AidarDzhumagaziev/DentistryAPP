@@ -8,7 +8,9 @@ from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
 from core.db_helper import db_helper
+from core.models import Patient
 
+from .dependecies import patient_by_id
 from .crud import orm_create_patient, orm_get_patient, orm_get_patients
 from .schemas import PatientCreate, PatientRead
 
@@ -39,3 +41,8 @@ async def get_patients(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
     return await orm_get_patients(session=session)
+
+
+@router.get("/{patient_id}/", response_model=PatientRead)
+async def get_patient(patient: Patient = Depends(patient_by_id)):
+    return patient
