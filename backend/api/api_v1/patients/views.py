@@ -36,13 +36,21 @@ async def create_patient(
     return await orm_create_patient(session=session, patient_create=patient_create)
 
 
-@router.get("/", response_model=list[PatientRead])
+@router.get(
+    "/",
+    response_model=list[PatientRead],
+    dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
+)
 async def get_patients(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
     return await orm_get_patients(session=session)
 
 
-@router.get("/{patient_id}/", response_model=PatientRead)
+@router.get(
+    "/{patient_id}/",
+    response_model=PatientRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
+)
 async def get_patient(patient: Patient = Depends(patient_by_id)):
     return patient
