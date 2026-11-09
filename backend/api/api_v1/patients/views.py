@@ -9,7 +9,7 @@ from common.enums.enums_db import RoleType
 
 from core.db_helper import db_helper
 
-from .crud import orm_create_patient, orm_get_patient
+from .crud import orm_create_patient, orm_get_patient, orm_get_patients
 from .schemas import PatientCreate, PatientRead
 
 router = APIRouter(tags=["Patients"])
@@ -32,3 +32,10 @@ async def create_patient(
             detail="User already has patient profile",
         )
     return await orm_create_patient(session=session, patient_create=patient_create)
+
+
+@router.get("/", response_model=list[PatientRead])
+async def get_patients(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+):
+    return await orm_get_patients(session=session)
