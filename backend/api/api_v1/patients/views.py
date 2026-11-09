@@ -13,6 +13,7 @@ from core.models import Patient
 from .dependecies import patient_by_id
 from .crud import (
     orm_create_patient,
+    orm_delete_patient,
     orm_get_patient,
     orm_get_patients,
     orm_update_patient,
@@ -89,3 +90,15 @@ async def update_patient_partial(
     return await orm_update_patient(
         session=session, patient=patient, patient_update=patient_update, partial=True
     )
+
+
+@router.delete(
+    "/{patient_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def delete_patient(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    patient: Patient = Depends(patient_by_id),
+):
+    await orm_delete_patient(session=session, patient=patient)

@@ -40,3 +40,8 @@ async def orm_update_patient(
     await session.commit()
     await session.flush()
     return patient
+
+
+async def orm_delete_patient(session: AsyncSession, patient: Patient) -> None:
+    await session.delete(patient)
+    await session.commit()
