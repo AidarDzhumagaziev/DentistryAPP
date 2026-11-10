@@ -12,6 +12,8 @@ from api.api_v1.schedules.crud import (
 )
 from api.api_v1.services.crud import orm_get_service
 
+from core.models import Doctor, Service, Cabinet
+
 from .schemas import AppointmentCreate
 
 logger = getLogger(__name__)
@@ -21,6 +23,16 @@ async def validate_appointment(
     session: AsyncSession,
     appointment_create: AppointmentCreate,
 ) -> None:
+    doctor, service, cabinet = await _get_appointment_entities(
+        session=session, appointment_create=appointment_create
+    )
+    _check_appointment_compatibility(doctor=doctor, service=service, cabinet=cabinet)
+    await is_slot_available(session=session, appointment_create=appointment_create)
+
+
+async def _get_appointment_entities(
+    session: AsyncSession, appointment_create: AppointmentCreate
+) -> tuple[Doctor, Service, Cabinet]:
     doctor = await orm_get_doctor(
         session=session, doctor_id=appointment_create.doctor_id
     )
@@ -37,13 +49,6 @@ async def validate_appointment(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Service not found"
         )
-    if service.specialization_id not in {
-        s.specialization_id for s in doctor.specializations
-    }:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Doctor does not provide this service",
-        )
     cabinet = await orm_get_cabinet(
         session=session, cabinet_id=appointment_create.cabinet_id
     )
@@ -52,11 +57,30 @@ async def validate_appointment(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Cabinet not found"
         )
+    return doctor, service, cabinet
+
+
+def _check_appointment_compatibility(
+    doctor: Doctor, service: Service, cabinet: Cabinet
+) -> None:
+    if service.specialization_id not in {
+        s.specialization_id for s in doctor.specializations
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Doctor does not provide this service",
+        )
     if cabinet.type != service.cabinet_type:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="The service cannot be provided in this cabinet",
         )
+
+
+async def is_slot_available(
+    session: AsyncSession,
+    appointment_create: AppointmentCreate,
+):
     work_schedule = await orm_get_work_schedule_in_day(
         session=session,
         doctor_id=appointment_create.doctor_id,
