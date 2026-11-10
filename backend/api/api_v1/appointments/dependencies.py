@@ -33,6 +33,11 @@ async def validate_appointment(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Service not found"
         )
+    if service.id not in [s.specialization_id for s in doctor.specializations]:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Doctor does not provide this service",
+        )
     cabinet = await orm_get_cabinet(
         session=session, cabinet_id=appointment_create.cabinet_id
     )
