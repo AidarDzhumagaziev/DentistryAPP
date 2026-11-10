@@ -68,8 +68,8 @@ async def validate_appointment(
             detail="Doctor is not working at this day",
         )
     if (
-        not work_schedule.start_time < appointment_create.ends_at.time()
-        and not work_schedule.end_time > appointment_create.starts_at.time()
+        work_schedule.start_time > appointment_create.starts_at.time()
+        or work_schedule.end_time < appointment_create.ends_at.time()
     ):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
