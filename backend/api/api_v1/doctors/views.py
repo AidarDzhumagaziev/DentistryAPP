@@ -6,6 +6,8 @@ from fastapi import APIRouter, Path, status, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.api_v1.appointments.crud import orm_get_appointment_by_doctor_id
+from api.api_v1.appointments.schemas import AppointmentRead
 from api.api_v1.auth.validation import require_role
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exceptions_by_doctor_id,
@@ -136,3 +138,18 @@ async def delete_doctor(
     doctor: Doctor = Depends(doctor_by_id),
 ):
     await orm_delete_doctor(session=session, doctor=doctor)
+
+
+@router.get(
+    "/{doctor_id}/appointments",
+    response_model=list[AppointmentRead],
+    dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
+)
+async def get_appointments(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor: Doctor = Depends(doctor_by_id),
+):
+    appointments = await orm_get_appointment_by_doctor_id(
+        session=session, doctor_id=doctor.user_id
+    )
+    return appointments

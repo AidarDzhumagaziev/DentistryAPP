@@ -1,4 +1,4 @@
-from datetime import datetime
+from typing import Sequence
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,3 +46,11 @@ async def orm_create_appointment(
 async def orm_get_appointment(session: AsyncSession, appointment_id: int):
     stmt = select(Appointment).where(Appointment.id == appointment_id)
     return await session.scalar(stmt)
+
+
+async def orm_get_appointment_by_doctor_id(
+    session: AsyncSession, doctor_id: int
+) -> Sequence[Appointment]:
+    stmt = select(Appointment).where(Appointment.doctor_id == doctor_id)
+    result = await session.scalars(stmt)
+    return result.all()
