@@ -7,7 +7,6 @@ from common.enums.enums_db import AppointmentStatus
 
 class AppointmentBase(BaseModel):
     doctor_id: int
-    patient_id: int
     service_id: int
     cabinet_id: int
     starts_at: datetime

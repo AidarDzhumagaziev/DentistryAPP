@@ -26,9 +26,17 @@ async def orm_get_conflict_between_appointment(
 
 
 async def orm_create_appointment(
-    session: AsyncSession, appointment_create: AppointmentCreate
+    session: AsyncSession, appointment_create: AppointmentCreate, patient_id: int
 ) -> Appointment:
-    appointment = Appointment(**appointment_create.model_dump())
+    appointment = Appointment(
+        doctor_id=appointment_create.doctor_id,
+        patient_id=patient_id,
+        service_id=appointment_create.service_id,
+        cabinet_id=appointment_create.cabinet_id,
+        starts_at=appointment_create.starts_at,
+        ends_at=appointment_create.ends_at,
+        status=appointment_create.status,
+    )
     session.add(appointment)
     await session.commit()
     await session.flush()
