@@ -41,3 +41,8 @@ async def orm_create_appointment(
     await session.commit()
     await session.flush()
     return appointment
+
+
+async def orm_get_appointment(session: AsyncSession, appointment_id: int):
+    stmt = select(Appointment).where(Appointment.id == appointment_id)
+    return await session.scalar(stmt)
