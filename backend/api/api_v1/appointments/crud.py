@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.enums.enums_db import AppointmentStatus
@@ -54,3 +54,13 @@ async def orm_get_appointment_by_doctor_id(
     stmt = select(Appointment).where(Appointment.doctor_id == doctor_id)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_update_appointment_status(
+    session: AsyncSession,
+    appointment: Appointment,
+    appointment_status: AppointmentStatus,
+) -> Appointment:
+    appointment.status = appointment_status
+    await session.commit()
+    return appointment

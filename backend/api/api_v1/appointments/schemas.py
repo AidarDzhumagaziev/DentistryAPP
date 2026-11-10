@@ -20,3 +20,7 @@ class AppointmentRead(AppointmentBase):
 
 class AppointmentCreate(AppointmentBase):
     pass
+
+
+class AppointmentUpdate(BaseModel):
+    status: AppointmentStatus

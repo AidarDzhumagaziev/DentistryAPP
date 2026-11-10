@@ -1,118 +1,23 @@
-from logging import getLogger
+from typing import Annotated
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_get_conflict_between_appointment
-from api.api_v1.cabinets.crud import orm_get_cabinet
-from api.api_v1.doctors.crud import orm_get_doctor
-from api.api_v1.schedules.crud import (
-    orm_get_schedule_exception_by_day,
-    orm_get_work_schedule_in_day,
-)
-from api.api_v1.services.crud import orm_get_service
+from .crud import orm_get_appointment
 
-from core.models import Doctor, Service, Cabinet
-
-from .schemas import AppointmentCreate
-
-logger = getLogger(__name__)
+from core.models import Appointment
+from core.db_helper import db_helper
 
 
-async def validate_appointment(
-    session: AsyncSession,
-    appointment_create: AppointmentCreate,
-) -> None:
-    doctor, service, cabinet = await _get_appointment_entities(
-        session=session, appointment_create=appointment_create
+async def appointment_by_id(
+    appointment_id: Annotated[int, Path],
+    session: Annotated[AsyncSession, db_helper.session_getter],
+) -> Appointment:
+    appointment = await orm_get_appointment(
+        session=session, appointment_id=appointment_id
     )
-    _check_appointment_compatibility(doctor=doctor, service=service, cabinet=cabinet)
-    await is_slot_available(session=session, appointment_create=appointment_create)
-
-
-async def _get_appointment_entities(
-    session: AsyncSession, appointment_create: AppointmentCreate
-) -> tuple[Doctor, Service, Cabinet]:
-    doctor = await orm_get_doctor(
-        session=session, doctor_id=appointment_create.doctor_id
-    )
-    if not doctor:
-        logger.warning(f"Doctor {appointment_create.doctor_id} not found")
+    if not appointment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found"
         )
-    service = await orm_get_service(
-        session=session, service_id=appointment_create.service_id
-    )
-    if not service:
-        logger.warning(f"Service {appointment_create.service_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Service not found"
-        )
-    cabinet = await orm_get_cabinet(
-        session=session, cabinet_id=appointment_create.cabinet_id
-    )
-    if not cabinet:
-        logger.warning(f"Cabinet {appointment_create.cabinet_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Cabinet not found"
-        )
-    return doctor, service, cabinet
-
-
-def _check_appointment_compatibility(
-    doctor: Doctor, service: Service, cabinet: Cabinet
-) -> None:
-    if service.specialization_id not in {
-        s.specialization_id for s in doctor.specializations
-    }:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Doctor does not provide this service",
-        )
-    if cabinet.type != service.cabinet_type:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="The service cannot be provided in this cabinet",
-        )
-
-
-async def is_slot_available(
-    session: AsyncSession,
-    appointment_create: AppointmentCreate,
-):
-    work_schedule = await orm_get_work_schedule_in_day(
-        session=session,
-        doctor_id=appointment_create.doctor_id,
-        weekday=appointment_create.starts_at.isoweekday(),
-    )
-    if not work_schedule:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Doctor is not working at this day",
-        )
-    if (
-        work_schedule.start_time > appointment_create.starts_at.time()
-        or work_schedule.end_time < appointment_create.ends_at.time()
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Slot is outside doctor`s work schedule",
-        )
-    schedule_exception = await orm_get_schedule_exception_by_day(
-        session=session,
-        doctor_id=appointment_create.doctor_id,
-        target_date=appointment_create.starts_at.date(),
-    )
-    if schedule_exception:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="Doctor is unavailable at this time",
-        )
-    conflict = await orm_get_conflict_between_appointment(
-        session=session, appointment=appointment_create
-    )
-    if conflict:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked"
-        )
+    return appointment

@@ -5,15 +5,20 @@ from fastapi import APIRouter, HTTPException, Path, status, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_create_appointment, orm_get_appointment
 from api.api_v1.auth.validation import get_current_auth_user, require_role
-from common.enums.enums_db import RoleType
+from common.enums.enums_db import AppointmentStatus, RoleType
 
 from core.db_helper import db_helper
 from core.models import Appointment, User
 
-from .dependencies import validate_appointment
-from .schemas import AppointmentCreate, AppointmentRead
+from .crud import (
+    orm_create_appointment,
+    orm_get_appointment,
+    orm_update_appointment_status,
+)
+from .dependencies import appointment_by_id
+from .validation import validate_appointment
+from .schemas import AppointmentCreate, AppointmentRead, AppointmentUpdate
 
 logger = getLogger(__name__)
 
@@ -52,3 +57,20 @@ async def get_appointment(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
     return await orm_get_appointment(session=session, appointment_id=appointment_id)
+
+
+@router.patch(
+    "/{appointment_id}/cancel-by-admin",
+    response_model=AppointmentRead,
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
+)
+async def cancelled_appointment_by_admin(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment: Appointment = Depends(appointment_by_id),
+):
+    appointment = await orm_update_appointment_status(
+        session=session,
+        appointment=appointment,
+        appointment_status=AppointmentStatus.CANCELLED,
+    )
+    return appointment
