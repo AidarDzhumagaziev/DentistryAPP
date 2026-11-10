@@ -46,6 +46,11 @@ async def validate_appointment(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Cabinet not found"
         )
+    if cabinet.type != service.cabinet_type:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="The service cannot be provided in this cabinet",
+        )
     conflict = await orm_get_conflict_between_appointment(
         session=session, appointment=appointment_create
     )
