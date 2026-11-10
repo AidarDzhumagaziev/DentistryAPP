@@ -6,6 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.appointments.crud import orm_get_conflict_between_appointment
 from api.api_v1.cabinets.crud import orm_get_cabinet
 from api.api_v1.doctors.crud import orm_get_doctor
+from api.api_v1.schedules.crud import (
+    orm_get_schedule_exception_by_day,
+    orm_get_work_schedule_in_day,
+)
 from api.api_v1.services.crud import orm_get_service
 
 from .schemas import AppointmentCreate
@@ -50,6 +54,34 @@ async def validate_appointment(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="The service cannot be provided in this cabinet",
+        )
+    work_schedule = await orm_get_work_schedule_in_day(
+        session=session,
+        doctor_id=appointment_create.doctor_id,
+        weekday=appointment_create.starts_at.isoweekday(),
+    )
+    if not work_schedule:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Doctor is not working at this day",
+        )
+    if (
+        not work_schedule.start_time < appointment_create.ends_at.time()
+        and not work_schedule.end_time > appointment_create.starts_at.time()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Slot is outside doctor`s work schedule",
+        )
+    schedule_exception = await orm_get_schedule_exception_by_day(
+        session=session,
+        doctor_id=appointment_create.doctor_id,
+        target_date=appointment_create.starts_at.date(),
+    )
+    if schedule_exception:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Doctor is unavailable at this time",
         )
     conflict = await orm_get_conflict_between_appointment(
         session=session, appointment=appointment_create
