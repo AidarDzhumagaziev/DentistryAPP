@@ -6,3 +6,7 @@ export function getJson(url){
     return response.json();
     });
 }
+
+export function authHeaders() {
+  return { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+}
