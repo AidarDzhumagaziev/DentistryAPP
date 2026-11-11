@@ -1,11 +1,14 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import HomePage from './pages/HomePage/HomePage';
 import ServicesPage from './pages/ServicesPage/ServicesPage';
 import DoctorsPage from './pages/DoctorsPage/DoctorsPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
+import AccountPage from './pages/AccountPage/AccountPage';
+
 
 function App() {
   return (
@@ -15,6 +18,7 @@ function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

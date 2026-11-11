@@ -19,6 +19,7 @@ function Header() {
       <nav className={styles.nav}>
         <NavLink to="/services" className={getLinkClass}>Услуги</NavLink>
         <NavLink to="/doctors" className={getLinkClass}>Наши врачи</NavLink>
+        {token && <NavLink to="/account" className={getLinkClass}>Личный кабинет</NavLink>}
         {token ? 
         <Link to="/login" className={styles.loginButton} onClick={logout}>Выйти</Link>:
         <Link to="/login" className={styles.loginButton}>Войти</Link>
