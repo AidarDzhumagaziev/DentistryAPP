@@ -8,6 +8,8 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 import RegisterPage from './pages/RegisterPage/RegisterPage';
 import AccountPage from './pages/AccountPage/AccountPage';
+import DoctorCabinetPage from './pages/DoctorCabinetPage/DoctorCabinetPage';
+import AdminPage from './pages/AdminPage/AdminPage';
 
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="doctor-cabinet" element={<ProtectedRoute roles={['doctor']}><DoctorCabinetPage /></ProtectedRoute>} />
+        <Route path="admin" element={<ProtectedRoute roles={['admin']}><AdminPage /></ProtectedRoute>} />
         <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
