@@ -18,7 +18,9 @@ from .utils import (
 from core.db_helper import db_helper
 from core.models import User
 
-router = APIRouter(tags=["AUTH"])
+http_bearer = HTTPBearer(auto_error=False)
+
+router = APIRouter(tags=["AUTH"], dependencies=[Depends(http_bearer)])
 
 logger = getLogger(__name__)
 
