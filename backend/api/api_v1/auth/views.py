@@ -40,7 +40,7 @@ async def auth_user(
     )
     user_read = UserRead(
         id=user.id,
-        role_id=user.role_id,
+        role=user.role.name,
         phone=user.phone,
         full_name=user.full_name,
         email=user.email,

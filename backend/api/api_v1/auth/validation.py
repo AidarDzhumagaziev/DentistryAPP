@@ -30,7 +30,7 @@ async def validate_auth_user(
     session: AsyncSession,
     email: str = Form(),
     password: str = Form(),
-):
+) -> User:
     unauthed_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid email or password"
     )
