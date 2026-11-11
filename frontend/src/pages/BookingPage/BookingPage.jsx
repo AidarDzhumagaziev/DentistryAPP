@@ -10,6 +10,9 @@ function BookingPage(){
     const [doctorId, setDoctorId] = useState(null);
     const [services, setServices] = useState([]);
     const [doctors, setDoctors] = useState([]);
+    const [date, setDate] = useState('');
+    const [slots, setSlots] = useState([]);
+    const [slotStart, setSlotStart] = useState(null);
 
     function getCardClass(id,selectedId) {
         if (id === selectedId) {
@@ -24,9 +27,16 @@ function BookingPage(){
     }, []);
 
     useEffect(() => {
-      getJson('/api/v1/doctors/')
-      .then((data) => setDoctors(data))
+        getJson('/api/v1/doctors/')
+        .then((data) => setDoctors(data))
     }, []);
+
+    useEffect(() => {
+        if (!date) return;
+
+        getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${date}`)
+        .then((data) => setSlots(data))
+    }, [serviceId, doctorId, date]);
 
     const selectedService = services.find((s)=> s.id === serviceId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.id === selectedService.specialization_id))
@@ -63,9 +73,22 @@ function BookingPage(){
 
 
             {(step === 3) && <h2>Выберите дату и время</h2>}
+            {(step === 3) && <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />}
+            {(step === 3) &&
+                <div className={styles.timegrid}>
+                    {slots.map((slot) => (
+                        <button key={slot.start} className={getCardClass(slot.start, slotStart)} onClick={() => setSlotStart(slot.start)}>
+                            {slot.start.slice(11, 16)}
+                        </button>
+                    ))}
+                </div>
+            } 
+            {(step === 3 && date && slots.length === 0) && <p>На эту дату нет свободного времени</p>}
+
+
             {(step === 4) && <h2>Подтверждение</h2>}
 
-            {(step <4) && <button onClick={() =>setStep(step+1)} disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null)}>Далее</button>}
+            {(step <4) && <button onClick={() =>setStep(step+1)} disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}>Далее</button>}
             {(step >1) && <button onClick={() =>setStep(step-1)}>Назад</button>}
          
         </>

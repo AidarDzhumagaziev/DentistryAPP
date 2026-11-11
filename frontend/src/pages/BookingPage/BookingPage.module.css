@@ -3,6 +3,11 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
 }
+.timegrid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+}
 .card{
     background: var(--color-white);
     border: 1px solid var(--color-border);
