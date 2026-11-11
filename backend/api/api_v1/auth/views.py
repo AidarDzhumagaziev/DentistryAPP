@@ -29,7 +29,14 @@ logger = getLogger(__name__)
 async def registration_user(
     user: User = Depends(create_user),
 ):
-    return user
+    user_read = UserRead(
+        email=user.email,
+        phone=user.phone,
+        full_name=user.full_name,
+        id=user.id,
+        role=user.role.name,
+    )
+    return user_read
 
 
 @router.post("/login/", response_model=TokenInfo)
