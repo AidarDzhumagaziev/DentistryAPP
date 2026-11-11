@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage/RegisterPage';
 import AccountPage from './pages/AccountPage/AccountPage';
 import DoctorCabinetPage from './pages/DoctorCabinetPage/DoctorCabinetPage';
 import AdminPage from './pages/AdminPage/AdminPage';
+import BookingPage from './pages/BookingPage/BookingPage';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="admin" element={<ProtectedRoute roles={['admin']}><AdminPage /></ProtectedRoute>} />
         <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
