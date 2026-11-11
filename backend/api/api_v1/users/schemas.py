@@ -16,4 +16,4 @@ class UserRead(UserBase):
 
     id: int
     is_active: bool = True
-    role_id: int
+    role: str
