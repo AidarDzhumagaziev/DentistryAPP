@@ -72,7 +72,7 @@ def get_current_token_payload(token: str = Depends(oauth2_scheme)):
 async def get_current_auth_user_for_refresh(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     payload: dict = Depends(get_current_token_payload),
-):
+) -> User:
     validate_token_type(payload, REFRESH_TOKEN_TYPE)
     user_id = int(payload.get("sub"))  # type: ignore
     if user := await orm_get_user_by_id(session=session, user_id=user_id):
