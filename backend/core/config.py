@@ -37,6 +37,8 @@ class ApiV1Prefix(BaseModel):
     doctors: str = "/doctors"
     work_schedules: str = "/work_schedules"
     schedules_exception: str = "/schedules_exception"
+    slots: str = "/slots"
+    patients: str = "/patients"
 
 
 class ApiPrefix(BaseModel):

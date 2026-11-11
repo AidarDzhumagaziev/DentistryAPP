@@ -41,4 +41,4 @@ class Service(Base, TimeStampMixin):
     )
     cabinet_type: Mapped[CabinetType] = mapped_column(String(50), nullable=False)
 
-    appointments: Mapped["Appointment"] = relationship(back_populates="service")
+    appointments: Mapped[list["Appointment"]] = relationship(back_populates="service")

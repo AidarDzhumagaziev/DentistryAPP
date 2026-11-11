@@ -45,6 +45,15 @@ async def orm_get_work_schedule_by_id(
     return await session.scalar(stmt)
 
 
+async def orm_get_work_schedule_in_day(
+    session: AsyncSession, doctor_id: int, weekday: int
+) -> WorkSchedule | None:
+    stmt = select(WorkSchedule).where(
+        WorkSchedule.doctor_id == doctor_id, WorkSchedule.weekday == weekday
+    )
+    return await session.scalar(stmt)
+
+
 async def orm_update_work_schedule(
     session: AsyncSession,
     schedule: WorkSchedule,
@@ -58,7 +67,7 @@ async def orm_update_work_schedule(
     return schedule
 
 
-async def orm_get_conflicting_work_schedule(
+async def orm_get_conflicting_work_schedule_by_cabinet(
     session: AsyncSession,
     cabinet_id: int,
     weekday: int,
@@ -70,6 +79,28 @@ async def orm_get_conflicting_work_schedule(
         select(WorkSchedule)
         .where(
             WorkSchedule.cabinet_id == cabinet_id,
+            WorkSchedule.weekday == weekday,
+            WorkSchedule.start_time < end_time,
+            WorkSchedule.end_time > start_time,
+            WorkSchedule.id != exclude_schedule_id,
+        )
+        .limit(1)
+    )
+    return await session.scalar(stmt)
+
+
+async def orm_get_conflicting_work_schedule_by_time(
+    session: AsyncSession,
+    doctor_id: int,
+    weekday: int,
+    start_time: time,
+    end_time: time,
+    exclude_schedule_id: int | None = None,
+) -> WorkSchedule | None:
+    stmt = (
+        select(WorkSchedule)
+        .where(
+            WorkSchedule.doctor_id == doctor_id,
             WorkSchedule.weekday == weekday,
             WorkSchedule.start_time < end_time,
             WorkSchedule.end_time > start_time,
@@ -149,3 +180,14 @@ async def orm_delete_schedule_exception(
 ):
     await session.delete(schedule)
     await session.commit()
+
+
+async def orm_get_schedule_exception_by_day(
+    session: AsyncSession, doctor_id: int, target_date: date
+) -> ScheduleException | None:
+    stmt = select(ScheduleException).where(
+        ScheduleException.doctor_id == doctor_id,
+        ScheduleException.date_from <= target_date,
+        ScheduleException.date_to >= target_date,
+    )
+    return await session.scalar(stmt)
