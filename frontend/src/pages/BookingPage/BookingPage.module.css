@@ -38,3 +38,8 @@
 .bio{
     color: var(--color-muted);
 }
+.confirm{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

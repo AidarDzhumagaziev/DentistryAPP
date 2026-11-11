@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import styles from './BookingPage.module.css';
 import { getJson } from '../../api/client';
 
-
+function formatDate(d) {
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${month}-${day}`;
+}
 
 function BookingPage(){
     const [step, setStep] = useState(1);
@@ -13,6 +17,23 @@ function BookingPage(){
     const [date, setDate] = useState('');
     const [slots, setSlots] = useState([]);
     const [slotStart, setSlotStart] = useState(null);
+
+    function findNearestDate(offset){
+        if (offset > 14){
+            return 
+        }
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        const day = formatDate(d);
+            getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${day}`)
+            .then((data) => {
+            if (data.length > 0){
+                return setDate(day)
+            }
+            else return findNearestDate(offset + 1)
+        })
+    }
+
 
     function getCardClass(id,selectedId) {
         if (id === selectedId) {
@@ -39,6 +60,7 @@ function BookingPage(){
     }, [serviceId, doctorId, date]);
 
     const selectedService = services.find((s)=> s.id === serviceId);
+    const selectedDoctor = doctors.find((s)=> s.user_id === doctorId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.id === selectedService.specialization_id))
     return(
         <>
@@ -101,8 +123,26 @@ function BookingPage(){
 
 
             {(step === 4) && <h2>Подтверждение</h2>}
+            {(step === 4) && 
+                <div className={styles.confirm}>
+                    <span className={styles.name} >{selectedService.name}</span>
+                    <span className={styles.price} >от {Number(selectedService.price_from).toLocaleString('ru-RU')} ₽</span>
+                    <span className={styles.name} >{selectedDoctor.user.full_name}</span>
+                    <span className={styles.specialization} >{selectedDoctor.specializations.map((s) => s.name).join(', ')}</span>
+                    <span className={styles.experience} >Стаж {selectedDoctor.experience_years} лет</span>
+                    <span className={styles.date} >{new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
+                    <span className={styles.slot} >{slotStart.slice(11, 16)}</span>
+                    <button>Записаться</button>
+                </div>
+            }
 
-            {(step <4) && <button onClick={() =>setStep(step+1)} disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}>Далее</button>}
+            {(step <4) && <button onClick={() => {
+            if (step === 2) {
+                findNearestDate(0);
+            }
+            setStep(step+1);
+        }} 
+            disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}>Далее</button>}
             {(step >1) && <button onClick={() =>setStep(step-1)}>Назад</button>}
          
         </>
