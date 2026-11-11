@@ -17,7 +17,7 @@ def validation_doctor(doctor: Doctor) -> DoctorRead:
             phone=doctor.user.phone,
             full_name=doctor.user.full_name,
             id=doctor.user.id,
-            role_id=doctor.user.role_id,
+            role=doctor.user.role.name,
             email=doctor.user.email,
         ),
         specializations=[

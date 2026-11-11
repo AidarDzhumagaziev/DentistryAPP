@@ -34,7 +34,7 @@ async def orm_get_doctor_by_user_id(session: AsyncSession, doctor_id: int):
     stmt = (
         select(Doctor)
         .options(
-            selectinload(Doctor.user),
+            selectinload(Doctor.user).selectinload(User.role),
             selectinload(Doctor.specializations).selectinload(
                 DoctorSpecialization.specialization
             ),
@@ -49,7 +49,7 @@ async def orm_get_doctors(session: AsyncSession) -> Sequence[Doctor]:
         select(Doctor)
         .join(User, User.id == Doctor.user_id)
         .options(
-            selectinload(Doctor.user),
+            selectinload(Doctor.user).selectinload(User.role),
             selectinload(Doctor.specializations).selectinload(
                 DoctorSpecialization.specialization
             ),
