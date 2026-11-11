@@ -49,7 +49,12 @@ function BookingPage(){
             {(step === 1) && 
             <div className={styles.grid}>
                 {services.map((service) => (
-                    <button key={service.id} className={getCardClass(service.id,serviceId)} onClick={() => setServiceId(service.id)} >
+                    <button key={service.id} className={getCardClass(service.id,serviceId)} 
+                        onClick={() => {
+                            setServiceId(service.id);
+                            setDoctorId(null);
+                            setSlotStart(null);
+                        }} >
                         <span className={styles.name} >{service.name}</span>
                         <span className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</span>
                     </button>
@@ -60,7 +65,11 @@ function BookingPage(){
             {(step === 2) && 
             <div className={styles.grid}>
                 {suitableDoctors.map((doctor) => (
-                    <button key={doctor.user_id} className={getCardClass(doctor.user_id, doctorId)} onClick={() => setDoctorId(doctor.user_id)} >
+                    <button key={doctor.user_id} className={getCardClass(doctor.user_id, doctorId)}
+                        onClick={() => {
+                           setDoctorId(doctor.user_id);
+                           setSlotStart(null);}
+                        }>
                         <span className={styles.name} >{doctor.user.full_name}</span>
                         <span className={styles.specialization} >{doctor.specializations.map((s) => s.name).join(', ')}</span>
                         <span className={styles.experience} >Стаж {doctor.experience_years} лет</span>
@@ -73,7 +82,12 @@ function BookingPage(){
 
 
             {(step === 3) && <h2>Выберите дату и время</h2>}
-            {(step === 3) && <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />}
+            {(step === 3) && <input type="date" value={date} 
+                onChange={(e) => {
+                    setDate(e.target.value);
+                    setSlotStart(null);
+                }}/>
+            }
             {(step === 3) &&
                 <div className={styles.timegrid}>
                     {slots.map((slot) => (
