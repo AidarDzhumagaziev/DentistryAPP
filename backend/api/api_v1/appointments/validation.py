@@ -13,6 +13,7 @@ from api.api_v1.schedules.crud import (
 from api.api_v1.services.crud import orm_get_service
 
 from core.models import Doctor, Service, Cabinet
+from core.models import Appointment, User
 
 from .schemas import AppointmentCreate
 
@@ -115,4 +116,18 @@ async def is_slot_available(
     if conflict:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked"
+        )
+
+
+async def _ensure_owns_doctor(appointment: Appointment, current_user: User):
+    if appointment.doctor_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not your appointment"
+        )
+
+
+async def _ensure_owns_patient(appointment: Appointment, current_user: User):
+    if appointment.patient_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not your appointment"
         )
