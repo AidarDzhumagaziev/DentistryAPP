@@ -11,7 +11,7 @@ from core.db_helper import db_helper
 
 async def appointment_by_id(
     appointment_id: Annotated[int, Path],
-    session: Annotated[AsyncSession, db_helper.session_getter],
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ) -> Appointment:
     appointment = await orm_get_appointment(
         session=session, appointment_id=appointment_id
