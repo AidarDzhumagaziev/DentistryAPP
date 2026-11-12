@@ -12,6 +12,7 @@ from api.api_v1.schedules.crud import (
 )
 from api.api_v1.services.crud import orm_get_service
 
+from common.enums.enums_db import AppointmentStatus
 from core.models import Doctor, Service, Cabinet
 from core.models import Appointment, User
 
@@ -116,6 +117,17 @@ async def is_slot_available(
     if conflict:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked"
+        )
+
+
+def check_no_validate_appointment_status(appointment: Appointment):
+    if (
+        appointment.status == AppointmentStatus.COMPLETED
+        or appointment.status == AppointmentStatus.NO_SHOW
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot cancel appointment in status {appointment.status.value}",
         )
 
 
