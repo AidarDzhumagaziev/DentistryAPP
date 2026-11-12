@@ -17,7 +17,11 @@ from .crud import (
     orm_update_appointment_status,
 )
 from .dependencies import appointment_by_id
-from .validation import validate_appointment
+from .validation import (
+    _ensure_owns_doctor,
+    check_no_validate_appointment_status,
+    validate_appointment,
+)
 from .schemas import AppointmentCreate, AppointmentRead, AppointmentUpdate
 
 logger = getLogger(__name__)
@@ -75,6 +79,27 @@ async def cancelled_appointment_by_admin(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     appointment: Appointment = Depends(appointment_by_id),
 ):
+    appointment = await orm_update_appointment_status(
+        session=session,
+        appointment=appointment,
+        appointment_status=AppointmentStatus.CANCELLED,
+    )
+    return appointment
+
+
+@router.patch(
+    "/{appointment_id}/cancel-by-doctor",
+    response_model=AppointmentRead,
+)
+async def cancelled_appointment_by_doctor(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment: Appointment = Depends(appointment_by_id),
+    user: User = Depends(require_role(RoleType.DOCTOR)),
+):
+    await _ensure_owns_doctor(appointment=appointment, current_user=user)
+
+    check_no_validate_appointment_status(appointment)
+
     appointment = await orm_update_appointment_status(
         session=session,
         appointment=appointment,
