@@ -56,7 +56,14 @@ async def get_appointment(
     appointment_id: Annotated[int, Path],
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
-    return await orm_get_appointment(session=session, appointment_id=appointment_id)
+    appointment = await orm_get_appointment(
+        session=session, appointment_id=appointment_id
+    )
+    if not appointment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found"
+        )
+    return appointment
 
 
 @router.patch(
