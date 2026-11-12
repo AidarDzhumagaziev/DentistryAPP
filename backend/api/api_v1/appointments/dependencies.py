@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import HTTPException, Path, status
+from fastapi import Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .crud import orm_get_appointment
