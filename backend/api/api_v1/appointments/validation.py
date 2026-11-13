@@ -127,7 +127,7 @@ def check_validation_status_for_cancelled(appointment: Appointment):
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot cancel appointment in status {appointment.status.value}",
+            detail=f"Cannot cancel appointment in status {appointment.status!r}",
         )
 
 
@@ -140,7 +140,7 @@ def check_valid_status_for_confirmed(appointment: Appointment):
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot confirm appointment in status {appointment.status.value}",
+            detail=f"Cannot confirm appointment in status {appointment.status!r}",
         )
 
 
