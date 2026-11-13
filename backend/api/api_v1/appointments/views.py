@@ -23,6 +23,7 @@ from .validation import (
     _ensure_owns_patient,
     check_validation_status_for_cancelled,
     validate_appointment,
+    check_valid_status_for_confirmed,
 )
 from .schemas import (
     AppointmentAdminRead,
@@ -142,3 +143,24 @@ async def cancelled_appointment_by_patient(
         appointment_status=AppointmentStatus.CANCELLED,
     )
     return appointment
+
+
+@router.patch(
+    "/{appointment_id}/confirm",
+    response_model=AppointmentAdminRead,
+    dependencies=[
+        Depends(require_role(RoleType.ADMIN)),
+    ],
+)
+async def confirm_appointment_by_admin(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment: Appointment = Depends(appointment_by_id),
+):
+    check_valid_status_for_confirmed(appointment)
+
+    appointment = await orm_update_appointment_status(
+        session=session,
+        appointment=appointment,
+        appointment_status=AppointmentStatus.CONFIRMED,
+    )
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
