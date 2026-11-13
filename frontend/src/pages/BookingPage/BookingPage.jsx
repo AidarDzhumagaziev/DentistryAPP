@@ -63,9 +63,9 @@ function BookingPage(){
     const selectedDoctor = doctors.find((s)=> s.user_id === doctorId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.id === selectedService.specialization_id))
     return(
-        <>
+        <div className={styles.page}>
             <h1>Запись</h1>
-            <div>Шаг {step} из 4</div>
+            <div className={styles.stepLabel}>Шаг {step} из 4</div>
 
             {(step === 1) && <h2>Выберите услугу</h2>}
             {(step === 1) && 
@@ -136,16 +136,24 @@ function BookingPage(){
                 </div>
             }
 
-            {(step <4) && <button onClick={() => {
-            if (step === 2) {
-                findNearestDate(0);
-            }
-            setStep(step+1);
-        }} 
-            disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}>Далее</button>}
-            {(step >1) && <button onClick={() =>setStep(step-1)}>Назад</button>}
+            <div className={styles.actions}>
+                {(step > 1) && <button className={styles.secondary} onClick={() => setStep(step - 1)}>Назад</button>}
+                {(step < 4) && (
+                    <button
+                        onClick={() => {
+                            if (step === 2) {
+                                findNearestDate(0);
+                            }
+                            setStep(step + 1);
+                        }}
+                        disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}
+                    >
+                        Далее
+                    </button>
+                )}
+            </div>
          
-        </>
+        </div>
     )
 }
 export default BookingPage;

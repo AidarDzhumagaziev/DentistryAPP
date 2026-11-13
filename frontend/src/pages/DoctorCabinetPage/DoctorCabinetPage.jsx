@@ -22,7 +22,7 @@ function DoctorCabinetPage() {
                     <p>{appointment.start.slice(11, 16)}</p>
                     <p>{statusNames[appointment.status]}</p>
                     {(appointment.status === 'scheduled') && <button onClick={() => changeStatus(appointment.id, 'confirmed')}>Подтвердить</button>}
-                    {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && <button onClick={() => changeStatus(appointment.id, 'no_show')}>Неявка</button>}
+                    {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && <button className="danger" onClick={() => changeStatus(appointment.id, 'no_show')}>Неявка</button>}
                 </div>
                 ))}
             </div>

@@ -106,7 +106,7 @@ function AdminPage(){
                     <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
                     <td className={styles.td}>{service.duration_min} мин</td>
                     <td className={styles.td}>{service.requires_consultation ? 'Да' : 'Нет'}</td>
-                    <td className={styles.td}><button onClick={() => deleteService(service.id)}>Удалить</button></td>
+                    <td className={styles.td}><button onClick={() => deleteService(service.id)} className="danger">Удалить</button></td>
                     </tr>
                     ))}
                 </tbody>
