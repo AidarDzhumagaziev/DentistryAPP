@@ -1,16 +1,103 @@
-.grid{
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
 }
-.card{
+
+.newButton {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.newButton:hover {
+    background: var(--color-primary-dark);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
     background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 12px;
-    padding: 10px 20px;
+    padding: 16px 20px;
+}
+
+.dateBox {
+    width: 110px;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
     display: flex;
     flex-direction: column;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: left;
+    align-items: center;
 }
+
+.day {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.month {
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+.time {
+    font-weight: 700;
+}
+
+.info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.service {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.doctor {
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-muted);
+    font-size: 13px;
+}
+
+.status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-muted);
+}
+
+.scheduled::before { background: #9aa4b2; }
+.confirmed::before { background: var(--color-primary); }
+.completed::before { background: #2e7d32; }
+.cancelled::before { background: #c3c8d0; }
+.no_show::before   { background: var(--color-urgent); }
