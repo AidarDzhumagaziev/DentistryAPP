@@ -12,11 +12,12 @@ from common.enums.enums_db import AppointmentStatus
 class AppointmentBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    starts_at: datetime
+    ends_at: datetime
+    status: AppointmentStatus
     doctor: DoctorShortRead
     service: ServiceRead
     cabinet: CabinetRead
-    starts_at: datetime
-    ends_at: datetime
 
 
 class AppointmentCreate(BaseModel):
