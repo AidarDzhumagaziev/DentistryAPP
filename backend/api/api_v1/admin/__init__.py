@@ -7,7 +7,6 @@ from core.config import settings
 from .appointments import router as appointments_router
 
 router = APIRouter(
-    tags=["Admin"],
     dependencies=[Depends(require_role(RoleType.ADMIN))],
 )
 

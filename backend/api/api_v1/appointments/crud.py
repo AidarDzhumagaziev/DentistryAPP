@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence
 
 from sqlalchemy import or_, select, update
@@ -89,17 +90,35 @@ async def orm_update_appointment_status(
 
 
 async def orm_list_appointments(
-    session: AsyncSession, patient_id: int
+    session: AsyncSession,
+    patient_id: int | None = None,
+    doctor_id: int | None = None,
+    status: AppointmentStatus | None = None,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
+    limit: int = 50,
+    offset: int = 0,
 ) -> Sequence[Appointment]:
-    stmt = (
-        select(Appointment)
-        .options(
-            selectinload(Appointment.patient),
-            selectinload(Appointment.doctor),
-            selectinload(Appointment.service),
-            selectinload(Appointment.cabinet),
-        )
-        .where(Appointment.patient_id == patient_id)
+    stmt = select(Appointment).options(
+        selectinload(Appointment.patient),
+        selectinload(Appointment.doctor)
+        .selectinload(Doctor.specializations)
+        .selectinload(DoctorSpecialization.specialization),
+        selectinload(Appointment.service),
+        selectinload(Appointment.cabinet),
     )
+    if patient_id is not None:
+        stmt = stmt.where(Appointment.patient_id == patient_id)
+    if doctor_id is not None:
+        stmt = stmt.where(Appointment.doctor_id == doctor_id)
+    if status is not None:
+        stmt = stmt.where(Appointment.status == status)
+    if date_from is not None:
+        stmt = stmt.where(Appointment.starts_at >= date_from)
+    if date_to is not None:
+        stmt = stmt.where(Appointment.ends_at <= date_to)
+
+    stmt = stmt.order_by(Appointment.starts_at.desc()).limit(limit).offset(offset)
+
     result = await session.scalars(stmt)
     return result.all()
