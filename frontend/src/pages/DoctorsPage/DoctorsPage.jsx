@@ -2,6 +2,7 @@ import FilterButtons from '../../components/FilterButtons/FilterButtons';
 import { getJson } from '../../api/client';
 import styles from './DoctorPage.module.css';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 
 function DoctorsPage() {
@@ -44,6 +45,7 @@ function DoctorsPage() {
           <p className={styles.specialization} >{doctor.specializations.map((s) => s.name).join(', ')}</p>
           <p className={styles.experience} >Стаж {doctor.experience_years} лет</p>
           <p className={styles.bio} >{doctor.bio}</p>
+          <Link to="/booking" className={styles.bookButton}>Записаться к врачу</Link>
         </div>
       ))}
       </div>
