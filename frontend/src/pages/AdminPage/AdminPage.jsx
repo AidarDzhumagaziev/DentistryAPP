@@ -1,4 +1,4 @@
-import { getJson, authHeaders } from '../../api/client';
+import { getJson, authFetch } from '../../api/client';
 import styles from './AdminPage.module.css';
 import { useState, useEffect } from 'react';
 
@@ -17,9 +17,9 @@ function AdminPage(){
 
     function handleSubmit(e){
         e.preventDefault();
-        fetch(`/api/v1/services/`, {
+        authFetch(`/api/v1/services/`, {
             method: 'POST',
-            headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 name: name,
                 description: description, 
@@ -68,9 +68,8 @@ function AdminPage(){
     function deleteService(id){
         if (!confirm('Удалить услугу?')) return;
 
-        fetch(`/api/v1/services/${id}/`, {
+        authFetch(`/api/v1/services/${id}/`, {
             method: 'DELETE',
-            headers:authHeaders() ,
         })
         .then((response) =>{
                 if (!response.ok) {
