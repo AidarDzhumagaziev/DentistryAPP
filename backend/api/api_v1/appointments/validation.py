@@ -120,7 +120,7 @@ async def is_slot_available(
         )
 
 
-def check_validation_status_for_cancelled(appointment: Appointment):
+def check_valid_status_for_cancelled(appointment: Appointment):
     if (
         appointment.status == AppointmentStatus.COMPLETED
         or appointment.status == AppointmentStatus.NO_SHOW

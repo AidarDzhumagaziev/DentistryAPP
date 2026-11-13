@@ -21,7 +21,7 @@ from .dependencies import appointment_by_id
 from .validation import (
     _ensure_owns_doctor,
     _ensure_owns_patient,
-    check_validation_status_for_cancelled,
+    check_valid_status_for_cancelled,
     validate_appointment,
     check_valid_status_for_confirmed,
 )
@@ -97,7 +97,7 @@ async def cancelled_appointment_by_admin(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     appointment: Appointment = Depends(appointment_by_id),
 ):
-    check_validation_status_for_cancelled(appointment=appointment)
+    check_valid_status_for_cancelled(appointment=appointment)
 
     appointment = await orm_update_appointment_status(
         session=session,
@@ -118,7 +118,7 @@ async def cancelled_appointment_by_doctor(
 ):
     await _ensure_owns_doctor(appointment=appointment, current_user=user)
 
-    check_validation_status_for_cancelled(appointment)
+    check_valid_status_for_cancelled(appointment)
 
     appointment = await orm_update_appointment_status(
         session=session,
