@@ -2,16 +2,17 @@ from typing import Sequence
 
 from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from common.enums.enums_db import AppointmentStatus
 
 from .schemas import AppointmentBase, AppointmentCreate
 
-from core.models import Appointment
+from core.models import Appointment, Doctor, DoctorSpecialization
 
 
 async def orm_get_conflict_between_appointment(
-    session: AsyncSession, appointment: AppointmentBase
+    session: AsyncSession, appointment: AppointmentCreate
 ) -> Appointment | None:
     stmt = select(Appointment).where(
         or_(
@@ -35,7 +36,6 @@ async def orm_create_appointment(
         cabinet_id=appointment_create.cabinet_id,
         starts_at=appointment_create.starts_at,
         ends_at=appointment_create.ends_at,
-        status=appointment_create.status,
     )
     session.add(appointment)
     await session.commit()
@@ -46,14 +46,34 @@ async def orm_create_appointment(
 async def orm_get_appointment(
     session: AsyncSession, appointment_id: int
 ) -> Appointment | None:
-    stmt = select(Appointment).where(Appointment.id == appointment_id)
+    stmt = (
+        select(Appointment)
+        .options(
+            selectinload(Appointment.patient),
+            selectinload(Appointment.doctor)
+            .selectinload(Doctor.specializations)
+            .selectinload(DoctorSpecialization.specialization),
+            selectinload(Appointment.service),
+            selectinload(Appointment.cabinet),
+        )
+        .where(Appointment.id == appointment_id)
+    )
     return await session.scalar(stmt)
 
 
 async def orm_get_appointment_by_doctor_id(
     session: AsyncSession, doctor_id: int
 ) -> Sequence[Appointment]:
-    stmt = select(Appointment).where(Appointment.doctor_id == doctor_id)
+    stmt = (
+        select(Appointment)
+        .options(
+            selectinload(Appointment.patient),
+            selectinload(Appointment.doctor),
+            selectinload(Appointment.service),
+            selectinload(Appointment.cabinet),
+        )
+        .where(Appointment.doctor_id == doctor_id)
+    )
     result = await session.scalars(stmt)
     return result.all()
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from api.api_v1.specializations.schemas import SpecializationRead
-from api.api_v1.users.schemas import UserRead
+from api.api_v1.users.schemas import UserRead, UserShortRead
 
 
 class DoctorBase(BaseModel):
@@ -39,3 +39,8 @@ class DoctorUpdatePartial(DoctorUpdate):
     photo_url: str | None = None  # type: ignore[assignment]
     is_active: bool | None = None  # type: ignore[assignment]
     specializations_ids: list[int] | None = Field(default=None, min_length=1)  # type: ignore[assignment]
+
+
+class DoctorShortRead(BaseModel):
+    user_id: int
+    user: UserShortRead

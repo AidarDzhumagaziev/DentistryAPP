@@ -1,6 +1,8 @@
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from api.api_v1.users.schemas import UserShortRead
 
 
 class PatientBase(BaseModel):
@@ -33,3 +35,10 @@ class PatientUpdatePartial(PatientUpdate):
     allergies: str | None = None  # type: ignore[assignment]
     chronic_diseas: str | None = None  # type: ignore[assignment]
     no_show_count: int | None = None  # type: ignore[assignment]
+
+
+class PatientShortRead(BaseModel):
+    birth_date: date
+    allergies: str
+    chronic_diseas: str
+    user: UserShortRead

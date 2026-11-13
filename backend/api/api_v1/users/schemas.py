@@ -17,3 +17,8 @@ class UserRead(UserBase):
     id: int
     is_active: bool = True
     role_id: int
+
+
+class UserShortRead(BaseModel):
+    full_name: str
+    phone: str = Field(min_length=12, max_length=12)

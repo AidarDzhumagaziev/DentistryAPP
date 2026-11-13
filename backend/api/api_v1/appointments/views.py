@@ -22,7 +22,13 @@ from .validation import (
     check_no_validate_appointment_status,
     validate_appointment,
 )
-from .schemas import AppointmentCreate, AppointmentRead, AppointmentUpdate
+from .schemas import (
+    AppointmentAdminRead,
+    AppointmentCreate,
+    AppointmentDoctorRead,
+    AppointmentPatientRead,
+    AppointmentUpdate,
+)
 
 logger = getLogger(__name__)
 
@@ -31,7 +37,7 @@ router = APIRouter(tags=["Appointments"])
 
 @router.post(
     "/",
-    response_model=AppointmentRead,
+    response_model=AppointmentPatientRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_role(RoleType.PATIENT))],
 )
@@ -44,16 +50,17 @@ async def create_appointment(
         session=session,
         appointment_create=appointment_create,
     )
-    return await orm_create_appointment(
+    new_appointment = await orm_create_appointment(
         session=session,
         appointment_create=appointment_create,
         patient_id=current_user.id,
     )
+    return await orm_get_appointment(session=session, appointment_id=new_appointment.id)
 
 
 @router.get(
     "/{appointment_id}/",
-    response_model=AppointmentRead,
+    response_model=AppointmentDoctorRead,
     dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
 )
 async def get_appointment(
@@ -72,7 +79,7 @@ async def get_appointment(
 
 @router.patch(
     "/{appointment_id}/cancel-by-admin",
-    response_model=AppointmentRead,
+    response_model=AppointmentAdminRead,
     dependencies=[Depends(require_role(RoleType.ADMIN))],
 )
 async def cancelled_appointment_by_admin(
@@ -84,12 +91,12 @@ async def cancelled_appointment_by_admin(
         appointment=appointment,
         appointment_status=AppointmentStatus.CANCELLED,
     )
-    return appointment
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
 
 
 @router.patch(
     "/{appointment_id}/cancel-by-doctor",
-    response_model=AppointmentRead,
+    response_model=AppointmentDoctorRead,
 )
 async def cancelled_appointment_by_doctor(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
