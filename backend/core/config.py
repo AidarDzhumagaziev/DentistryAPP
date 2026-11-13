@@ -29,6 +29,7 @@ class RunConfig(BaseModel):
 
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
+    admin: str = "/admin"
     users: str = "/users"
     auth: str = "/auth"
     specializations: str = "/specializations"
