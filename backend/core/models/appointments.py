@@ -44,7 +44,12 @@ class Appointment(Base, CreatedAtMixin):
     )
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    status: Mapped[AppointmentStatus] = mapped_column(String(50), nullable=False)
+    status: Mapped[AppointmentStatus] = mapped_column(
+        String(50),
+        default=AppointmentStatus.SCHEDULED.value,
+        server_default=AppointmentStatus.SCHEDULED.value,
+        nullable=False,
+    )
 
     doctor: Mapped["Doctor"] = relationship(back_populates="appointments")
     patient: Mapped["Patient"] = relationship(back_populates="appointments")
