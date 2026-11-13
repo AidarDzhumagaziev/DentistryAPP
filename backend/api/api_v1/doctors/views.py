@@ -139,7 +139,7 @@ async def delete_doctor(
 
 
 @router.get(
-    "/{doctor_id}/appointments",
+    "/{doctor_id}/me/appointments",
     response_model=list[AppointmentDoctorRead],
     dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
 )
