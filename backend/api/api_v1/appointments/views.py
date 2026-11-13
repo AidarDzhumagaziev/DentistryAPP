@@ -15,6 +15,7 @@ from .crud import (
     orm_create_appointment,
     orm_get_appointment,
     orm_update_appointment_status,
+    orm_list_appointments,
 )
 from .dependencies import appointment_by_id
 from .validation import (
@@ -56,6 +57,14 @@ async def create_appointment(
         patient_id=current_user.id,
     )
     return await orm_get_appointment(session=session, appointment_id=new_appointment.id)
+
+
+@router.get("/me/", response_model=list[AppointmentPatientRead])
+async def get_my_appointments(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: User = Depends(require_role(RoleType.PATIENT)),
+):
+    return await orm_list_appointments(session=session, patient_id=user.id)
 
 
 @router.get(

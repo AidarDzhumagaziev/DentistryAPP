@@ -86,3 +86,20 @@ async def orm_update_appointment_status(
     appointment.status = appointment_status
     await session.commit()
     return appointment
+
+
+async def orm_list_appointments(
+    session: AsyncSession, patient_id: int
+) -> Sequence[Appointment]:
+    stmt = (
+        select(Appointment)
+        .options(
+            selectinload(Appointment.patient),
+            selectinload(Appointment.doctor),
+            selectinload(Appointment.service),
+            selectinload(Appointment.cabinet),
+        )
+        .where(Appointment.patient_id == patient_id)
+    )
+    result = await session.scalars(stmt)
+    return result.all()
