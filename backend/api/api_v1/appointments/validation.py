@@ -144,6 +144,19 @@ def check_valid_status_for_confirmed(appointment: Appointment):
         )
 
 
+def check_valid_status_for_completed(appointment: Appointment):
+    if (
+        appointment.status == AppointmentStatus.CANCELLED
+        or appointment.status == AppointmentStatus.NO_SHOW
+        or appointment.status == AppointmentStatus.COMPLETED
+        or appointment.status == AppointmentStatus.SCHEDULED
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot confirm appointment in status {appointment.status!r}",
+        )
+
+
 async def _ensure_owns_doctor(appointment: Appointment, current_user: User):
     if appointment.doctor_id != current_user.id:
         raise HTTPException(
