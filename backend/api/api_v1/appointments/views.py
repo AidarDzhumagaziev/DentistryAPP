@@ -25,6 +25,7 @@ from .validation import (
     validate_appointment,
     check_valid_status_for_confirmed,
     check_valid_status_for_completed,
+    check_valid_status_for_set_no_show,
 )
 from .schemas import (
     AppointmentAdminRead,
@@ -180,6 +181,28 @@ async def complete_appointment(
         await _ensure_owns_doctor(appointment=appointment, current_user=user)
 
     check_valid_status_for_completed(appointment)
+
+    appointment = await orm_update_appointment_status(
+        session=session,
+        appointment=appointment,
+        appointment_status=AppointmentStatus.COMPLETED,
+    )
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
+
+
+@router.patch(
+    "/{appointment_id}/no-show",
+    response_model=AppointmentDoctorRead,
+)
+async def set_no_show_appointment(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment: Appointment = Depends(appointment_by_id),
+    user: User = Depends(require_role(RoleType.DOCTOR, RoleType.ADMIN)),
+):
+    if user.role.name == RoleType.DOCTOR:
+        await _ensure_owns_doctor(appointment=appointment, current_user=user)
+
+    check_valid_status_for_set_no_show(appointment)
 
     appointment = await orm_update_appointment_status(
         session=session,
