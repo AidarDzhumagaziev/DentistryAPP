@@ -18,10 +18,15 @@ class DoctorCreate(DoctorBase):
     specializations_ids: list[int] = Field(min_length=1)
 
 
+class DoctorSpecializationRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    specialization: SpecializationRead
+
+
 class DoctorRead(DoctorBase):
     user_id: int
     user: UserRead
-    specializations: list[SpecializationRead]
+    specializations: list[DoctorSpecializationRead]
 
 
 class DoctorUpdate(DoctorBase):
