@@ -86,6 +86,7 @@ async def cancelled_appointment_by_admin(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     appointment: Appointment = Depends(appointment_by_id),
 ):
+    check_no_validate_appointment_status(appointment=appointment)
     appointment = await orm_update_appointment_status(
         session=session,
         appointment=appointment,
