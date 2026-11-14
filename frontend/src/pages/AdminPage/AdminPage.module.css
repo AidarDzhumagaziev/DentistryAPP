@@ -12,12 +12,16 @@
 .th{
     padding: 12px;
     text-align: left;
+    background: #f8fafc;
+    color: var(--color-muted);
+    font-size: 14px;
 }
 .form{
     display: flex;
     flex-direction: column;
     gap: 16px;
-    max-width: 420px
+    max-width: 520px
+    
 }
 .field{
     display: flex;
@@ -32,4 +36,71 @@
     border-radius: 12px;
     font-size: 16px;
     font-family: inherit;
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.tableWrap{
+    border-radius: 12px;
+    border:1px solid var(--color-border);
+    overflow: hidden;
+
+}
+.layout{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+.sidebar{
+    flex: 1 1 200px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.content{
+    flex: 999 1 560px;
+    min-width: 0;
+}
+.menuItem{
+    background: transparent;
+    color: var(--color-text);
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 400;
+}
+.menuItem:hover{
+    background: var(--color-bg);
+}
+.menuActive{
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 700;
+}
+.formCard{
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.checkField{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+}
+.submit{
+    align-self: flex-start;
 }

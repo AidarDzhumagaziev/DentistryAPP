@@ -2,6 +2,16 @@ import { getJson, authFetch } from '../../api/client';
 import styles from './AdminPage.module.css';
 import { useState, useEffect } from 'react';
 
+const sections = [
+    { id: 'services', label : 'Услуги' },
+    { id: 'doctors', label : 'Врачи' },
+    { id: 'cabinets', label : 'Кабинеты' },
+    { id: 'schedules', label : 'Графики работы' },
+    { id: 'appointments', label : 'Записи' },
+];
+
+
+
 function AdminPage(){
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -14,6 +24,15 @@ function AdminPage(){
     const [cabinetType, setCabinetType] = useState('general');
     const [specializationId, setSpecializationId] = useState('');
     const [needConsult, setNeedConsult] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [section, setSection] = useState('services');
+
+    function getSectionClass(id) {
+            if (id === section) {
+            return `${styles.menuItem} ${styles.menuActive}`;
+            }
+            return styles.menuItem
+            }
 
     function handleSubmit(e){
         e.preventDefault();
@@ -47,6 +66,7 @@ function AdminPage(){
             setCabinetType('general');
             setSpecializationId('');
             setNeedConsult(false);
+            setShowForm(false);
         })
         .catch(() => alert('Не удалось добавить услугу'))
     }
@@ -87,88 +107,108 @@ function AdminPage(){
         return <p>{error}</p>;
     }
     return(
-        <div>
-            <h1>Админ панель</h1>
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                    <th className={styles.th}>Название</th>
-                    <th className={styles.th}>Цена</th>
-                    <th className={styles.th}>Длительность</th>
-                    <th className={styles.th}>Консультация</th>
-                    <th className={styles.th}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {services.map((service) => (
-                    <tr key={service.id}>
-                    <td className={styles.td}>{service.name}</td>
-                    <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
-                    <td className={styles.td}>{service.duration_min} мин</td>
-                    <td className={styles.td}>{service.requires_consultation ? 'Да' : 'Нет'}</td>
-                    <td className={styles.td}><button onClick={() => deleteService(service.id)} className="danger">Удалить</button></td>
-                    </tr>
+        <div className={styles.layout}>
+
+            <nav className={styles.sidebar}>
+                    {sections.map((s) => (
+                    <button key={s.id} className={getSectionClass(s.id)} onClick={() => setSection(s.id)}>
+                        {s.label}
+                    </button>
                     ))}
-                </tbody>
-            </table>
+            </nav>
+            <div className={styles.content}>
+            {section === 'services' && (<div>
+                <div className={styles.top}>
+                    <h1>Услуги</h1>
+                    <button onClick={() => setShowForm(!showForm)}>
+                        {showForm ? 'Закрыть' : 'Добавить услугу'}
+                    </button>
+                </div>
 
-
-
-            <h1 className={styles.h1}>Добавить услугу</h1>
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <label className={styles.field}>
-                    Название 
-                    <input type="text" className={styles.input} 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}/>
-                </label>
-                <label className={styles.field}>
-                    Описание
-                    <input type="text" className={styles.input} 
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}/>
-                </label>
-                <label className={styles.field}>
-                    Цена от 
-                    <input type="number" className={styles.input} 
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}/>
-                </label>
-                <label className={styles.field}>
-                    Длительность, мин
-                    <input type="number" className={styles.input}
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}/>
-                </label>
-                <label className={styles.field}>
-                    Перерыв после, мин
-                    <input type="number" className={styles.input}
-                    value={buffer}
-                    onChange={(e) => setBuffer(e.target.value)}/>
-                </label>
-                <label className={styles.field}>
-                    Кабинет
-                    <select value={cabinetType} onChange={(e) => setCabinetType(e.target.value)}>
-                        <option value="general">Общий</option>
-                        <option value="surgical">Хирургический</option>
-                        <option value="roentgen">Рентген</option>
-                    </select>
-                </label>
-                <label className={styles.field}>
-                    Специальность
-                    <select value={specializationId} onChange={(e) => setSpecializationId(e.target.value)}>
-                        <option value="">Выберите…</option>
-                        {specializations.map((s)=>(
-                            <option key={s.id} value={s.id}>{s.name}</option>
+                {showForm && (<div className={styles.formCard}>       
+                    <h2>Новая услуга</h2>
+                    <form className={styles.form} onSubmit={handleSubmit}>
+                        <label className={styles.field}>
+                            Название 
+                            <input type="text" className={styles.input} 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}/>
+                        </label>
+                        <label className={styles.field}>
+                            Описание
+                            <textarea rows="3"  className={styles.input} 
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}/>
+                        </label>
+                        <label className={styles.field}>
+                            Цена от 
+                            <input type="number" className={styles.input} 
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}/>
+                        </label>
+                        <label className={styles.field}>
+                            Длительность, мин
+                            <input type="number" className={styles.input}
+                            value={duration}
+                            onChange={(e) => setDuration(e.target.value)}/>
+                        </label>
+                        <label className={styles.field}>
+                            Перерыв после, мин
+                            <input type="number" className={styles.input}
+                            value={buffer}
+                            onChange={(e) => setBuffer(e.target.value)}/>
+                        </label>
+                        <label className={styles.field}>
+                            Кабинет
+                            <select className={styles.input} value={cabinetType} onChange={(e) => setCabinetType(e.target.value)}>
+                                <option value="general">Общий</option>
+                                <option value="surgical">Хирургический</option>
+                                <option value="roentgen">Рентген</option>
+                            </select>
+                        </label>
+                        <label className={styles.field}>
+                            Специальность
+                            <select className={styles.input} value={specializationId} onChange={(e) => setSpecializationId(e.target.value)}>
+                                <option value="">Выберите…</option>
+                                {specializations.map((s)=>(
+                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className={styles.checkField}>
+                            <input type="checkbox" checked={needConsult} onChange={(e) => setNeedConsult(e.target.checked)} />
+                            Нужна консультация
+                        </label>
+                        <button type="submit" className={styles.submit}>Добавить</button>
+                    </form>
+                </div>)}
+                <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                        <th className={styles.th}>Название</th>
+                        <th className={styles.th}>Цена</th>
+                        <th className={styles.th}>Длительность</th>
+                        <th className={styles.th}>Консультация</th>
+                        <th className={styles.th}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {services.map((service) => (
+                        <tr key={service.id}>
+                        <td className={styles.td}>{service.name}</td>
+                        <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
+                        <td className={styles.td}>{service.duration_min} мин</td>
+                        <td className={styles.td}>{service.requires_consultation ? 'Да' : 'Нет'}</td>
+                        <td className={styles.td}><button onClick={() => deleteService(service.id)} className="danger">Удалить</button></td>
+                        </tr>
                         ))}
-                    </select>
-                </label>
-                <label className={styles.field}>
-                    Нужна консультация
-                    <input type="checkbox" checked={needConsult} onChange={(e) => setNeedConsult(e.target.checked)} />
-                </label>
-                <button type="submit">Добавить</button>
-            </form>
+                    </tbody>
+                </table>
+                </div>
+            </div>)}
+            {section !== 'services' && <p>Раздел в разработке</p>}
+            </div>
         </div>
     )
 }
