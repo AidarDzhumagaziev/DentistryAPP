@@ -43,3 +43,7 @@ class AppointmentDoctorRead(AppointmentPatientRead):
 class AppointmentAdminRead(AppointmentDoctorRead):
     patient_id: int
     doctor: DoctorRead  # type: ignore[assignment]
+
+
+class AppointmentAdminCreate(AppointmentCreate):
+    patient_id: int

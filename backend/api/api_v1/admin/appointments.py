@@ -1,17 +1,48 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_list_appointments
-from api.api_v1.appointments.schemas import AppointmentAdminRead
+from api.api_v1.appointments.crud import (
+    orm_create_appointment,
+    orm_get_appointment,
+    orm_list_appointments,
+)
+from api.api_v1.appointments.schemas import AppointmentAdminCreate, AppointmentAdminRead
 
+from api.api_v1.appointments.validation import validate_appointment
+from api.api_v1.patients.crud import orm_get_patient
 from common.enums.enums_db import AppointmentStatus
 from core.db_helper import db_helper
 
 router = APIRouter(tags=["Admin: Appointments"])
+
+
+@router.post(
+    "/", response_model=AppointmentAdminRead, status_code=status.HTTP_201_CREATED
+)
+async def admin_create_appointment(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment_create: AppointmentAdminCreate,
+):
+    patient = await orm_get_patient(
+        session=session, user_id=appointment_create.patient_id
+    )
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found"
+        )
+    await validate_appointment(session=session, appointment_create=appointment_create)
+
+    appointment = await orm_create_appointment(
+        session=session,
+        appointment_create=appointment_create,
+        patient_id=appointment_create.patient_id,
+    )
+
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
 
 
 @router.get("/", response_model=list[AppointmentAdminRead])
