@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.auth.crud import orm_create_user
 from api.api_v1.auth.utils import hash_password
 from api.api_v1.patients.crud import orm_search_patients
-from api.api_v1.users.crud import orm_get_user_by_phone
+from api.api_v1.users.crud import orm_get_user_by_email, orm_get_user_by_phone
 from api.api_v1.users.schemas import UserAdminCreate, UserRead
 from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
@@ -30,6 +30,12 @@ async def admin_create_patient(
     if await orm_get_user_by_phone(session=session, phone=patient_create.phone):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Phone already registered"
+        )
+    if patient_create.email and await orm_get_user_by_email(
+        session=session, email=patient_create.email
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
         )
     stmt1 = select(Role.id).where(Role.name == RoleType.PATIENT.value)
     role_id = await session.scalar(stmt1)
