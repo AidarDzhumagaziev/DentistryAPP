@@ -62,7 +62,7 @@ function RegisterPage(){
                 </label>
                 <label className={styles.field}>
                     Телефон 
-                    <input type="tel" className={styles.input} 
+                    <input type="tel" placeholder="+79001234567" className={styles.input} 
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}/>
                 </label>
