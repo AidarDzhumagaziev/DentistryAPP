@@ -49,7 +49,7 @@ async def create_doctor(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Doctor for this user already exists",
         )
-    return validation_doctor(doctor)  # type: ignore
+    return doctor
 
 
 @router.get("/", response_model=list[DoctorRead])
