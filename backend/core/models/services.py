@@ -39,6 +39,9 @@ class Service(Base, TimeStampMixin):
     requires_consultation: Mapped[bool] = mapped_column(
         nullable=False, default=False, server_default="false"
     )
+    is_active: Mapped[bool] = mapped_column(
+        nullable=False, server_default="true", default=True
+    )
     cabinet_type: Mapped[CabinetType] = mapped_column(String(50), nullable=False)
 
     appointments: Mapped[list["Appointment"]] = relationship(back_populates="service")
