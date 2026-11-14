@@ -2,4 +2,4 @@
 .env
 .logs
 .venv
-backend/seed.sql
+#backend/seed.sql
