@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from api.api_v1.users.schemas import UserShortRead
 
