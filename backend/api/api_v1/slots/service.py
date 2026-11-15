@@ -79,6 +79,9 @@ async def get_available_slots(
     )
 
     slots = _exclude_past(slots=slots, target_date=target_date)
+
+    slots = await _exclude_booked(session=session, slots=slots, doctor_id=doctor_id)
+
     return slots
 
 
