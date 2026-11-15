@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,12 +10,14 @@ from api.api_v1.appointments.crud import (
     orm_get_appointment,
     orm_list_appointments,
 )
+from api.api_v1.appointments.dependencies import appointment_by_id
 from api.api_v1.appointments.schemas import AppointmentAdminCreate, AppointmentAdminRead
 
 from api.api_v1.appointments.validation import validate_appointment
 from api.api_v1.patients.crud import orm_get_patient
 from common.enums.enums_db import AppointmentStatus
 from core.db_helper import db_helper
+from core.models import Appointment
 
 router = APIRouter(tags=["Admin: Appointments"])
 
@@ -69,3 +71,14 @@ async def get_appointments(
         limit=limit,
         offset=offset,
     )
+
+
+@router.patch("/{appointment_id}/reassign", response_model=AppointmentAdminRead)
+async def reassign_doctor(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor_id: Annotated[int, Path],
+    appointment: Appointment = Depends(appointment_by_id),
+):
+    appointment.doctor_id = doctor_id
+    await session.commit()
+    return appointment
