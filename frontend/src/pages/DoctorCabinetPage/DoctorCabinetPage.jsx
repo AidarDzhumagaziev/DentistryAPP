@@ -56,9 +56,8 @@ function DoctorCabinetPage() {
 
                     </div>
                     <div className={styles.actions}>
-                        {(appointment.status === 'scheduled') && <button onClick={() => changeStatus(appointment.id, 'confirmed')}>Подтвердить</button>}
                         {(appointment.status === 'confirmed') && <button onClick={() => changeStatus(appointment.id, 'completed')}>Завершить</button>}
-                        {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && <button className="danger" onClick={() => changeStatus(appointment.id, 'no_show')}>Неявка</button>}
+                        {(appointment.status === 'confirmed') && <button className="danger" onClick={() => changeStatus(appointment.id, 'no_show')}>Неявка</button>}
                     </div>
                 </div>
                 ))}

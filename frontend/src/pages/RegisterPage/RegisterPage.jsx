@@ -3,10 +3,24 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
+function formatPhone(d) {
+  let result = '+7';
+  if (d.length > 0) result += ' ' + d.slice(0, 3);
+  if (d.length > 3) result += ' ' + d.slice(3, 6);
+  if (d.length > 6) result += '-' + d.slice(6, 8);
+  if (d.length > 8) result += '-' + d.slice(8, 10);
+  return result;
+}
+
+const serverErrors = {
+  'Email already registered': 'Этот email уже зарегистрирован',
+  'Phone already registered': 'Этот телефон уже зарегистрирован',
+};
+
 function RegisterPage(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [phone, setPhone] = useState('');
+    const [phoneDigits, setPhoneDigits] = useState('');
     const [full_name, setFullName] = useState('');
     const [error, setError] = useState(null);
     const { login } = useAuth();
@@ -14,16 +28,27 @@ function RegisterPage(){
 
     function handleSubmit(e) {
         e.preventDefault();
+        if (phoneDigits.length !== 10) {
+            setError('Введите номер телефона полностью: 10 цифр после 8');
+            return;
+        }
+        if (password.length < 8) {
+            setError('Пароль должен быть не короче 8 символов');
+            return;
+        }
+        setError(null);
         fetch('/api/v1/auth/register/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name: full_name, email: email, phone: phone, password: password }),
+            body: JSON.stringify({ full_name: full_name, email: email, phone: '+7' + phoneDigits, password: password }),
         })
-        .then((response) =>{
-            if (!response.ok) {
-                throw new Error('Сервер ответил ошибкой');
-            }
-            return response.json();
+        .then((response) => {
+        if (!response.ok) {
+            return response.json().then((body) => {
+            throw new Error(body.detail);
+            });
+        }
+        return response.json();
         })
         .then(() =>{
             return (fetch('/api/v1/auth/login/', {
@@ -41,7 +66,7 @@ function RegisterPage(){
             login(data.access_token, data.refresh_token)
             navigate('/');
         })
-        .catch(() => setError('Не удалось зарегистрироваться'))
+        .catch((err) => setError(serverErrors[err.message] || 'Не удалось зарегистрироваться'))
     }
 
     return (
@@ -62,9 +87,12 @@ function RegisterPage(){
                 </label>
                 <label className={styles.field}>
                     Телефон 
-                    <input type="tel" placeholder="+79001234567" className={styles.input} 
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}/>
+                    <input type="tel" className={styles.input}
+                    value={formatPhone(phoneDigits)}
+                    onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '');
+                        setPhoneDigits(digits.slice(1, 11));
+                    }} />
                 </label>
                 <label className={styles.field}>
                     Пароль 
