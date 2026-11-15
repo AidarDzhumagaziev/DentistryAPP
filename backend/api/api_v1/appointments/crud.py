@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Sequence
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from common.enums.enums_db import AppointmentStatus
 
-from .schemas import AppointmentBase, AppointmentCreate
+from .schemas import AppointmentCreate
 
 from core.models import Appointment, Doctor, DoctorSpecialization
 

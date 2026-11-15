@@ -25,7 +25,7 @@ class DoctorSpecializationRead(BaseModel):
 
 class DoctorRead(DoctorBase):
     user_id: int
-    user: UserRead
+    user: UserShortRead
     specializations: list[DoctorSpecializationRead]
 
 
