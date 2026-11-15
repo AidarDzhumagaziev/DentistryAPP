@@ -4,12 +4,10 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.appointments.crud import orm_get_conflict_between_appointment
-from api.api_v1.cabinets.crud import orm_get_cabinet
 from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exception_by_day,
     orm_get_work_schedule_by_datetime,
-    orm_get_work_schedule_in_day,
 )
 from api.api_v1.services.crud import orm_get_service
 
