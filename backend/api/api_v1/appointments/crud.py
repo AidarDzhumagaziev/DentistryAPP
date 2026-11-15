@@ -51,6 +51,7 @@ async def orm_get_appointment(
         select(Appointment)
         .options(
             selectinload(Appointment.patient),
+            selectinload(Appointment.doctor).selectinload(Doctor.user),
             selectinload(Appointment.doctor)
             .selectinload(Doctor.specializations)
             .selectinload(DoctorSpecialization.specialization),
@@ -101,6 +102,7 @@ async def orm_list_appointments(
 ) -> Sequence[Appointment]:
     stmt = select(Appointment).options(
         selectinload(Appointment.patient),
+        selectinload(Appointment.doctor).selectinload(Doctor.user),
         selectinload(Appointment.doctor)
         .selectinload(Doctor.specializations)
         .selectinload(DoctorSpecialization.specialization),
