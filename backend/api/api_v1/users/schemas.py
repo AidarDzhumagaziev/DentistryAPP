@@ -16,17 +16,10 @@ class UserRead(UserBase):
 
     id: int
     is_active: bool = True
-    role_id: int
+    role: str
 
 
 class UserShortRead(BaseModel):
     full_name: str
     phone: str = Field(min_length=12, max_length=12)
-
-
-class UserAdminCreate(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    phone: str
-    full_name: str
-    email: EmailStr | None = None
+    role: str

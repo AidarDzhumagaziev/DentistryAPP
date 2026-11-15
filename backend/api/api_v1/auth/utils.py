@@ -5,8 +5,8 @@ import jwt
 
 from datetime import datetime, timedelta, timezone
 
-from api.api_v1.users.schemas import UserRead
 from core.config import settings
+from core.models import User
 
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
@@ -63,15 +63,15 @@ def create_jwt(
     )
 
 
-def create_access_token(user: UserRead):
+def create_access_token(user: User):
     payload = {
         "sub": str(user.id),
-        "role_id": str(user.role_id),
+        "role": str(user.role.name),
     }
     return create_jwt(token_type=ACCESS_TOKEN_TYPE, token_data=payload)
 
 
-def create_refresh_token(user: UserRead):
+def create_refresh_token(user: User):
     payload = {"sub": str(user.id)}
     return create_jwt(
         token_type=REFRESH_TOKEN_TYPE,

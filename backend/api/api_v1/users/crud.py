@@ -12,7 +12,7 @@ async def orm_get_users(session: AsyncSession):
 
 
 async def orm_get_user_by_email(session: AsyncSession, email: str) -> User | None:
-    stmt = select(User).where(User.email == email)
+    stmt = select(User).options(selectinload(User.role)).where(User.email == email)
     return await session.scalar(stmt)
 
 
