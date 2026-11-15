@@ -1,9 +1,14 @@
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+class LocalTimezone(BaseModel):
+    europe_moscow: ZoneInfo = ZoneInfo("Europe/Moscow")
 
 
 class DatabaseConfig(BaseModel):
@@ -67,6 +72,7 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     run: RunConfig = RunConfig()
     auth_jwt: AuthJWT = AuthJWT()
+    timezone: LocalTimezone = LocalTimezone()
 
 
 settings = Settings()  # type: ignore

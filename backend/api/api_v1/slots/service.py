@@ -15,6 +15,7 @@ from api.api_v1.services.crud import orm_get_service
 from .schemas import SlotRead
 
 from core.models import WorkSchedule
+from core.config import settings
 
 SLOT_STEP_MINUTES = 15
 
@@ -89,8 +90,12 @@ def _slice_slots(
     target_date: date, schedule: WorkSchedule, duration_min: int, buffer_min: int
 ) -> list[SlotRead]:
     slots: list[SlotRead] = []
-    start = datetime.combine(target_date, schedule.start_time, tzinfo=timezone.utc)
-    end = datetime.combine(target_date, schedule.end_time, tzinfo=timezone.utc)
+    start = datetime.combine(
+        target_date, schedule.start_time, tzinfo=settings.timezone.europe_moscow
+    )
+    end = datetime.combine(
+        target_date, schedule.end_time, tzinfo=settings.timezone.europe_moscow
+    )
     total = timedelta(minutes=duration_min + buffer_min)
 
     while start + total <= end:
@@ -103,7 +108,7 @@ def _slice_slots(
 
 
 def _exclude_past(slots: list[SlotRead], target_date: date) -> list[SlotRead]:
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=settings.timezone.europe_moscow)
     if target_date < now.date():
         return []
     if target_date > now.date():

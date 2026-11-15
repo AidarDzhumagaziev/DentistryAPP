@@ -24,7 +24,7 @@ class AppointmentBase(BaseModel):
     def serializer_datetime(self, dt: datetime):
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(ZoneInfo("Europe/Moscow")).isoformat()
+        return dt.astimezone(settings.timezone.europe_moscow).isoformat()
 
 
 class AppointmentCreate(BaseModel):
