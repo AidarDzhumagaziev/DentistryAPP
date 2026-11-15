@@ -9,6 +9,8 @@ from api.api_v1.patients.schemas import PatientShortRead
 from api.api_v1.services.schemas import ServiceRead
 from common.enums.enums_db import AppointmentStatus
 
+from core.config import settings
+
 
 class AppointmentBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -32,6 +34,12 @@ class AppointmentCreate(BaseModel):
     service_id: int
     starts_at: datetime
     ends_at: datetime
+
+    @field_serializer("starts_at", "ends_at")
+    def serializer_datetime(self, dt: datetime):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(settings.timezone.europe_moscow).isoformat()
 
 
 class AppointmentUpdate(BaseModel):
