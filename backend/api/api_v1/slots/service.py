@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from logging import getLogger
 
 from fastapi import HTTPException, status
@@ -88,10 +88,9 @@ async def get_available_slots(
 def _slice_slots(
     target_date: date, schedule: WorkSchedule, duration_min: int, buffer_min: int
 ) -> list[SlotRead]:
-    logger.debug("Start slice slots")
     slots: list[SlotRead] = []
-    start = datetime.combine(target_date, schedule.start_time)
-    end = datetime.combine(target_date, schedule.end_time)
+    start = datetime.combine(target_date, schedule.start_time, tzinfo=timezone.utc)
+    end = datetime.combine(target_date, schedule.end_time, tzinfo=timezone.utc)
     total = timedelta(minutes=duration_min + buffer_min)
 
     while start + total <= end:
@@ -104,7 +103,7 @@ def _slice_slots(
 
 
 def _exclude_past(slots: list[SlotRead], target_date: date) -> list[SlotRead]:
-    now = datetime.now()
+    now = datetime.now(tz=timezone.utc)
     if target_date < now.date():
         return []
     if target_date > now.date():
