@@ -12,6 +12,7 @@ function LoginPage(){
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state ? location.state.from : { pathname: '/' };
+    const [showPassword, setShowPassword] = useState(false);
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -44,13 +45,21 @@ function LoginPage(){
                 </label>
                 <label className={styles.field}>
                     Пароль 
-                    <input type="password" className={styles.input}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}/>
+                    <div className={styles.passwordBox}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            className={styles.input}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button type="button" className={styles.showButton} onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? 'Скрыть' : 'Показать'}
+                        </button>
+                    </div>
                 </label>
                 {error && <p className={styles.error}>{error}</p>}
                 <button type="submit" className={styles.button}>Войти</button>
-                <Link to="/register">Нет аккаунта? Зарегистрироваться</Link>
+                <Link className={styles.register} to="/register">Зарегистрироваться</Link>
             </form>
         </div>
     )   

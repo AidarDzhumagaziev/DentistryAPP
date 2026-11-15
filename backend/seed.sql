@@ -8,6 +8,7 @@
 -- Тестовые пользователи (вход по email), пароль у всех: test-c9585b8d
 --   admin@dentatime.ru  администратор
 --   doctor1@dentatime.ru .. doctor4@dentatime.ru  врачи
+--   patient1@dentatime.ru, patient2@dentatime.ru  пациенты (см. ниже)
 
 BEGIN;
 
@@ -88,6 +89,49 @@ JOIN users u ON u.phone = ws.phone
 JOIN cabinets c ON c.number = ws.cabinet_number
 WHERE NOT EXISTS (
     SELECT 1 FROM work_schedules w WHERE w.doctor_id = u.id AND w.weekday = wd.weekday
+);
+
+-- Тестовые пациенты с анкетой и записями в разных статусах.
+-- Даты считаются от дня запуска скрипта, поэтому записи всегда «свежие».
+--   patient1@dentatime.ru  Иван Петров    — есть завершённый осмотр (консультация пройдена)
+--   patient2@dentatime.ru  Ольга Сидорова — одна запись, ждёт подтверждения админом
+INSERT INTO users (phone, email, password_hash, role_id, full_name)
+SELECT p.phone, p.email, (SELECT password_hash FROM users WHERE phone = '+79000000000'), r.id, p.full_name
+FROM (VALUES
+    ('+79000000010', 'patient1@dentatime.ru', 'Иван Петров'),
+    ('+79000000011', 'patient2@dentatime.ru', 'Ольга Сидорова')
+) AS p(phone, email, full_name)
+JOIN roles r ON r.name = 'patient'
+ON CONFLICT (phone) DO UPDATE SET email = EXCLUDED.email;
+
+INSERT INTO patients (user_id, birth_date, allergies, chronic_diseas, no_show_count, notes)
+SELECT u.id, p.birth_date::date, p.allergies, p.chronic, 0, NULL
+FROM (VALUES
+    ('+79000000010', '1990-04-12', 'Лидокаин', 'Нет'),
+    ('+79000000011', '1985-09-03', 'Нет', 'Гипертония')
+) AS p(phone, birth_date, allergies, chronic)
+JOIN users u ON u.phone = p.phone
+ON CONFLICT (user_id) DO NOTHING;
+
+INSERT INTO appointments (doctor_id, patient_id, service_id, cabinet_id, starts_at, ends_at, status)
+SELECT d.id, pt.id, s.id, c.id,
+       ((current_date + a.day_offset) + a.start_time::time) AT TIME ZONE 'Europe/Moscow',
+       ((current_date + a.day_offset) + a.start_time::time + make_interval(mins => s.duration_min)) AT TIME ZONE 'Europe/Moscow',
+       a.status
+FROM (VALUES
+    ('+79000000010', '+79000000001', 'Осмотр и консультация',    101, -30, '10:00', 'completed'),
+    ('+79000000010', '+79000000004', 'Лечение кариеса',          102, -10, '15:00', 'cancelled'),
+    ('+79000000010', '+79000000001', 'Лечение кариеса',          101,   2, '11:00', 'confirmed'),
+    ('+79000000010', '+79000000003', 'Профессиональная гигиена', 103,   4, '10:00', 'scheduled'),
+    ('+79000000011', '+79000000001', 'Осмотр и консультация',    101,   2, '12:30', 'scheduled')
+) AS a(patient_phone, doctor_phone, service_name, cabinet_number, day_offset, start_time, status)
+JOIN users pt ON pt.phone = a.patient_phone
+JOIN users d ON d.phone = a.doctor_phone
+JOIN services s ON s.name = a.service_name
+JOIN cabinets c ON c.number = a.cabinet_number
+WHERE NOT EXISTS (
+    SELECT 1 FROM appointments x
+    WHERE x.patient_id = pt.id AND x.service_id = s.id AND x.status = a.status
 );
 
 COMMIT;

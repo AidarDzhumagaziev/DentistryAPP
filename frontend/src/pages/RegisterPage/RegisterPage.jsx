@@ -25,11 +25,12 @@ function RegisterPage(){
     const [error, setError] = useState(null);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
     function handleSubmit(e) {
         e.preventDefault();
         if (phoneDigits.length !== 10) {
-            setError('Введите номер телефона полностью: 10 цифр после 8');
+            setError('Не правильный формат нелефона');
             return;
         }
         if (password.length < 8) {
@@ -96,13 +97,21 @@ function RegisterPage(){
                 </label>
                 <label className={styles.field}>
                     Пароль 
-                    <input type="password" className={styles.input}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}/>
+                    <div className={styles.passwordBox}>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            className={styles.input}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button type="button" className={styles.showButton} onClick={() => setShowPassword(!showPassword)}>
+                            {showPassword ? 'Скрыть' : 'Показать'}
+                        </button>
+                    </div>
                 </label>
                 {error && <p className={styles.error}>{error}</p>}
                 <button type="submit" className={styles.button}>Зарегистрироваться</button>
-                <Link to="/login">Войти</Link>
+                <Link className={styles.login} to="/login">Войти</Link>
             </form>
         </div>
     )   
