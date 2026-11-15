@@ -3,6 +3,7 @@ from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from .schemas import (
     WorkScheduleCreate,
@@ -50,6 +51,26 @@ async def orm_get_work_schedule_in_day(
 ) -> WorkSchedule | None:
     stmt = select(WorkSchedule).where(
         WorkSchedule.doctor_id == doctor_id, WorkSchedule.weekday == weekday
+    )
+    return await session.scalar(stmt)
+
+
+async def orm_get_work_schedule_by_datetime(
+    session: AsyncSession,
+    doctor_id: int,
+    isoweekday: int,
+    start_time: time,
+    end_time: time,
+) -> WorkSchedule | None:
+    stmt = (
+        select(WorkSchedule)
+        .options(selectinload(WorkSchedule.cabinet))
+        .where(
+            WorkSchedule.doctor_id == doctor_id,
+            WorkSchedule.weekday == isoweekday,
+            WorkSchedule.start_time <= start_time,
+            WorkSchedule.end_time >= end_time,
+        )
     )
     return await session.scalar(stmt)
 
