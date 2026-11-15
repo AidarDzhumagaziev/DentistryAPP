@@ -95,6 +95,12 @@
     border-radius: 50%;
     background: var(--color-muted);
 }
+.cancelHint {
+    color: var(--color-muted);
+    font-size: 13px;
+    max-width: 160px;
+    text-align: right;
+}
 
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
