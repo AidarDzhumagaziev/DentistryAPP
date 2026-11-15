@@ -25,7 +25,7 @@ function App() {
         <Route path="admin" element={<ProtectedRoute roles={['admin']}><AdminPage /></ProtectedRoute>} />
         <Route path="account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
+        <Route path="booking" element={<ProtectedRoute roles={['patient']}><BookingPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

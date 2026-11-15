@@ -1,7 +1,7 @@
 import styles from './LoginPage.module.css';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function LoginPage(){
@@ -10,6 +10,8 @@ function LoginPage(){
     const { login } = useAuth();
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state ? location.state.from : '/';
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -25,7 +27,7 @@ function LoginPage(){
         })
         .then((data) => {
             login(data.access_token, data.refresh_token)
-            navigate('/');
+            navigate(from);
         })
         .catch(() => setError('Неверный email или пароль'))
     }

@@ -3,12 +3,15 @@ import { getJson } from '../../api/client';
 import styles from './DoctorPage.module.css';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 
 function DoctorsPage() {
     const [selectedId, setSelectedId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { role } = useAuth();
+    const canBook = role !== 'doctor' && role !== 'admin';
 
     const [doctors, setDoctors] = useState([]);
     useEffect(() => {
@@ -45,7 +48,7 @@ function DoctorsPage() {
           <p className={styles.specialization} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</p>
           <p className={styles.experience} >Стаж {doctor.experience_years} лет</p>
           <p className={styles.bio} >{doctor.bio}</p>
-          <Link to="/booking" className={styles.bookButton}>Записаться к врачу</Link>
+          {canBook && <Link to="/booking" className={styles.bookButton}>Записаться к врачу</Link>}
         </div>
       ))}
       </div>
