@@ -1,12 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.users.schemas import UserCreate
+from api.api_v1.users.schemas import UserAdminCreate, UserCreate
 
 from core.models import User
 
 
 async def orm_create_user(
-    session: AsyncSession, user_create: UserCreate, role_id: int, password_hash: bytes
+    session: AsyncSession,
+    user_create: UserCreate | UserAdminCreate,
+    role_id: int,
+    password_hash: bytes,
 ) -> User:
     user = User(
         email=user_create.email,

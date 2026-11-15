@@ -3,7 +3,8 @@ from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import Patient
+from common.enums.enums_db import RoleType
+from core.models import Patient, User, Role
 
 from .schemas import PatientCreate, PatientUpdate, PatientUpdatePartial
 
@@ -45,3 +46,27 @@ async def orm_update_patient(
 async def orm_delete_patient(session: AsyncSession, patient: Patient) -> None:
     await session.delete(patient)
     await session.commit()
+
+
+async def orm_search_patients(
+    session: AsyncSession,
+    phone: str | None = None,
+    full_name: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+):
+    stmt = (
+        select(User)
+        .join(Role, Role.id == User.role_id)
+        .where(Role.name == RoleType.ADMIN)
+    )
+    if phone:
+        normalized = (
+            phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        )
+        stmt = stmt.where(User.phone.ilike(f"%{normalized}%"))
+    if full_name:
+        stmt = stmt.where(User.full_name.ilike(f"%{full_name}%"))
+    stmt = stmt.order_by(User.full_name).limit(limit).offset(offset)
+    result = await session.scalars(stmt)
+    return result.all()

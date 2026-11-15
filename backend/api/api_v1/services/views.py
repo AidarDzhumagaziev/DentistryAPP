@@ -94,4 +94,5 @@ async def delete_service(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     service: Service = Depends(service_by_id),
 ):
-    await orm_delete_service(session=session, service=service)
+    service.is_active = False
+    await session.commit()

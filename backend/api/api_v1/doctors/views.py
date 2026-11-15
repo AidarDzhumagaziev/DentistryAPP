@@ -6,6 +6,8 @@ from fastapi import APIRouter, Path, status, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.api_v1.appointments.crud import orm_get_appointment_by_doctor_id
+from api.api_v1.appointments.schemas import AppointmentDoctorRead
 from api.api_v1.auth.validation import require_role
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exceptions_by_doctor_id,
@@ -14,7 +16,6 @@ from api.api_v1.schedules.crud import (
 from api.api_v1.schedules.schemas import ScheduleExceptionRead, WorkScheduleRead
 from common.enums.enums_db import RoleType
 
-from .validation import validation_doctor
 from .schemas import DoctorRead, DoctorCreate, DoctorUpdate, DoctorUpdatePartial
 from .crud import (
     orm_create_doctor,
@@ -48,7 +49,7 @@ async def create_doctor(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Doctor for this user already exists",
         )
-    return validation_doctor(doctor)  # type: ignore
+    return doctor
 
 
 @router.get("/", response_model=list[DoctorRead])
@@ -58,8 +59,7 @@ async def get_doctors(doctors: list[DoctorRead] = Depends(get_all_doctors)):
 
 @router.get("/{doctor_id}/", response_model=DoctorRead)
 async def get_doctor(doctor: Doctor = Depends(doctor_by_id)):
-    doctor_read = validation_doctor(doctor)
-    return doctor_read
+    return doctor
 
 
 @router.get("/{doctor_id}/work_schedules", response_model=list[WorkScheduleRead])
@@ -136,3 +136,18 @@ async def delete_doctor(
     doctor: Doctor = Depends(doctor_by_id),
 ):
     await orm_delete_doctor(session=session, doctor=doctor)
+
+
+@router.get(
+    "/{doctor_id}/me/appointments",
+    response_model=list[AppointmentDoctorRead],
+    dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
+)
+async def get_appointments(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    doctor: Doctor = Depends(doctor_by_id),
+):
+    appointments = await orm_get_appointment_by_doctor_id(
+        session=session, doctor_id=doctor.user_id
+    )
+    return appointments
