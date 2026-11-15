@@ -124,3 +124,18 @@ async def orm_list_appointments(
 
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_get_booked_appointment_in_diaposon(
+    session: AsyncSession, doctor_id: int, start_min: datetime, end_max: datetime
+) -> Sequence[Appointment]:
+    stmt = select(Appointment).where(
+        Appointment.doctor_id == doctor_id,
+        Appointment.status.in_(
+            [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED]
+        ),
+        Appointment.starts_at < end_max,
+        Appointment.ends_at > start_min,
+    )
+    result = await session.scalars(stmt)
+    return result.all()
