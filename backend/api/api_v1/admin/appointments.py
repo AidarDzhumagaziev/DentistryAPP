@@ -34,12 +34,15 @@ async def admin_create_appointment(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found"
         )
-    await validate_appointment(session=session, appointment_create=appointment_create)
+    schedule = await validate_appointment(
+        session=session, appointment_create=appointment_create
+    )
 
     appointment = await orm_create_appointment(
         session=session,
         appointment_create=appointment_create,
         patient_id=appointment_create.patient_id,
+        cabinet_id=schedule.cabinet_id,
     )
 
     return await orm_get_appointment(session=session, appointment_id=appointment.id)
