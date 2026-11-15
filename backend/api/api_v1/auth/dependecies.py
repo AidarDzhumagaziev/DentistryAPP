@@ -5,6 +5,8 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.api_v1.users.crud import orm_get_user_by_id
+
 from .crud import orm_create_user
 from .utils import hash_password
 from api.api_v1.users.schemas import UserCreate
@@ -50,4 +52,4 @@ async def create_user(
         role_id=role_id,
         password_hash=hash_pwd,
     )
-    return user
+    return await orm_get_user_by_id(session=session, user_id=user.id)  # type: ignore
