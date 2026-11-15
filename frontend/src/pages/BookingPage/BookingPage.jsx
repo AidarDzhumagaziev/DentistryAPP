@@ -72,7 +72,7 @@ function BookingPage(){
 
     const selectedService = services.find((s)=> s.id === serviceId);
     const selectedDoctor = doctors.find((s)=> s.user_id === doctorId);
-    const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.id === selectedService.specialization_id))
+    const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.specialization.id === selectedService.specialization_id))
     return(
         <div className={styles.page}>
             <h1>Запись</h1>
@@ -109,7 +109,7 @@ function BookingPage(){
                             setSlotStart(null);}
                             }>
                             <span className={styles.name} >{doctor.user.full_name}</span>
-                            <span className={styles.specialization} >{doctor.specializations.map((s) => s.name).join(', ')}</span>
+                            <span className={styles.specialization} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</span>
                             <span className={styles.experience} >Стаж {doctor.experience_years} лет</span>
                             <span className={styles.bio} >{doctor.bio}</span>
                         </button>

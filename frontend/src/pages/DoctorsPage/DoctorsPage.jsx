@@ -24,7 +24,7 @@ function DoctorsPage() {
       .then((data) => setSpecializations(data));
     }, []);
 
-    const shownDoctors = doctors.filter((doctor) => selectedId === null  || doctor.specializations.some((s) => s.id === selectedId));
+    const shownDoctors = doctors.filter((doctor) => selectedId === null  || doctor.specializations.some((s) => s.specialization.id === selectedId));
 
    if (isLoading) {
     return <p>Загрузка…</p>;
@@ -42,7 +42,7 @@ function DoctorsPage() {
         <div key={doctor.user_id} className={styles.card}>
           <div className={styles.photo}>Фото врача</div>
           <p className={styles.name} >{doctor.user.full_name}</p>
-          <p className={styles.specialization} >{doctor.specializations.map((s) => s.name).join(', ')}</p>
+          <p className={styles.specialization} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</p>
           <p className={styles.experience} >Стаж {doctor.experience_years} лет</p>
           <p className={styles.bio} >{doctor.bio}</p>
           <Link to="/booking" className={styles.bookButton}>Записаться к врачу</Link>
