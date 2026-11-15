@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Path, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import get_current_auth_user, require_role
+from api.api_v1.schedules.crud import orm_get_work_schedule_by_datetime
 from common.enums.enums_db import AppointmentStatus, RoleType
 
 from core.db_helper import db_helper
@@ -51,7 +52,7 @@ async def create_appointment(
     appointment_create: AppointmentCreate,
     current_user: User = Depends(get_current_auth_user),
 ):
-    await validate_appointment(
+    schedule = await validate_appointment(
         session=session,
         appointment_create=appointment_create,
     )
@@ -59,6 +60,7 @@ async def create_appointment(
         session=session,
         appointment_create=appointment_create,
         patient_id=current_user.id,
+        cabinet_id=schedule.cabinet_id,
     )
     return await orm_get_appointment(session=session, appointment_id=new_appointment.id)
 

@@ -16,10 +16,7 @@ async def orm_get_conflict_between_appointment(
     session: AsyncSession, appointment: AppointmentCreate
 ) -> Appointment | None:
     stmt = select(Appointment).where(
-        or_(
-            Appointment.doctor_id == appointment.doctor_id,
-            Appointment.cabinet_id == appointment.cabinet_id,
-        ),
+        or_(Appointment.doctor_id == appointment.doctor_id),
         Appointment.starts_at < appointment.ends_at,
         Appointment.ends_at > appointment.starts_at,
         Appointment.status != AppointmentStatus.CANCELLED,
@@ -28,13 +25,16 @@ async def orm_get_conflict_between_appointment(
 
 
 async def orm_create_appointment(
-    session: AsyncSession, appointment_create: AppointmentCreate, patient_id: int
+    session: AsyncSession,
+    appointment_create: AppointmentCreate,
+    patient_id: int,
+    cabinet_id: int,
 ) -> Appointment:
     appointment = Appointment(
         doctor_id=appointment_create.doctor_id,
         patient_id=patient_id,
         service_id=appointment_create.service_id,
-        cabinet_id=appointment_create.cabinet_id,
+        cabinet_id=cabinet_id,
         starts_at=appointment_create.starts_at,
         ends_at=appointment_create.ends_at,
     )

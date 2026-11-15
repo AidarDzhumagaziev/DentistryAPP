@@ -8,13 +8,13 @@ from api.api_v1.cabinets.crud import orm_get_cabinet
 from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exception_by_day,
+    orm_get_work_schedule_by_datetime,
     orm_get_work_schedule_in_day,
 )
 from api.api_v1.services.crud import orm_get_service
 
 from common.enums.enums_db import AppointmentStatus
-from core.models import Doctor, Service, Cabinet
-from core.models import Appointment, User
+from core.models import Doctor, Service, Cabinet, Appointment, User, WorkSchedule
 
 from .schemas import AppointmentCreate
 
@@ -24,17 +24,43 @@ logger = getLogger(__name__)
 async def validate_appointment(
     session: AsyncSession,
     appointment_create: AppointmentCreate,
-) -> None:
-    doctor, service, cabinet = await _get_appointment_entities(
+) -> WorkSchedule:
+    doctor, service = await _get_appointment_entities(
         session=session, appointment_create=appointment_create
     )
-    _check_appointment_compatibility(doctor=doctor, service=service, cabinet=cabinet)
-    await is_slot_available(session=session, appointment_create=appointment_create)
+    schedule = await resolve_work_schedule(
+        session=session, appointment_create=appointment_create
+    )
+    _check_appointment_compatibility(
+        doctor=doctor, service=service, cabinet=schedule.cabinet
+    )
+    await is_slot_available(
+        session=session, appointment_create=appointment_create, work_schedule=schedule
+    )
+    return schedule
+
+
+async def resolve_work_schedule(
+    session: AsyncSession, appointment_create: AppointmentCreate
+) -> WorkSchedule:
+    schedule = await orm_get_work_schedule_by_datetime(
+        session=session,
+        doctor_id=appointment_create.doctor_id,
+        isoweekday=appointment_create.starts_at.isoweekday(),
+        start_time=appointment_create.starts_at.time(),
+        end_time=appointment_create.ends_at.time(),
+    )
+    if not schedule:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Doctor is now working at this time",
+        )
+    return schedule
 
 
 async def _get_appointment_entities(
     session: AsyncSession, appointment_create: AppointmentCreate
-) -> tuple[Doctor, Service, Cabinet]:
+) -> tuple[Doctor, Service]:
     doctor = await orm_get_doctor(
         session=session, doctor_id=appointment_create.doctor_id
     )
@@ -51,15 +77,7 @@ async def _get_appointment_entities(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Service not found"
         )
-    cabinet = await orm_get_cabinet(
-        session=session, cabinet_id=appointment_create.cabinet_id
-    )
-    if not cabinet:
-        logger.warning(f"Cabinet {appointment_create.cabinet_id} not found")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Cabinet not found"
-        )
-    return doctor, service, cabinet
+    return doctor, service
 
 
 def _check_appointment_compatibility(
@@ -82,12 +100,8 @@ def _check_appointment_compatibility(
 async def is_slot_available(
     session: AsyncSession,
     appointment_create: AppointmentCreate,
+    work_schedule: WorkSchedule,
 ):
-    work_schedule = await orm_get_work_schedule_in_day(
-        session=session,
-        doctor_id=appointment_create.doctor_id,
-        weekday=appointment_create.starts_at.isoweekday(),
-    )
     if not work_schedule:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

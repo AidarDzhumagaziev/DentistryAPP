@@ -23,7 +23,6 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(BaseModel):
     doctor_id: int
     service_id: int
-    cabinet_id: int
     starts_at: datetime
     ends_at: datetime
 
