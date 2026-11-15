@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer
 
 from api.api_v1.cabinets.schemas import CabinetRead
 from api.api_v1.doctors.schemas import DoctorRead, DoctorShortRead
@@ -18,6 +19,12 @@ class AppointmentBase(BaseModel):
     doctor: DoctorShortRead
     service: ServiceRead
     cabinet: CabinetRead
+
+    @field_serializer("starts_at", "ends_at")
+    def serializer_datetime(self, dt: datetime):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(ZoneInfo("Europe/Moscow")).isoformat()
 
 
 class AppointmentCreate(BaseModel):
