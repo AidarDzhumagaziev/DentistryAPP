@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { authFetch } from '../../api/client';
 import styles from './AccountPage.module.css';
+import HealthForm from '../../components/HealthForm/HealthForm';
 
 function getDay(start) {
     return new Date(start).getDate();
@@ -22,7 +23,14 @@ function canCancel(appointment) {
     return activeStatus && moreThanDay;
 }
 
+const tabs = [
+    { id: 'appointments', label: 'Мои записи' },
+    { id: 'profile', label: 'Профиль' },
+    { id: 'health', label: 'Анкета здоровья' },
+];
+
 function AccountPage() {
+    const [tab, setTab] = useState('appointments');
     const [appointments, setAppointments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -67,7 +75,19 @@ function AccountPage() {
                 <h1>Личный кабинет</h1>
                 <Link to="/booking" className={styles.newButton}>Новая запись</Link>
             </div>
+            <div className={styles.tabs}>
+                {tabs.map((t) => (
+                    <button
+                        key={t.id}
+                        className={t.id === tab ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                        onClick={() => setTab(t.id)}
+                    >
+                        {t.label}
+                    </button>
+                ))}
+            </div>
             {appointments.length === 0 && <p>У вас пока нет записей.</p>}
+            {tab === 'appointments' && (
             <div className={styles.list}>
                 {appointments.map((appointment) => (
                     <div key={appointment.id} className={styles.row}>
@@ -93,6 +113,14 @@ function AccountPage() {
                     </div>
                 ))}
             </div>
+            )}
+            {tab === 'profile' && <p>Профиль появится скоро.</p>}
+            {tab === 'health' && (
+                <HealthForm
+                    submitLabel="Сохранить"
+                    onSave={(values) => alert('Сохранение появится, когда сервер будет готов: ' + JSON.stringify(values))}
+                />
+            )}
         </div>
     );
 }

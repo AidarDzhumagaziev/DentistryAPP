@@ -102,6 +102,33 @@
     text-align: right;
 }
 
+.tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tab {
+    background: transparent;
+    color: var(--color-muted);
+    border-radius: 0;
+    padding: 12px 18px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.tab:hover {
+    background: transparent;
+    color: var(--color-text);
+}
+
+.tabActive {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
 .completed::before { background: #2e7d32; }
