@@ -23,3 +23,9 @@ class UserShortRead(BaseModel):
     full_name: str
     phone: str = Field(min_length=12, max_length=12)
     role: str
+
+
+class UserAdminCreate(BaseModel):
+    full_name: str
+    phone: str = Field(min_length=12, max_length=12)
+    email: EmailStr
