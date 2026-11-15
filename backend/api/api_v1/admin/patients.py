@@ -10,7 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.auth.crud import orm_create_user
 from api.api_v1.auth.utils import hash_password
 from api.api_v1.patients.crud import orm_search_patients
-from api.api_v1.users.crud import orm_get_user_by_email, orm_get_user_by_phone
+from api.api_v1.users.crud import (
+    orm_get_user_by_email,
+    orm_get_user_by_id,
+    orm_get_user_by_phone,
+)
 from api.api_v1.users.schemas import UserAdminCreate, UserRead
 from common.enums.enums_db import RoleType
 from core.db_helper import db_helper
@@ -57,7 +61,7 @@ async def admin_create_patient(
         role_id=role_id,
         password_hash=password_hash,
     )
-    return patient
+    return await orm_get_user_by_id(session=session, user_id=patient.id)
 
 
 @router.get("/", response_model=list[UserRead])
