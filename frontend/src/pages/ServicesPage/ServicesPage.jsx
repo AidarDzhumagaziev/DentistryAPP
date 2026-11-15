@@ -60,9 +60,7 @@ function ServicesPage() {
           {service.requires_consultation && <span className={styles.consult}>Сначала нужна консультация</span>}
           <div className={styles.cardBottom}>
             <p className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</p>
-            {canBook &&
-            <Link to="/booking" className={service.name === 'Острая боль' ? `${styles.bookButton} ${styles.urgentButton}` : styles.bookButton}>Записаться</Link>
-            }
+            {canBook && <Link to="/booking" state={{ serviceId: service.id }} className={service.name === 'Острая боль' ? `${styles.bookButton} ${styles.urgentButton}` : styles.bookButton}>Записаться</Link>}
           </div>
         </div>
       ))}

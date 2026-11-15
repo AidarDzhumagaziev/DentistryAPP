@@ -11,7 +11,7 @@ function LoginPage(){
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state ? location.state.from : '/';
+    const from = location.state ? location.state.from : { pathname: '/' };
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -27,7 +27,7 @@ function LoginPage(){
         })
         .then((data) => {
             login(data.access_token, data.refresh_token)
-            navigate(from);
+            navigate(from.pathname, { state: from.state });
         })
         .catch(() => setError('Неверный email или пароль'))
     }

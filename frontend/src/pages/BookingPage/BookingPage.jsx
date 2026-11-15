@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './BookingPage.module.css';
 import { getJson } from '../../api/client';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function formatDate(d) {
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -12,8 +12,10 @@ function formatDate(d) {
 const stepNames = ['Услуга', 'Врач', 'Дата и время', 'Подтверждение'];
 
 function BookingPage(){
-    const [step, setStep] = useState(1);
-    const [serviceId, setServiceId] = useState(null);
+    const location = useLocation();
+    const presetServiceId = location.state && location.state.serviceId ? location.state.serviceId : null;
+    const [step, setStep] = useState(presetServiceId ? 2 : 1);
+    const [serviceId, setServiceId] = useState(presetServiceId);
     const [doctorId, setDoctorId] = useState(null);
     const [services, setServices] = useState([]);
     const [doctors, setDoctors] = useState([]);
