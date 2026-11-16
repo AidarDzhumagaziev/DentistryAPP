@@ -3,7 +3,10 @@ from logging import getLogger
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_get_conflict_between_appointment
+from api.api_v1.appointments.crud import (
+    orm_get_appointments_by_patient_id_and_datetime,
+    orm_get_conflict_between_appointment,
+)
 from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exception_by_day,
@@ -20,8 +23,7 @@ logger = getLogger(__name__)
 
 
 async def validate_appointment(
-    session: AsyncSession,
-    appointment_create: AppointmentCreate,
+    session: AsyncSession, appointment_create: AppointmentCreate, user: User
 ) -> WorkSchedule:
     doctor, service = await _get_appointment_entities(
         session=session, appointment_create=appointment_create
@@ -33,7 +35,10 @@ async def validate_appointment(
         doctor=doctor, service=service, cabinet=schedule.cabinet
     )
     await is_slot_available(
-        session=session, appointment_create=appointment_create, work_schedule=schedule
+        session=session,
+        appointment_create=appointment_create,
+        work_schedule=schedule,
+        patient_id=user.id,
     )
     return schedule
 
@@ -99,6 +104,7 @@ async def is_slot_available(
     session: AsyncSession,
     appointment_create: AppointmentCreate,
     work_schedule: WorkSchedule,
+    patient_id: int,
 ):
     if not work_schedule:
         raise HTTPException(
@@ -129,6 +135,17 @@ async def is_slot_available(
     if conflict:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Slot is already booked"
+        )
+    patient_conflict = await orm_get_appointments_by_patient_id_and_datetime(
+        session=session,
+        patient_id=patient_id,
+        start=appointment_create.starts_at,
+        end=appointment_create.ends_at,
+    )
+    if patient_conflict:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Patient has appointment in this diaposon",
         )
 
 

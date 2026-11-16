@@ -55,6 +55,7 @@ async def create_appointment(
     schedule = await validate_appointment(
         session=session,
         appointment_create=appointment_create,
+        user=current_user,
     )
     new_appointment = await orm_create_appointment(
         session=session,
