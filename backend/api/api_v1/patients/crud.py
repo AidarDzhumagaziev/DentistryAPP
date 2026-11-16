@@ -11,6 +11,7 @@ from core.models import Patient, User, Role
 from .schemas import (
     PatientAdminCreate,
     PatientCreate,
+    PatientOwnUpdatePartial,
     PatientUpdate,
     PatientUpdatePartial,
 )
@@ -52,7 +53,7 @@ async def orm_get_patients(session: AsyncSession) -> Sequence[Patient]:
 
 async def orm_update_patient(
     session: AsyncSession,
-    patient_update: PatientUpdate | PatientUpdatePartial,
+    patient_update: PatientUpdate | PatientUpdatePartial | PatientOwnUpdatePartial,
     patient: Patient,
     partial: bool = False,
 ) -> Patient:

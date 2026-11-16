@@ -20,6 +20,7 @@ from .crud import (
 )
 from .schemas import (
     PatientAdminCreate,
+    PatientOwnUpdatePartial,
     PatientRead,
     PatientUpdate,
     PatientUpdatePartial,
@@ -99,6 +100,23 @@ async def update_patient(
 ):
     return await orm_update_patient(
         session=session, patient=patient, patient_update=patient_update
+    )
+
+
+@router.patch("/me/", response_model=PatientRead)
+async def update_own_profile(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    patient_update: PatientOwnUpdatePartial,
+    user: User = Depends(require_role(RoleType.PATIENT)),
+):
+    patient = await orm_get_patient(session=session, user_id=user.id)
+    if patient is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User already has patient profile",
+        )
+    return await orm_update_patient(
+        session=session, patient=patient, patient_update=patient_update, partial=True
     )
 
 

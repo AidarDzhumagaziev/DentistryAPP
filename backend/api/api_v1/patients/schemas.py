@@ -45,3 +45,9 @@ class PatientShortRead(BaseModel):
     allergies: str
     chronic_diseas: str
     user: UserShortRead
+
+
+class PatientOwnUpdatePartial(BaseModel):
+    birth_date: date | None = None  # type: ignore[assignment]
+    allergies: str | None = None  # type: ignore[assignment]
+    chronic_diseas: str | None = None  # type: ignore[assignment]
