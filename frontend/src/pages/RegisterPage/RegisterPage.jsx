@@ -41,7 +41,7 @@ function RegisterPage(){
         fetch('/api/v1/auth/register/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name: full_name, username: email.trim().toLowerCase(), phone: '+7' + phoneDigits, password: password }),
+            body: JSON.stringify({ full_name: full_name, email: email.trim().toLowerCase(), phone: '+7' + phoneDigits, password: password }),
         })
         .then((response) => {
         if (!response.ok) {
