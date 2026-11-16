@@ -19,7 +19,9 @@ class PatientCreate(PatientBase):
 
 
 class PatientRead(PatientBase):
-    pass
+    no_show_count: int
+    notes: str
+    user: UserShortRead
 
 
 class PatientUpdate(BaseModel):

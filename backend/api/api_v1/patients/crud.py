@@ -20,7 +20,11 @@ async def orm_create_patient(
 
 
 async def orm_get_patient(session: AsyncSession, user_id: int) -> Patient | None:
-    stmt = select(Patient).where(Patient.user_id == user_id)
+    stmt = (
+        select(Patient)
+        .options(selectinload(Patient.user))
+        .where(Patient.user_id == user_id)
+    )
     return await session.scalar(stmt)
 
 
