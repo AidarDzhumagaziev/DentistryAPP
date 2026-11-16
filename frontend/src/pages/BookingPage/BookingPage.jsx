@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './BookingPage.module.css';
-import { getJson } from '../../api/client';
 import { Link, useLocation } from 'react-router-dom';
+import { getJson, authFetch } from '../../api/client';
 
 function formatDate(d) {
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -10,6 +10,16 @@ function formatDate(d) {
 }
 
 const stepNames = ['Услуга', 'Врач', 'Дата и время', 'Подтверждение'];
+const HALF_YEAR_MS = 183 * 24 * 60 * 60 * 1000;
+const CONSULTATION_NAME = 'Осмотр и консультация';
+
+function hasConsultationIn(appointments) {
+    return appointments.some((a) =>
+        a.status === 'completed' &&
+        a.service.name === CONSULTATION_NAME &&
+        Date.now() - new Date(a.starts_at) < HALF_YEAR_MS
+    );
+}
 
 function BookingPage(){
     const location = useLocation();
@@ -22,6 +32,7 @@ function BookingPage(){
     const [date, setDate] = useState('');
     const [slots, setSlots] = useState([]);
     const [slotStart, setSlotStart] = useState(null);
+    const [myAppointments, setMyAppointments] = useState([]);
 
     function findNearestDate(offset){
         if (offset > 14){
@@ -56,9 +67,22 @@ function BookingPage(){
         }
 
     useEffect(() => {
-        getJson('/api/v1/services/')
-        .then((data) => setServices(data))
-    }, []);
+        Promise.all([
+            getJson('/api/v1/services/'),
+            authFetch('/api/v1/appointments/me/')
+            .then((r) => (r.ok ? r.json() : [])),
+        ])
+        .then(([servicesData, myData]) => {
+            setServices(servicesData);
+            setMyAppointments(myData);
+
+            const preset = servicesData.find((s) => s.id === presetServiceId);
+            if (preset && preset.requires_consultation && !hasConsultationIn(myData)) {
+                setServiceId(null);
+                setStep(1);
+            }
+        });
+    }, [presetServiceId]);
 
     useEffect(() => {
         getJson('/api/v1/doctors/')
@@ -75,6 +99,13 @@ function BookingPage(){
     const selectedService = services.find((s)=> s.id === serviceId);
     const selectedDoctor = doctors.find((s)=> s.user_id === doctorId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.specialization.id === selectedService.specialization_id))
+    const hasConsultation = hasConsultationIn(myAppointments);
+
+    function isLocked(service) {
+        return service.requires_consultation && !hasConsultation;
+    }
+
+    const consultationService = services.find((s) => s.name === CONSULTATION_NAME);
     return(
         <div className={styles.page}>
             <h1>Запись</h1>
@@ -86,10 +117,27 @@ function BookingPage(){
             <div className={styles.layout}>
             <section className={styles.main}>
                 {(step === 1) && <h2>Выберите услугу</h2>}
+                {(step === 1) && consultationService && services.some(isLocked) && (
+                <div className={styles.notice}>
+                    <span>{services.filter(isLocked).map((s) => s.name).join(', ')} — только после осмотра.</span>
+                    <button
+                        type="button"
+                        className={styles.noticeButton}
+                        onClick={() => {
+                            setServiceId(consultationService.id);
+                            setDoctorId(null);
+                            setSlotStart(null);
+                            setStep(2);
+                        }}
+                    >
+                        Записаться на осмотр
+                    </button>
+                </div>
+                )}
                 {(step === 1) && 
                 <div className={styles.grid}>
                     {services.map((service) => (
-                        <button key={service.id} className={getCardClass(service.id,serviceId)} 
+                        <button key={service.id} disabled={isLocked(service)} className={getCardClass(service.id,serviceId)} 
                             onClick={() => {
                                 setServiceId(service.id);
                                 setDoctorId(null);
@@ -97,6 +145,7 @@ function BookingPage(){
                             }} >
                             <span className={styles.name} >{service.name}</span>
                             <span className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</span>
+                            {isLocked(service) && <span className={styles.lockHint}>Сначала нужен осмотр</span>}
                         </button>
                     ))}
                 </div>
