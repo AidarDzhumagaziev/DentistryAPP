@@ -70,7 +70,7 @@ async def orm_get_appointments_by_doctor_id(
         select(Appointment)
         .options(
             selectinload(Appointment.patient).selectinload(Patient.user),
-            selectinload(Appointment.doctor),
+            selectinload(Appointment.doctor).selectinload(Doctor.specializations),
             selectinload(Appointment.service),
             selectinload(Appointment.cabinet),
         )
