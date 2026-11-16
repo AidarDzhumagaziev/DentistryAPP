@@ -42,21 +42,25 @@ function BookingPage(){
     const [myAppointments, setMyAppointments] = useState([]);
     const [isSending, setIsSending] = useState(false);
     const [bookingError, setBookingError] = useState(null);
+    const [isSearching, setIsSearching] = useState(false);
 
-    function findNearestDate(offset){
-        if (offset > 14){
-            return 
+    function findNearestDate(offset) {
+        if (offset > 14) {
+            setIsSearching(false);
+            return;
         }
         const d = new Date();
         d.setDate(d.getDate() + offset);
         const day = formatDate(d);
-            getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${day}`)
+        getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${day}`)
             .then((data) => {
-            if (data.length > 0){
-                return setDate(day)
-            }
-            else return findNearestDate(offset + 1)
-        })
+                if (data.length > 0) {
+                    setIsSearching(false);
+                    return setDate(day);
+                }
+                return findNearestDate(offset + 1);
+            })
+            .catch(() => setIsSearching(false));
     }
     function submitBooking() {
         setIsSending(true);
@@ -212,6 +216,8 @@ function BookingPage(){
                         setSlotStart(null);
                     }}/>
                 }
+                {(step === 3 && isSearching) && <p>Ищем ближайшее свободное время…</p>}
+                {(step === 3 && !isSearching && !date) && <p>В ближайшие две недели свободного времени нет. Выберите дату в календаре или другого врача.</p>}
                 {(step === 3) &&
                     <div className={styles.timegrid}>
                         {slots.map((slot) => (
@@ -236,7 +242,7 @@ function BookingPage(){
                 }
                 {(step === 5) && <div className={styles.doneScreen}>
                     <h2>Вы записаны</h2>
-                    <p>Напоминание придёт накануне приёма.</p>
+                    <p>Запись появилась в личном кабинете.</p>
                     <Link to="/account" className={styles.doneLink}>Перейти к моим записям</Link>
                 </div>}
                 {bookingError && <p className={styles.bookingError}>{bookingError}</p>}
@@ -246,6 +252,9 @@ function BookingPage(){
                         <button
                             onClick={() => {
                                 if (step === 2) {
+                                    setDate('');
+                                    setSlots([]);
+                                    setIsSearching(true);
                                     findNearestDate(0);
                                 }
                                 setStep(step + 1);
