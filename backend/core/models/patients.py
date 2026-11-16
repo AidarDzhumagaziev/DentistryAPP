@@ -22,7 +22,9 @@ class Patient(Base, TimeStampMixin):
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
     allergies: Mapped[str] = mapped_column(Text, nullable=False)
     chronic_diseas: Mapped[str] = mapped_column(Text, nullable=False)
-    no_show_count: Mapped[int] = mapped_column(nullable=False)
+    no_show_count: Mapped[int] = mapped_column(
+        nullable=False, default=0, server_default="0"
+    )
     notes: Mapped[str] = mapped_column(Text, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="patient_profile")
