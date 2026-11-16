@@ -12,7 +12,6 @@ from core.models import Service
 from .schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceUpdatePartial
 from .crud import (
     orm_create_service,
-    orm_delete_service,
     orm_get_service_by_name,
     orm_get_services,
     orm_update_service,
