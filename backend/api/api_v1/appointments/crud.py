@@ -9,7 +9,7 @@ from common.enums.enums_db import AppointmentStatus
 
 from .schemas import AppointmentCreate
 
-from core.models import Appointment, Doctor, DoctorSpecialization
+from core.models import Appointment, Doctor, DoctorSpecialization, Patient
 
 
 async def orm_get_conflict_between_appointment(
@@ -63,13 +63,13 @@ async def orm_get_appointment(
     return await session.scalar(stmt)
 
 
-async def orm_get_appointment_by_doctor_id(
+async def orm_get_appointments_by_doctor_id(
     session: AsyncSession, doctor_id: int
 ) -> Sequence[Appointment]:
     stmt = (
         select(Appointment)
         .options(
-            selectinload(Appointment.patient),
+            selectinload(Appointment.patient).selectinload(Patient.user),
             selectinload(Appointment.doctor),
             selectinload(Appointment.service),
             selectinload(Appointment.cabinet),

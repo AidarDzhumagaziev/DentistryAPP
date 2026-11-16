@@ -6,7 +6,7 @@ from fastapi import APIRouter, Path, status, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_get_appointment_by_doctor_id
+from api.api_v1.appointments.crud import orm_get_appointments_by_doctor_id
 from api.api_v1.appointments.schemas import AppointmentDoctorRead
 from api.api_v1.auth.validation import require_role
 from api.api_v1.schedules.crud import (
@@ -101,7 +101,7 @@ async def update_doctor(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.patch(
@@ -123,7 +123,7 @@ async def update_doctor_partial(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.delete(
@@ -147,7 +147,7 @@ async def get_appointments(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     doctor: Doctor = Depends(doctor_by_id),
 ):
-    appointments = await orm_get_appointment_by_doctor_id(
+    appointments = await orm_get_appointments_by_doctor_id(
         session=session, doctor_id=doctor.user_id
     )
     return appointments
