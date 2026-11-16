@@ -136,7 +136,7 @@ async def create_profile_by_patient(
     user: User = Depends(require_role(RoleType.PATIENT)),
 ):
     patient = await orm_get_patient(session=session, user_id=user.id)
-    if patient is not None:
+    if patient is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already has patient profile",
