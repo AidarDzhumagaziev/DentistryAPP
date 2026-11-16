@@ -80,6 +80,17 @@ async def orm_get_appointments_by_doctor_id(
     return result.all()
 
 
+async def orm_get_appointments_by_patient_id_and_datetime(
+    session: AsyncSession, patient_id: int, start: datetime, end: datetime
+):
+    stmt = select(Appointment).where(
+        Appointment.patient_id == patient_id,
+        Appointment.starts_at < end,
+        Appointment.ends_at > start,
+    )
+    return await session.scalar(stmt)
+
+
 async def orm_update_appointment_status(
     session: AsyncSession,
     appointment: Appointment,
