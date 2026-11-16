@@ -27,7 +27,7 @@ function Header() {
 
   return (
     <header className={styles.header}>
-      <Link to="/" className={styles.logo}>ДентаТайм</Link>
+      <Link to="/" className={styles.logo} onClick={() => setIsOpen(false)}>ДентаТайм</Link>
       <button
         type="button"
         className={styles.burger}

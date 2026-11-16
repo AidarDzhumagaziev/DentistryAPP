@@ -109,3 +109,30 @@
     gap: 8px;
     justify-content: flex-end;
 }
+.formError {
+    background: #fdecea;
+    color: #b42318;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.empty {
+    color: var(--color-muted);
+    padding: 12px 0;
+}
+.toolbar {
+    max-width: 380px;
+    margin-bottom: 20px;
+}
+.muted {
+    color: var(--color-muted);
+    font-size: 14px;
+}
+.filtersRow {
+    margin-bottom: 16px;
+}
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}

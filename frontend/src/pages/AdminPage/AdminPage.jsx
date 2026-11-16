@@ -1,6 +1,9 @@
 import { getJson, authFetch } from '../../api/client';
 import styles from './AdminPage.module.css';
 import { useState, useEffect } from 'react';
+import AdminCabinets from './AdminCabinets';
+import AdminSchedules from './AdminSchedules';
+import FilterButtons from '../../components/FilterButtons/FilterButtons';
 
 const sections = [
     { id: 'services', label : 'Услуги' },
@@ -27,6 +30,7 @@ function AdminPage(){
     const [showForm, setShowForm] = useState(false);
     const [section, setSection] = useState('services');
     const [editingId, setEditingId] = useState(null);
+    const [filterId, setFilterId] = useState(null);
 
     function getSectionClass(id) {
         if (id === section) {
@@ -113,6 +117,7 @@ function AdminPage(){
         getJson('/api/v1/specializations/')
         .then((data) => setSpecializations(data));
     }, []);
+    const shownServices = services.filter((service) => filterId === null || service.specialization_id === filterId);
 
 
     function deleteService(id){
@@ -150,13 +155,13 @@ function AdminPage(){
             {section === 'services' && (<div>
                 <div className={styles.top}>
                     <h1>Услуги</h1>
-                        <button onClick={toggleForm}>
-                        <h2>{editingId ? 'Изменить услугу' : 'Новая услуга'}</h2>
+                    <button onClick={toggleForm}>
+                        {showForm ? 'Отмена' : 'Добавить услугу'}
                     </button>
                 </div>
 
-                {showForm && (<div className={styles.formCard}>       
-                    <h2>Новая услуга</h2>
+                {showForm && (<div className={styles.formCard}>
+                    <h2>{editingId ? 'Изменить услугу' : 'Новая услуга'}</h2>
                     <form className={styles.form} onSubmit={handleSubmit}>
                         <label className={styles.field}>
                             Название 
@@ -212,6 +217,13 @@ function AdminPage(){
                         <button type="submit" className={styles.submit}>{editingId ? 'Сохранить' : 'Добавить'}</button>
                     </form>
                 </div>)}
+                <div className={styles.filtersRow}>
+                    <FilterButtons
+                        items={specializations}
+                        selectedId={filterId}
+                        onSelect={setFilterId}
+                    />
+                </div>
                 <div className={styles.tableWrap}>
                 <table className={styles.table}>
                     <thead>
@@ -224,7 +236,7 @@ function AdminPage(){
                         </tr>
                     </thead>
                     <tbody>
-                        {services.map((service) => (
+                        {shownServices.map((service) => (
                         <tr key={service.id}>
                         <td className={styles.td}>{service.name}</td>
                         <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
@@ -241,8 +253,13 @@ function AdminPage(){
                     </tbody>
                 </table>
                 </div>
+                {shownServices.length === 0 && (
+                    <p className={styles.empty}>По этой специальности услуг нет.</p>
+                )}
             </div>)}
-            {section !== 'services' && <p>Раздел в разработке</p>}
+            {section === 'cabinets' && <AdminCabinets />}
+            {section === 'schedules' && <AdminSchedules />}
+            {section !== 'services' && section !== 'cabinets' && section !== 'schedules' && <p>Раздел в разработке</p>}
             </div>
         </div>
     )
