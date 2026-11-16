@@ -6,12 +6,13 @@ from api.api_v1.users.schemas import UserShortRead
 
 
 class PatientBase(BaseModel):
-    user_id: int
     birth_date: date
     allergies: str
     chronic_diseas: str
-    no_show_count: int = 0
-    notes: str | None = None
+
+
+class PatientAdminCreate(PatientBase):
+    user_id: int
 
 
 class PatientCreate(PatientBase):

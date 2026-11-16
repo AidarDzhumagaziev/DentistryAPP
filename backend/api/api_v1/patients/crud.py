@@ -1,18 +1,34 @@
+from datetime import date
 from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from common.enums.enums_db import RoleType
 from core.models import Patient, User, Role
 
-from .schemas import PatientCreate, PatientUpdate, PatientUpdatePartial
+from .schemas import (
+    PatientAdminCreate,
+    PatientCreate,
+    PatientUpdate,
+    PatientUpdatePartial,
+)
 
 
 async def orm_create_patient(
-    session: AsyncSession, patient_create: PatientCreate
+    session: AsyncSession,
+    birth_date: date,
+    allergies: str,
+    chronic_diseas: str,
+    user_id: int,
 ) -> Patient:
-    patient = Patient(**patient_create.model_dump())
+    patient = Patient(
+        user_id=user_id,
+        birth_date=birth_date,
+        allergies=allergies,
+        chronic_diseas=chronic_diseas,
+    )
     session.add(patient)
     await session.commit()
     await session.flush()

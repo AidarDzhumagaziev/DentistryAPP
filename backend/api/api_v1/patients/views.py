@@ -8,7 +8,7 @@ from api.api_v1.auth.validation import require_role
 from common.enums.enums_db import RoleType
 
 from core.db_helper import db_helper
-from core.models import Patient
+from core.models import Patient, User
 
 from .dependecies import patient_by_id
 from .crud import (
@@ -18,7 +18,13 @@ from .crud import (
     orm_get_patients,
     orm_update_patient,
 )
-from .schemas import PatientCreate, PatientRead, PatientUpdate, PatientUpdatePartial
+from .schemas import (
+    PatientAdminCreate,
+    PatientRead,
+    PatientUpdate,
+    PatientUpdatePartial,
+    PatientCreate,
+)
 
 router = APIRouter(tags=["Patients"])
 
@@ -31,7 +37,7 @@ router = APIRouter(tags=["Patients"])
 )
 async def create_patient(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
-    patient_create: PatientCreate,
+    patient_create: PatientAdminCreate,
 ):
     patient = await orm_get_patient(session=session, user_id=patient_create.user_id)
     if patient is not None:
@@ -39,7 +45,13 @@ async def create_patient(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already has patient profile",
         )
-    return await orm_create_patient(session=session, patient_create=patient_create)
+    return await orm_create_patient(
+        session=session,
+        user_id=patient_create.user_id,
+        birth_date=patient_create.birth_date,
+        allergies=patient_create.allergies,
+        chronic_diseas=patient_create.chronic_diseas,
+    )
 
 
 @router.get(
@@ -102,3 +114,25 @@ async def delete_patient(
     patient: Patient = Depends(patient_by_id),
 ):
     await orm_delete_patient(session=session, patient=patient)
+
+
+@router.post("/me/", status_code=status.HTTP_201_CREATED, response_model=PatientRead)
+async def create_profile_by_patient(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    patient_create: PatientCreate,
+    user: User = Depends(require_role(RoleType.PATIENT)),
+):
+    patient = await orm_get_patient(session=session, user_id=user.id)
+    if patient is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User already has patient profile",
+        )
+    patient = await orm_create_patient(
+        session=session,
+        user_id=user.id,
+        birth_date=patient_create.birth_date,
+        allergies=patient_create.allergies,
+        chronic_diseas=patient_create.chronic_diseas,
+    )
+    return await orm_get_patient(session=session, user_id=patient.user_id)
