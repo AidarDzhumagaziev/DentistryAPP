@@ -25,7 +25,7 @@ from .crud import (
 from .dependecies import doctor_by_id, get_all_doctors
 
 from core.db_helper import db_helper
-from core.models import Doctor
+from core.models import Doctor, User
 
 logger = getLogger(__name__)
 
@@ -136,6 +136,17 @@ async def delete_doctor(
     doctor: Doctor = Depends(doctor_by_id),
 ):
     await orm_delete_doctor(session=session, doctor=doctor)
+
+
+@router.get("/me/appointments", response_model=list[AppointmentDoctorRead])
+async def get_own_appointments(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: User = Depends(require_role(RoleType.DOCTOR)),
+):
+    appointments = await orm_get_appointments_by_doctor_id(
+        session=session, doctor_id=user.id
+    )
+    return appointments
 
 
 @router.get(
