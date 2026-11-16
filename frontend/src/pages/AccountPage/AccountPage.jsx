@@ -17,6 +17,10 @@ function getTime(start) {
 }
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+function isUpcoming(appointment) {
+    const activeStatus = appointment.status === 'scheduled' || appointment.status === 'confirmed';
+    return activeStatus && new Date(appointment.starts_at) > Date.now();
+}
 function canCancel(appointment) {
     const activeStatus = appointment.status === 'scheduled' || appointment.status === 'confirmed';
     const moreThanDay = new Date(appointment.starts_at) - Date.now() > DAY_MS;
@@ -63,12 +67,44 @@ function AccountPage() {
             })
             .catch(() => alert('Не удалось отменить запись'));
     }
+
+    function renderAppointment(appointment) {
+        return (
+            <div key={appointment.id} className={styles.row}>
+                <div className={styles.dateBox}>
+                    <span className={styles.day}>{getDay(appointment.starts_at)}</span>
+                    <span className={styles.month}>{getMonth(appointment.starts_at)}</span>
+                    <span className={styles.time}>{getTime(appointment.starts_at)}</span>
+                </div>
+
+                <div className={styles.info}>
+                    <span className={styles.service}>{appointment.service.name}</span>
+                    <span className={styles.doctor}>{appointment.doctor.user.full_name} · кабинет {appointment.cabinet.number}</span>
+                    <span className={`${styles.status} ${styles[appointment.status]}`}>
+                        {statusNames[appointment.status]}
+                    </span>
+                </div>
+                {canCancel(appointment) && (
+                    <button onClick={() => cancel(appointment.id)} className="danger">Отменить</button>
+                )}
+                {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && !canCancel(appointment) && (
+                    <span className={styles.cancelHint}>Отменить можно по телефону клиники</span>
+                )}
+            </div>
+        );
+    }
+
     if (isLoading) {
         return <p>Загрузка…</p>;
     }
     if (error) {
         return <p>{error}</p>;
     }
+    const upcoming = appointments.filter((a) => isUpcoming(a));
+    upcoming.sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at));
+    const others = appointments.filter((a) => !isUpcoming(a));
+    others.sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at));
+
     return (
         <div>
             <div className={styles.top}>
@@ -86,33 +122,28 @@ function AccountPage() {
                     </button>
                 ))}
             </div>
-            {appointments.length === 0 && <p>У вас пока нет записей.</p>}
             {tab === 'appointments' && (
-            <div className={styles.list}>
-                {appointments.map((appointment) => (
-                    <div key={appointment.id} className={styles.row}>
-                        <div className={styles.dateBox}>
-                            <span className={styles.day}>{getDay(appointment.starts_at)}</span>
-                            <span className={styles.month}>{getMonth(appointment.starts_at)}</span>
-                            <span className={styles.time}>{getTime(appointment.starts_at)}</span>
-                        </div>
+                <div>
+                    {appointments.length === 0 && <p>У вас пока нет записей.</p>}
 
-                        <div className={styles.info}>
-                            <span className={styles.service}>{appointment.service.name}</span>
-                            <span className={styles.doctor}>{appointment.doctor.user.full_name} · кабинет {appointment.cabinet.number}</span>
-                            <span className={`${styles.status} ${styles[appointment.status]}`}>
-                                {statusNames[appointment.status]}
-                            </span>
-                        </div>
-                            {canCancel(appointment) && (
-                                <button onClick={() => cancel(appointment.id)} className="danger">Отменить</button>
-                            )}
-                            {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && !canCancel(appointment) && (
-                                <span className={styles.cancelHint}>Отменить можно по телефону клиники</span>
-                            )}
-                    </div>
-                ))}
-            </div>
+                    {upcoming.length > 0 && (
+                        <section className={styles.section}>
+                            <h2 className={styles.sectionTitle}>Предстоящие</h2>
+                            <div className={styles.list}>
+                                {upcoming.map((appointment) => renderAppointment(appointment))}
+                            </div>
+                        </section>
+                    )}
+
+                    {others.length > 0 && (
+                        <section className={styles.section}>
+                            <h2 className={styles.sectionTitle}>Прошедшие и отменённые</h2>
+                            <div className={styles.list}>
+                                {others.map((appointment) => renderAppointment(appointment))}
+                            </div>
+                        </section>
+                    )}
+                </div>
             )}
             {tab === 'profile' && <p>Профиль появится скоро.</p>}
             {tab === 'health' && (

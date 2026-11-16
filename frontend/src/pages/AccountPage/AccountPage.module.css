@@ -128,6 +128,14 @@
     color: var(--color-primary);
     border-bottom-color: var(--color-primary);
 }
+.section {
+    margin-bottom: 32px;
+}
+
+.sectionTitle {
+    font-size: 18px;
+    margin: 0 0 12px;
+}
 
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
