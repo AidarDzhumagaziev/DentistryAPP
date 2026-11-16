@@ -65,6 +65,19 @@ async def get_patients(
     return await orm_get_patients(session=session)
 
 
+@router.get("/me/", response_model=PatientRead)
+async def get_patient_profile(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: User = Depends(require_role(RoleType.PATIENT)),
+):
+    patient = await orm_get_patient(session=session, user_id=user.id)
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found"
+        )
+    return patient
+
+
 @router.get(
     "/{patient_id}/",
     response_model=PatientRead,
