@@ -26,49 +26,79 @@ function AdminPage(){
     const [needConsult, setNeedConsult] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [section, setSection] = useState('services');
+    const [editingId, setEditingId] = useState(null);
 
     function getSectionClass(id) {
-            if (id === section) {
-            return `${styles.menuItem} ${styles.menuActive}`;
-            }
-            return styles.menuItem
-            }
-
+        if (id === section) {
+        return `${styles.menuItem} ${styles.menuActive}`;
+        }
+        return styles.menuItem
+    }
+    function resetForm() {
+        setName('');
+        setDescription('');
+        setPrice('');
+        setDuration('');
+        setBuffer('');
+        setCabinetType('general');
+        setSpecializationId('');
+        setNeedConsult(false);
+        setEditingId(null);
+        setShowForm(false);
+    }
+    function toggleForm() {
+        if (showForm) {
+            resetForm();
+        } else {
+            setShowForm(true);
+        }
+    }
+    function startEdit(service) {
+        setName(service.name);
+        setDescription(service.description);
+        setPrice(Number(service.price_from));
+        setDuration(service.duration_min);
+        setBuffer(service.buffer_min);
+        setCabinetType(service.cabinet_type);
+        setSpecializationId(service.specialization_id);
+        setNeedConsult(service.requires_consultation);
+        setEditingId(service.id);
+        setShowForm(true);
+    }
     function handleSubmit(e){
         e.preventDefault();
-        authFetch(`/api/v1/services/`, {
-            method: 'POST',
+        const url = editingId ? `/api/v1/services/${editingId}/` : '/api/v1/services/';
+        const method = editingId ? 'PUT' : 'POST';
+
+        authFetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 name: name,
-                description: description, 
-                specialization_id: Number(specializationId), 
+                description: description,
+                specialization_id: Number(specializationId),
                 price_from: Number(price),
                 duration_min: Number(duration),
-                buffer_min:Number(buffer),
+                buffer_min: Number(buffer),
                 cabinet_type: cabinetType,
                 requires_consultation: needConsult,
             })
         })
-        .then((response) =>{
+        .then((response) => {
             if (!response.ok) {
                 throw new Error('Сервер ответил ошибкой');
             }
             return response.json();
         })
         .then((data) => {
-            setServices([...services, data]);
-            setName('');
-            setDescription('');
-            setPrice('');
-            setDuration('');
-            setBuffer('');
-            setCabinetType('general');
-            setSpecializationId('');
-            setNeedConsult(false);
-            setShowForm(false);
+            if (editingId) {
+                setServices(services.map((s) => (s.id === data.id ? data : s)));
+            } else {
+                setServices([...services, data]);
+            }
+            resetForm();
         })
-        .catch(() => alert('Не удалось добавить услугу'))
+        .catch(() => alert('Не удалось сохранить услугу'));
     }
 
     useEffect(() => {
@@ -120,8 +150,8 @@ function AdminPage(){
             {section === 'services' && (<div>
                 <div className={styles.top}>
                     <h1>Услуги</h1>
-                    <button onClick={() => setShowForm(!showForm)}>
-                        {showForm ? 'Закрыть' : 'Добавить услугу'}
+                        <button onClick={toggleForm}>
+                        <h2>{editingId ? 'Изменить услугу' : 'Новая услуга'}</h2>
                     </button>
                 </div>
 
@@ -153,8 +183,8 @@ function AdminPage(){
                             onChange={(e) => setDuration(e.target.value)}/>
                         </label>
                         <label className={styles.field}>
-                            Перерыв после, мин
-                            <input type="number" className={styles.input}
+                            Пауза до следующего пациента, мин
+                            <input type="number" min="0" max="60" className={styles.input}
                             value={buffer}
                             onChange={(e) => setBuffer(e.target.value)}/>
                         </label>
@@ -179,7 +209,7 @@ function AdminPage(){
                             <input type="checkbox" checked={needConsult} onChange={(e) => setNeedConsult(e.target.checked)} />
                             Нужна консультация
                         </label>
-                        <button type="submit" className={styles.submit}>Добавить</button>
+                        <button type="submit" className={styles.submit}>{editingId ? 'Сохранить' : 'Добавить'}</button>
                     </form>
                 </div>)}
                 <div className={styles.tableWrap}>
@@ -200,7 +230,12 @@ function AdminPage(){
                         <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
                         <td className={styles.td}>{service.duration_min} мин</td>
                         <td className={styles.td}>{service.requires_consultation ? 'Да' : 'Нет'}</td>
-                        <td className={styles.td}><button onClick={() => deleteService(service.id)} className="danger">Удалить</button></td>
+                        <td className={styles.td}>
+                            <div className={styles.rowActions}>
+                                <button onClick={() => startEdit(service)} className="secondary">Изменить</button>
+                                <button onClick={() => deleteService(service.id)} className="danger">Удалить</button>
+                            </div>
+                        </td>
                         </tr>
                         ))}
                     </tbody>

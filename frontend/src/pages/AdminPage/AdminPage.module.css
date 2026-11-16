@@ -104,3 +104,8 @@
 .submit{
     align-self: flex-start;
 }
+.rowActions{
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
