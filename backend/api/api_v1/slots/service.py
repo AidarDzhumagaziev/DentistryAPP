@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.appointments.crud import orm_get_booked_appointment_in_diaposon
 from api.api_v1.cabinets.crud import orm_get_cabinet
-from api.api_v1.doctors.crud import orm_get_doctor_by_user_id
+from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exception_by_day,
     orm_get_work_schedule_in_day,
@@ -34,10 +34,10 @@ async def get_available_slots(
             status_code=status.HTTP_404_NOT_FOUND, detail="Service not found"
         )
 
-    doctor = await orm_get_doctor_by_user_id(session=session, doctor_id=doctor_id)
-    if not doctor or not doctor.is_active:
+    doctor = await orm_get_doctor(session=session, doctor_id=doctor_id, is_active=True)
+    if not doctor:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found or inactive"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found"
         )
 
     if service.specialization_id not in [

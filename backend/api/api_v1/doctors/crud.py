@@ -27,24 +27,12 @@ async def orm_create_doctor(
     session.add_all(doctor_specializations)
     await session.commit()
     await session.flush()
-    return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
+    return await orm_get_doctor(session=session, doctor_id=doctor.user_id)
 
 
-async def orm_get_doctor_by_user_id(session: AsyncSession, doctor_id: int):
-    stmt = (
-        select(Doctor)
-        .options(
-            selectinload(Doctor.user).selectinload(User.role),
-            selectinload(Doctor.specializations).selectinload(
-                DoctorSpecialization.specialization
-            ),
-        )
-        .where(Doctor.user_id == doctor_id)
-    )
-    return await session.scalar(stmt)
-
-
-async def orm_get_doctors(session: AsyncSession) -> Sequence[Doctor]:
+async def orm_get_doctors(
+    session: AsyncSession, is_active: bool | None = None
+) -> Sequence[Doctor]:
     stmt = (
         select(Doctor)
         .join(User, User.id == Doctor.user_id)
@@ -56,11 +44,15 @@ async def orm_get_doctors(session: AsyncSession) -> Sequence[Doctor]:
         )
         .order_by(User.full_name)
     )
+    if is_active:
+        stmt = stmt.where(Doctor.is_active == is_active)
     result = await session.scalars(stmt)
     return result.all()
 
 
-async def orm_get_doctor(session: AsyncSession, doctor_id: int) -> Doctor | None:
+async def orm_get_doctor(
+    session: AsyncSession, doctor_id: int, is_active: bool | None = None
+) -> Doctor | None:
     stmt = (
         select(Doctor)
         .join(DoctorSpecialization, DoctorSpecialization.doctor_id == Doctor.user_id)
@@ -73,6 +65,8 @@ async def orm_get_doctor(session: AsyncSession, doctor_id: int) -> Doctor | None
         .where(Doctor.user_id == doctor_id)
         .order_by(DoctorSpecialization.specialization_id)
     )
+    if is_active:
+        stmt = stmt.where(Doctor.is_active == is_active)
     return await session.scalar(stmt)
 
 
@@ -90,7 +84,7 @@ async def orm_update_doctor(
             for sid in doctor_update.specializations_ids
         ]
     await session.commit()
-    return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
+    return await orm_get_doctor(session=session, doctor_id=doctor.user_id)
 
 
 async def orm_delete_doctor(session: AsyncSession, doctor: Doctor):
