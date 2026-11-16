@@ -18,7 +18,7 @@ function LoginPage(){
         e.preventDefault();
         fetch('/api/v1/auth/login/', {
             method: 'POST',
-            body: new URLSearchParams({ username: email, password: password }),
+            body: new URLSearchParams({ username: email.trim().toLowerCase(), password: password }),
         })
         .then((response) =>{
             if (!response.ok) {

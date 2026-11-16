@@ -41,7 +41,7 @@ function RegisterPage(){
         fetch('/api/v1/auth/register/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name: full_name, email: email, phone: '+7' + phoneDigits, password: password }),
+            body: JSON.stringify({ full_name: full_name, username: email.trim().toLowerCase(), phone: '+7' + phoneDigits, password: password }),
         })
         .then((response) => {
         if (!response.ok) {
@@ -54,7 +54,7 @@ function RegisterPage(){
         .then(() =>{
             return (fetch('/api/v1/auth/login/', {
             method: 'POST',
-            body: new URLSearchParams({ username: email, password: password }),
+            body: new URLSearchParams({ username: email.trim().toLowerCase(), password: password }),
             }))
         })
         .then((response) =>{

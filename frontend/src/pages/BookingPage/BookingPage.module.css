@@ -198,3 +198,10 @@
     font-size: 13px;
     color: var(--color-urgent);
 }
+.bookingError {
+    background: #fdecea;
+    color: #b42318;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}

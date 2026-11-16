@@ -9,6 +9,13 @@ function formatDate(d) {
   return `${d.getFullYear()}-${month}-${day}`;
 }
 
+function addMinutes(start, minutes) {
+    const d = new Date(start);
+    d.setMinutes(d.getMinutes() + minutes);
+    const time = d.toTimeString().slice(0, 8);
+    return `${formatDate(d)}T${time}`;
+}
+
 const stepNames = ['Услуга', 'Врач', 'Дата и время', 'Подтверждение'];
 const HALF_YEAR_MS = 183 * 24 * 60 * 60 * 1000;
 const CONSULTATION_NAME = 'Осмотр и консультация';
@@ -33,6 +40,8 @@ function BookingPage(){
     const [slots, setSlots] = useState([]);
     const [slotStart, setSlotStart] = useState(null);
     const [myAppointments, setMyAppointments] = useState([]);
+    const [isSending, setIsSending] = useState(false);
+    const [bookingError, setBookingError] = useState(null);
 
     function findNearestDate(offset){
         if (offset > 14){
@@ -48,6 +57,32 @@ function BookingPage(){
             }
             else return findNearestDate(offset + 1)
         })
+    }
+    function submitBooking() {
+        setIsSending(true);
+        setBookingError(null);
+
+        authFetch('/api/v1/appointments/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                doctor_id: doctorId,
+                service_id: serviceId,
+                starts_at: slotStart,
+                ends_at: addMinutes(slotStart, selectedService.duration_min),
+            }),
+        })
+            .then((response) => {
+                if (response.status === 409) {
+                    throw new Error('Это время уже заняли. Выберите другое.');
+                }
+                if (!response.ok) {
+                    throw new Error('Не удалось записаться. Проверьте, заполнена ли анкета, или позвоните в клинику.');
+                }
+                setStep(5);
+            })
+            .catch((err) => setBookingError(err.message))
+            .finally(() => setIsSending(false));
     }
     function getStepClass(number){
         if (number === step){
@@ -204,6 +239,7 @@ function BookingPage(){
                     <p>Напоминание придёт накануне приёма.</p>
                     <Link to="/account" className={styles.doneLink}>Перейти к моим записям</Link>
                 </div>}
+                {bookingError && <p className={styles.bookingError}>{bookingError}</p>}
                 <div className={styles.actions}>
                     {(step > 1 && step < 5) && <button className={styles.secondary} onClick={() => setStep(step - 1)}>Назад</button>}
                     {(step < 4) && (
@@ -219,7 +255,11 @@ function BookingPage(){
                             Далее
                         </button>
                     )}
-                     {(step === 4) && <button onClick={() => setStep(5)}>Записаться</button>}
+                     {(step === 4) && (
+                        <button onClick={submitBooking} disabled={isSending}>
+                            {isSending ? 'Записываем…' : 'Записаться'}
+                        </button>
+                    )}
                 </div>
             </section>
             <aside className={styles.summary}>
