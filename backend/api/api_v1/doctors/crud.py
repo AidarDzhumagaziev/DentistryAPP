@@ -27,7 +27,7 @@ async def orm_create_doctor(
     session.add_all(doctor_specializations)
     await session.commit()
     await session.flush()
-    return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
+    return await orm_get_doctor(session=session, doctor_id=doctor.user_id)
 
 
 async def orm_get_doctors(
@@ -84,7 +84,7 @@ async def orm_update_doctor(
             for sid in doctor_update.specializations_ids
         ]
     await session.commit()
-    return await orm_get_doctor_by_user_id(session=session, doctor_id=doctor.user_id)
+    return await orm_get_doctor(session=session, doctor_id=doctor.user_id)
 
 
 async def orm_delete_doctor(session: AsyncSession, doctor: Doctor):
