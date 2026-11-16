@@ -63,7 +63,7 @@ async def orm_get_appointment(
     return await session.scalar(stmt)
 
 
-async def orm_get_appointment_by_doctor_id(
+async def orm_get_appointments_by_doctor_id(
     session: AsyncSession, doctor_id: int
 ) -> Sequence[Appointment]:
     stmt = (

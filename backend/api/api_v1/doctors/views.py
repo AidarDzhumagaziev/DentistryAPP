@@ -101,7 +101,7 @@ async def update_doctor(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.patch(
@@ -123,7 +123,7 @@ async def update_doctor_partial(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.delete(
