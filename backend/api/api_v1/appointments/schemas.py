@@ -35,12 +35,6 @@ class AppointmentCreate(BaseModel):
     starts_at: datetime
     ends_at: datetime
 
-    @field_serializer("starts_at", "ends_at")
-    def serializer_datetime(self, dt: datetime):
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(settings.timezone.europe_moscow).isoformat()
-
 
 class AppointmentUpdate(BaseModel):
     status: AppointmentStatus
