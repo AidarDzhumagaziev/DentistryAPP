@@ -2,7 +2,15 @@ from typing import TYPE_CHECKING
 
 from datetime import date, time
 
-from sqlalchemy import CheckConstraint, Date, ForeignKey, SmallInteger, String, Time
+from sqlalchemy import (
+    CheckConstraint,
+    Date,
+    ForeignKey,
+    SmallInteger,
+    String,
+    Time,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from common.enums.enums_db import _reason_type_values, ReasonType
@@ -24,6 +32,9 @@ class WorkSchedule(Base, TimeStampMixin):
         ),
         CheckConstraint(
             "end_time > start_time", name="ck_end_time_more_start_time_work_schedules"
+        ),
+        UniqueConstraint(
+            "doctor_id", "weekday", name="uq_work_schedules_doctor_id_weekday"
         ),
     )
 

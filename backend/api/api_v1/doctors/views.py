@@ -6,8 +6,8 @@ from fastapi import APIRouter, Path, status, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.api_v1.appointments.crud import orm_get_appointment_by_doctor_id
-from api.api_v1.appointments.schemas import AppointmentDoctorRead
+from api.api_v1.appointments.crud import orm_get_appointments_by_doctor_id
+from api.api_v1.appointments.schemas import AppointmentAdminRead, AppointmentDoctorRead
 from api.api_v1.auth.validation import require_role
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exceptions_by_doctor_id,
@@ -25,7 +25,7 @@ from .crud import (
 from .dependecies import doctor_by_id, get_all_doctors
 
 from core.db_helper import db_helper
-from core.models import Doctor
+from core.models import Doctor, User
 
 logger = getLogger(__name__)
 
@@ -101,7 +101,7 @@ async def update_doctor(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.patch(
@@ -123,7 +123,7 @@ async def update_doctor_partial(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Doctor not found"
         )
-    return validation_doctor(updated_doctor)  # type: ignore
+    return updated_doctor
 
 
 @router.delete(
@@ -138,16 +138,27 @@ async def delete_doctor(
     await orm_delete_doctor(session=session, doctor=doctor)
 
 
+@router.get("/me/appointments", response_model=list[AppointmentDoctorRead])
+async def get_own_appointments(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    user: User = Depends(require_role(RoleType.DOCTOR)),
+):
+    appointments = await orm_get_appointments_by_doctor_id(
+        session=session, doctor_id=user.id
+    )
+    return appointments
+
+
 @router.get(
-    "/{doctor_id}/me/appointments",
-    response_model=list[AppointmentDoctorRead],
-    dependencies=[Depends(require_role(RoleType.ADMIN, RoleType.DOCTOR))],
+    "/{doctor_id}/appointments",
+    response_model=list[AppointmentAdminRead],
+    dependencies=[Depends(require_role(RoleType.ADMIN))],
 )
-async def get_appointments(
+async def get_appointments_by_doctor_id(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     doctor: Doctor = Depends(doctor_by_id),
 ):
-    appointments = await orm_get_appointment_by_doctor_id(
+    appointments = await orm_get_appointments_by_doctor_id(
         session=session, doctor_id=doctor.user_id
     )
     return appointments

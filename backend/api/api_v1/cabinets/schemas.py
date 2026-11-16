@@ -22,4 +22,4 @@ class CabinetUpdate(CabinetCreate):
 
 class CabinetUpdatePartial(CabinetCreate):
     number: int | None = None  # type: ignore[assignment]
-    type: int | None = None  # type: ignore[assignment]
+    type: CabinetType | None = None  # type: ignore[assignment]

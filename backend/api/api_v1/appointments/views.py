@@ -55,6 +55,7 @@ async def create_appointment(
     schedule = await validate_appointment(
         session=session,
         appointment_create=appointment_create,
+        user=current_user,
     )
     new_appointment = await orm_create_appointment(
         session=session,
@@ -209,6 +210,6 @@ async def set_no_show_appointment(
     appointment = await orm_update_appointment_status(
         session=session,
         appointment=appointment,
-        appointment_status=AppointmentStatus.COMPLETED,
+        appointment_status=AppointmentStatus.NO_SHOW,
     )
     return await orm_get_appointment(session=session, appointment_id=appointment.id)

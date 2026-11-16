@@ -9,7 +9,7 @@ from common.enums.enums_db import AppointmentStatus
 
 from .schemas import AppointmentCreate
 
-from core.models import Appointment, Doctor, DoctorSpecialization
+from core.models import Appointment, Doctor, DoctorSpecialization, Patient
 
 
 async def orm_get_conflict_between_appointment(
@@ -63,14 +63,14 @@ async def orm_get_appointment(
     return await session.scalar(stmt)
 
 
-async def orm_get_appointment_by_doctor_id(
+async def orm_get_appointments_by_doctor_id(
     session: AsyncSession, doctor_id: int
 ) -> Sequence[Appointment]:
     stmt = (
         select(Appointment)
         .options(
-            selectinload(Appointment.patient),
-            selectinload(Appointment.doctor),
+            selectinload(Appointment.patient).selectinload(Patient.user),
+            selectinload(Appointment.doctor).selectinload(Doctor.specializations),
             selectinload(Appointment.service),
             selectinload(Appointment.cabinet),
         )
@@ -78,6 +78,17 @@ async def orm_get_appointment_by_doctor_id(
     )
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_get_appointments_by_patient_id_and_datetime(
+    session: AsyncSession, patient_id: int, start: datetime, end: datetime
+):
+    stmt = select(Appointment).where(
+        Appointment.patient_id == patient_id,
+        Appointment.starts_at < end,
+        Appointment.ends_at > start,
+    )
+    return await session.scalar(stmt)
 
 
 async def orm_update_appointment_status(
@@ -122,5 +133,20 @@ async def orm_list_appointments(
 
     stmt = stmt.order_by(Appointment.starts_at.desc()).limit(limit).offset(offset)
 
+    result = await session.scalars(stmt)
+    return result.all()
+
+
+async def orm_get_booked_appointment_in_diaposon(
+    session: AsyncSession, doctor_id: int, start_min: datetime, end_max: datetime
+) -> Sequence[Appointment]:
+    stmt = select(Appointment).where(
+        Appointment.doctor_id == doctor_id,
+        Appointment.status.in_(
+            [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED]
+        ),
+        Appointment.starts_at < end_max,
+        Appointment.ends_at > start_min,
+    )
     result = await session.scalars(stmt)
     return result.all()
