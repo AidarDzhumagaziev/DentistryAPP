@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { authFetch } from '../../api/client';
 import styles from './AccountPage.module.css';
 import HealthForm from '../../components/HealthForm/HealthForm';
+import { CLINIC } from '../../data/clinic';
 
 function getDay(start) {
     return new Date(start).getDate();
@@ -88,7 +89,9 @@ function AccountPage() {
                     <button onClick={() => cancel(appointment.id)} className="danger">Отменить</button>
                 )}
                 {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && !canCancel(appointment) && (
-                    <span className={styles.cancelHint}>Отменить можно по телефону клиники</span>
+                    <span className={styles.cancelHint}>
+                        Отменить можно по телефону <a href={CLINIC.phoneLink} className={styles.hintPhone}>{CLINIC.phone}</a>
+                    </span>
                 )}
             </div>
         );

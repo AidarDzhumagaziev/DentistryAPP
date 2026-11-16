@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './BookingPage.module.css';
 import { Link, useLocation } from 'react-router-dom';
 import { getJson, authFetch } from '../../api/client';
+import { CLINIC } from '../../data/clinic';
 
 function formatDate(d) {
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -81,7 +82,7 @@ function BookingPage(){
                     throw new Error('Это время уже заняли. Выберите другое.');
                 }
                 if (!response.ok) {
-                    throw new Error('Не удалось записаться. Проверьте, заполнена ли анкета, или позвоните в клинику.');
+                    throw new Error(`Не удалось записаться. Проверьте, заполнена ли анкета, или позвоните в клинику: ${CLINIC.phone}.`);
                 }
                 setStep(5);
             })

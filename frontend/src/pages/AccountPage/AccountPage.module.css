@@ -136,6 +136,11 @@
     font-size: 18px;
     margin: 0 0 12px;
 }
+.hintPhone {
+    color: var(--color-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
 
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
