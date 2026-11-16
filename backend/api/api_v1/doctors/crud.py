@@ -31,7 +31,7 @@ async def orm_create_doctor(
 
 
 async def orm_get_doctors(
-    session: AsyncSession, is_active: bool | None
+    session: AsyncSession, is_active: bool | None = None
 ) -> Sequence[Doctor]:
     stmt = (
         select(Doctor)
