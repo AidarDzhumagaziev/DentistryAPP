@@ -49,24 +49,29 @@ function BookingPage() {
     const [isSending, setIsSending] = useState(false);
     const [bookingError, setBookingError] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+    const [days, setDays] = useState([]);
 
-    function findNearestDate(offset) {
-        if (offset > 14) {
-            setIsSearching(false);
-            return;
+    function loadDays() {
+        const dates = [];
+        for (let i = 0; i < 14; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            dates.push(formatDate(d));
         }
-        const d = new Date();
-        d.setDate(d.getDate() + offset);
-        const day = formatDate(d);
-        getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${day}`)
-            .then((data) => {
-                if (data.length > 0) {
-                    setIsSearching(false);
-                    return setDate(day);
+        const requests = dates.map((day) =>
+            getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${day}`)
+        );
+        Promise.all(requests)
+            .then((results) => {
+                const list = dates.map((day, i) => ({ date: day, free: results[i].length > 0 }));
+                setDays(list);
+                const first = list.find((d) => d.free);
+                if (first) {
+                    setDate(first.date);
                 }
-                return findNearestDate(offset + 1);
             })
-            .catch(() => setIsSearching(false));
+            .catch(() => setDays([]))
+            .finally(() => setIsSearching(false));
     }
     function submitBooking() {
         setIsSending(true);
@@ -220,14 +225,27 @@ function BookingPage() {
 
 
                     {(step === 3) && <h2>Выберите дату и время</h2>}
-                    {(step === 3) && <input type="date" value={date}
-                        onChange={(e) => {
-                            setDate(e.target.value);
-                            setSlotStart(null);
-                        }} />
-                    }
+                    {(step === 3 && !isSearching) && (
+                        <div className={styles.days}>
+                            {days.map((d) => (
+                                <button
+                                    key={d.date}
+                                    type="button"
+                                    disabled={!d.free}
+                                    className={`${getCardClass(d.date, date)} ${styles.day}`}
+                                    onClick={() => {
+                                        setDate(d.date);
+                                        setSlotStart(null);
+                                    }}
+                                >
+                                    <span className={styles.weekday}>{new Date(d.date).toLocaleDateString('ru-RU', { weekday: 'short' })}</span>
+                                    <span className={styles.dayNumber}>{Number(d.date.slice(8, 10))}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                     {(step === 3 && isSearching) && <p>Ищем ближайшее свободное время…</p>}
-                    {(step === 3 && !isSearching && !date) && <p>В ближайшие две недели свободного времени нет. Выберите дату в календаре или другого врача.</p>}
+                    {(step === 3 && !isSearching && !date) && <p>В ближайшие две недели свободного времени нет. Выберите другого врача.</p>}
                     {(step === 3) &&
                         <div className={styles.timegrid}>
                             {slots.map((slot) => (
@@ -265,7 +283,7 @@ function BookingPage() {
                                         setDate('');
                                         setSlots([]);
                                         setIsSearching(true);
-                                        findNearestDate(0);
+                                        loadDays();
                                     }
                                     setStep(step + 1);
                                 }}
