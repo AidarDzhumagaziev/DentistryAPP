@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
 import { getJson } from '../../api/client';
 import { plural } from '../../utils/plural';
+import { initials } from '../../utils/initials';
 
 const steps = [
   { title: 'Выберите услугу', text: 'Осмотр, лечение, гигиена или срочный приём при острой боли.' },
@@ -46,9 +47,7 @@ function HomePage() {
             </div>
           )}
         </div>
-        <div className={styles.photo}>
-          Здесь будет фото клиники
-        </div>
+        <img src="/images/clinic.png" alt="Кабинет клиники ДентаТайм" className={styles.photo} />
       </section>
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Как записаться</h2>
@@ -91,7 +90,7 @@ function HomePage() {
           <div className={styles.cards}>
             {popularDoc.map((doctor) => (
               <div key={doctor.user_id} className={styles.card}>
-                <div className={styles.doctorPhoto}>Фото врача</div>
+                {doctor.photo_url ? <img src={doctor.photo_url} alt={doctor.user.full_name} className={styles.doctorPhoto} /> : <div className={styles.doctorPhoto}>{initials(doctor.user.full_name)}</div>}
                 <h3 className={styles.cardTitle} >{doctor.user.full_name}</h3>
                 <p className={styles.cardSpec} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</p>
                 <p className={styles.cardMeta} >Стаж {doctor.experience_years} {plural(doctor.experience_years, 'год', 'года', 'лет')}</p>

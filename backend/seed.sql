@@ -48,13 +48,13 @@ JOIN roles r ON r.name = u.role
 ON CONFLICT (phone) DO UPDATE SET email = EXCLUDED.email;
 
 INSERT INTO doctors (user_id, experience_years, bio, photo_url)
-SELECT u.id, d.experience_years, d.bio, ''
+SELECT u.id, d.experience_years, d.bio, d.photo_url
 FROM (VALUES
-    ('+79000000001', 8, 'Лечит кариес и пульпит.'),
-    ('+79000000002', 12, 'Удаляет сложные зубы и ставит импланты.'),
-    ('+79000000003', 5, 'Проводит профессиональную чистку.'),
-    ('+79000000004', 3, 'Лечит зубы у взрослых.')
-) AS d(phone, experience_years, bio)
+    ('+79000000001', 8, 'Лечит кариес и пульпит.', '/images/doctors/anna.png'),
+    ('+79000000002', 12, 'Удаляет сложные зубы и ставит импланты.', '/images/doctors/pavel.png'),
+    ('+79000000003', 5, 'Проводит профессиональную чистку.', '/images/doctors/maria.png'),
+    ('+79000000004', 3, 'Лечит зубы у взрослых.', '/images/doctors/dmitry.png')
+) AS d(phone, experience_years, bio, photo_url)
 JOIN users u ON u.phone = d.phone
 ON CONFLICT (user_id) DO NOTHING;
 
@@ -93,8 +93,10 @@ WHERE NOT EXISTS (
 
 -- Тестовые пациенты с анкетой и записями в разных статусах.
 -- Даты считаются от дня запуска скрипта, поэтому записи всегда «свежие».
+-- Если дата попала на выходной, запись переносится на ближайший будний день.
 --   patient1@dentatime.ru  Иван Петров    — есть завершённый осмотр (консультация пройдена)
---   patient2@dentatime.ru  Ольга Сидорова — одна запись, ждёт подтверждения админом
+--   patient2@dentatime.ru  Ольга Сидорова — вчерашняя подтверждённая запись к Анне (в кабинете врача видны
+--                          кнопки «Завершить» и «Неявка») и одна запись, которая ждёт подтверждения админом
 INSERT INTO users (phone, email, password_hash, role_id, full_name)
 SELECT p.phone, p.email, (SELECT password_hash FROM users WHERE phone = '+79000000000'), r.id, p.full_name
 FROM (VALUES
@@ -115,16 +117,25 @@ ON CONFLICT (user_id) DO NOTHING;
 
 INSERT INTO appointments (doctor_id, patient_id, service_id, cabinet_id, starts_at, ends_at, status)
 SELECT d.id, pt.id, s.id, c.id,
-       ((current_date + a.day_offset) + a.start_time::time) AT TIME ZONE 'Europe/Moscow',
-       ((current_date + a.day_offset) + a.start_time::time + make_interval(mins => s.duration_min)) AT TIME ZONE 'Europe/Moscow',
+       (w.day + a.start_time::time) AT TIME ZONE 'Europe/Moscow',
+       (w.day + a.start_time::time + make_interval(mins => s.duration_min)) AT TIME ZONE 'Europe/Moscow',
        a.status
 FROM (VALUES
     ('+79000000010', '+79000000001', 'Осмотр и консультация',    101, -30, '10:00', 'completed'),
     ('+79000000010', '+79000000004', 'Лечение кариеса',          102, -10, '15:00', 'cancelled'),
+    ('+79000000011', '+79000000001', 'Лечение кариеса',          101,  -1, '15:00', 'confirmed'),
     ('+79000000010', '+79000000001', 'Лечение кариеса',          101,   2, '11:00', 'confirmed'),
     ('+79000000010', '+79000000003', 'Профессиональная гигиена', 103,   4, '10:00', 'scheduled'),
     ('+79000000011', '+79000000001', 'Осмотр и консультация',    101,   2, '12:30', 'scheduled')
 ) AS a(patient_phone, doctor_phone, service_name, cabinet_number, day_offset, start_time, status)
+-- Суббота и воскресенье: будущие записи переносятся на понедельник, прошлые — на пятницу.
+CROSS JOIN LATERAL (
+    SELECT (current_date + a.day_offset) + CASE extract(isodow FROM current_date + a.day_offset)
+        WHEN 6 THEN CASE WHEN a.day_offset >= 0 THEN 2 ELSE -1 END
+        WHEN 7 THEN CASE WHEN a.day_offset >= 0 THEN 1 ELSE -2 END
+        ELSE 0
+    END AS day
+) w
 JOIN users pt ON pt.phone = a.patient_phone
 JOIN users d ON d.phone = a.doctor_phone
 JOIN services s ON s.name = a.service_name

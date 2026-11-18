@@ -30,14 +30,12 @@
      color: var(--color-muted);
 }
 .photo{
-    
     flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    min-width: 0;
+    width: 100%;
     height: 320px;
-    background: var(--color-white);
     border-radius: 20px;
+    object-fit: cover;
 }
 
 .actions{
@@ -181,6 +179,11 @@
     justify-content: center;
     align-items: center;
     color: var(--color-primary);
+    width: 100%;
+    font-size: 40px;
+    font-weight: 800;
+    object-fit: cover;
+    object-position: top;
 }
 .cardSpec{
     color: var(--color-primary);
