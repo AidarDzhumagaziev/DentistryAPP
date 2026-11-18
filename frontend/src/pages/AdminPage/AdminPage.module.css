@@ -46,8 +46,7 @@
 .tableWrap{
     border-radius: 12px;
     border:1px solid var(--color-border);
-    overflow: hidden;
-
+    overflow-x: auto;
 }
 .layout{
     display: flex;
@@ -108,6 +107,10 @@
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.appointmentActions button {
+    min-width: 140px;
 }
 .formError {
     background: #fdecea;

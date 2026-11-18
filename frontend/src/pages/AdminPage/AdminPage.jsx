@@ -3,6 +3,7 @@ import styles from './AdminPage.module.css';
 import { useState, useEffect } from 'react';
 import AdminCabinets from './AdminCabinets';
 import AdminSchedules from './AdminSchedules';
+import AdminAppointments from './AdminAppointments';
 import FilterButtons from '../../components/FilterButtons/FilterButtons';
 
 const sections = [
@@ -259,7 +260,8 @@ function AdminPage(){
             </div>)}
             {section === 'cabinets' && <AdminCabinets />}
             {section === 'schedules' && <AdminSchedules />}
-            {section !== 'services' && section !== 'cabinets' && section !== 'schedules' && <p>Раздел в разработке</p>}
+            {section === 'appointments' && <AdminAppointments />}
+            {section === 'doctors' && <p>Раздел в разработке</p>}
             </div>
         </div>
     )
