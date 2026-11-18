@@ -2,13 +2,14 @@ from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.api_v1.auth.validation import require_role
 
 from .crud import (
     orm_create_specialization,
     orm_delete_specialization,
+    orm_get_specialization_by_name,
     orm_get_specializations,
     orm_update_specialization,
 )
@@ -31,10 +32,14 @@ async def create_specialization(
     session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
     spec_create: SpecializationCreate,
 ):
-    specialization = await orm_create_specialization(
-        session=session, spec_create=spec_create
+    specialization = await orm_get_specialization_by_name(
+        session=session, name=spec_create.name
     )
-    return specialization
+    if specialization is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Specialization already exists"
+        )
+    return await orm_create_specialization(session=session, spec_create=spec_create)
 
 
 @router.get(

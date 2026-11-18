@@ -30,6 +30,11 @@ async def orm_get_specialization(
     return await session.scalar(stmt)
 
 
+async def orm_get_specialization_by_name(session: AsyncSession, name: str):
+    stmt = select(Specialization).where(Specialization.name == name)
+    return await session.scalar(stmt)
+
+
 async def orm_update_specialization(
     session: AsyncSession,
     specialization: Specialization,
