@@ -28,6 +28,11 @@ function hasConsultationIn(appointments) {
     );
 }
 
+const bookingErrors = {
+    'Slot is already booked': 'Это время уже заняли. Выберите другое.',
+    'Patient has appointment in this diaposon': 'У вас уже есть запись на это время. Выберите другое.',
+};
+
 function BookingPage(){
     const location = useLocation();
     const presetServiceId = location.state && location.state.serviceId ? location.state.serviceId : null;
@@ -77,15 +82,16 @@ function BookingPage(){
             }),
         })
             .then((response) => {
-                if (response.status === 409) {
-                    throw new Error('Это время уже заняли. Выберите другое.');
-                }
                 if (!response.ok) {
-                    throw new Error(`Не удалось записаться. Проверьте, заполнена ли анкета, или позвоните в клинику: ${CLINIC.phone}.`);
+                    return response.json().then((body) => {
+                        throw new Error(body.detail);
+                    });
                 }
                 setStep(5);
             })
-            .catch((err) => setBookingError(err.message))
+            .catch((err) => setBookingError(
+                bookingErrors[err.message] || `Не удалось записаться. Проверьте, заполнена ли анкета, или позвоните в клинику: ${CLINIC.phone}.`
+            ))
             .finally(() => setIsSending(false));
     }
     function getStepClass(number){

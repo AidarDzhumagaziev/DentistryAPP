@@ -116,16 +116,16 @@
     font-size: 13px;
     color: var(--color-muted);
 }
-.tags{
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-
-}
 .alert{
     padding: 4px 10px;
     border-radius: 999px;
     font-size: 13px;
     background: #fdecea;
     color: #b42318;
+}
+.tags{
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
 }
