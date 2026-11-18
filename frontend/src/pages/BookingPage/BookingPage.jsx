@@ -36,9 +36,10 @@ const bookingErrors = {
 function BookingPage(){
     const location = useLocation();
     const presetServiceId = location.state && location.state.serviceId ? location.state.serviceId : null;
+    const presetDoctorId = location.state && location.state.doctorId ? location.state.doctorId : null;
     const [step, setStep] = useState(presetServiceId ? 2 : 1);
     const [serviceId, setServiceId] = useState(presetServiceId);
-    const [doctorId, setDoctorId] = useState(null);
+    const [doctorId, setDoctorId] = useState(presetDoctorId);
     const [services, setServices] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [date, setDate] = useState('');
@@ -120,10 +121,12 @@ function BookingPage(){
         .then(([servicesData, myData]) => {
             setServices(servicesData);
             setMyAppointments(myData);
+            
+        const preset = servicesData.find((s) => s.id === presetServiceId);
 
-            const preset = servicesData.find((s) => s.id === presetServiceId);
             if (preset && preset.requires_consultation && !hasConsultationIn(myData)) {
                 setServiceId(null);
+                setDoctorId(null);
                 setStep(1);
             }
         });

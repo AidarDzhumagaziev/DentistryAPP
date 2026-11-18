@@ -93,6 +93,15 @@ function AccountPage() {
                         Отменить можно по телефону <a href={CLINIC.phoneLink} className={styles.hintPhone}>{CLINIC.phone}</a>
                     </span>
                 )}
+                {!isUpcoming(appointment) && (
+                    <Link
+                        to="/booking"
+                        state={{ serviceId: appointment.service.id, doctorId: appointment.doctor.user_id }}
+                        className={styles.againLink}
+                    >
+                        Записаться снова
+                    </Link>
+                )}
             </div>
         );
     }
