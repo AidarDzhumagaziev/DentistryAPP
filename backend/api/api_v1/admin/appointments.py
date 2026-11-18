@@ -14,10 +14,11 @@ from api.api_v1.appointments.dependencies import appointment_by_id
 from api.api_v1.appointments.schemas import AppointmentAdminCreate, AppointmentAdminRead
 
 from api.api_v1.appointments.validation import validate_appointment
+from api.api_v1.auth.validation import get_current_auth_user
 from api.api_v1.patients.crud import orm_get_patient
 from common.enums.enums_db import AppointmentStatus
 from core.db_helper import db_helper
-from core.models import Appointment
+from core.models import Appointment, User
 
 router = APIRouter(tags=["Admin: Appointments"])
 
@@ -37,7 +38,7 @@ async def admin_create_appointment(
             status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found"
         )
     schedule = await validate_appointment(
-        session=session, appointment_create=appointment_create
+        session=session, appointment_create=appointment_create, user=patient.user
     )
 
     appointment = await orm_create_appointment(
