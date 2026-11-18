@@ -5,9 +5,9 @@ import { getJson, authFetch } from '../../api/client';
 import { CLINIC } from '../../data/clinic';
 
 function formatDate(d) {
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
 }
 
 function addMinutes(start, minutes) {
@@ -33,7 +33,7 @@ const bookingErrors = {
     'Patient has appointment in this diaposon': 'У вас уже есть запись на это время. Выберите другое.',
 };
 
-function BookingPage(){
+function BookingPage() {
     const location = useLocation();
     const presetServiceId = location.state && location.state.serviceId ? location.state.serviceId : null;
     const presetDoctorId = location.state && location.state.doctorId ? location.state.doctorId : null;
@@ -95,57 +95,57 @@ function BookingPage(){
             ))
             .finally(() => setIsSending(false));
     }
-    function getStepClass(number){
-        if (number === step){
+    function getStepClass(number) {
+        if (number === step) {
             return `${styles.stepPill} ${styles.current}`
         }
-        if (number < step){
+        if (number < step) {
             return `${styles.stepPill} ${styles.done}`
         }
         return styles.stepPill
     }
 
-    function getCardClass(id,selectedId) {
+    function getCardClass(id, selectedId) {
         if (id === selectedId) {
             return `${styles.card} ${styles.selected}`;
-            }
-            return styles.card;
         }
+        return styles.card;
+    }
 
     useEffect(() => {
         Promise.all([
             getJson('/api/v1/services/'),
             authFetch('/api/v1/appointments/me/')
-            .then((r) => (r.ok ? r.json() : [])),
+                .then((r) => (r.ok ? r.json() : [])),
         ])
-        .then(([servicesData, myData]) => {
-            setServices(servicesData);
-            setMyAppointments(myData);
-            
-        const preset = servicesData.find((s) => s.id === presetServiceId);
+            .then(([servicesData, myData]) => {
+                setServices(servicesData);
+                setMyAppointments(myData);
 
-            if (preset && preset.requires_consultation && !hasConsultationIn(myData)) {
-                setServiceId(null);
-                setDoctorId(null);
-                setStep(1);
-            }
-        });
+                const preset = servicesData.find((s) => s.id === presetServiceId);
+
+                if (preset && preset.requires_consultation && !hasConsultationIn(myData)) {
+                    setServiceId(null);
+                    setDoctorId(null);
+                    setStep(1);
+                }
+            });
     }, [presetServiceId]);
 
     useEffect(() => {
         getJson('/api/v1/doctors/')
-        .then((data) => setDoctors(data))
+            .then((data) => setDoctors(data))
     }, []);
 
     useEffect(() => {
         if (!date) return;
 
         getJson(`/api/v1/slots/?service_id=${serviceId}&doctor_id=${doctorId}&date=${date}`)
-        .then((data) => setSlots(data))
+            .then((data) => setSlots(data))
     }, [serviceId, doctorId, date]);
 
-    const selectedService = services.find((s)=> s.id === serviceId);
-    const selectedDoctor = doctors.find((s)=> s.user_id === doctorId);
+    const selectedService = services.find((s) => s.id === serviceId);
+    const selectedDoctor = doctors.find((s) => s.user_id === doctorId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.specialization.id === selectedService.specialization_id))
     const hasConsultation = hasConsultationIn(myAppointments);
 
@@ -154,135 +154,136 @@ function BookingPage(){
     }
 
     const consultationService = services.find((s) => s.name === CONSULTATION_NAME);
-    return(
+    return (
         <div className={styles.page}>
             <h1>Запись</h1>
-            <div className={styles.steps}>{stepNames.map((name, index) => ( 
-                <span key={name} className={getStepClass(index + 1)}>{index + 1}. {name}</span>  
-                    
+            <div className={styles.steps}>{stepNames.map((name, index) => (
+                <span key={name} className={getStepClass(index + 1)}>{index + 1}. {name}</span>
+
             ))}
             </div>
             <div className={styles.layout}>
-            <section className={styles.main}>
-                {(step === 1) && <h2>Выберите услугу</h2>}
-                {(step === 1) && consultationService && services.some(isLocked) && (
-                <div className={styles.notice}>
-                    <span>{services.filter(isLocked).map((s) => s.name).join(', ')} — только после осмотра.</span>
-                    <button
-                        type="button"
-                        className={styles.noticeButton}
-                        onClick={() => {
-                            setServiceId(consultationService.id);
-                            setDoctorId(null);
-                            setSlotStart(null);
-                            setStep(2);
-                        }}
-                    >
-                        Записаться на осмотр
-                    </button>
-                </div>
-                )}
-                {(step === 1) && 
-                <div className={styles.grid}>
-                    {services.map((service) => (
-                        <button key={service.id} disabled={isLocked(service)} className={getCardClass(service.id,serviceId)} 
-                            onClick={() => {
-                                setServiceId(service.id);
-                                setDoctorId(null);
-                                setSlotStart(null);
-                            }} >
-                            <span className={styles.name} >{service.name}</span>
-                            <span className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</span>
-                            {isLocked(service) && <span className={styles.lockHint}>Сначала нужен осмотр</span>}
-                        </button>
-                    ))}
-                </div>
-                }
-                {(step === 2) && <h2>Выберите врача</h2>}
-                {(step === 2) && 
-                <div className={styles.grid}>
-                    {suitableDoctors.map((doctor) => (
-                        <button key={doctor.user_id} className={getCardClass(doctor.user_id, doctorId)}
-                            onClick={() => {
-                            setDoctorId(doctor.user_id);
-                            setSlotStart(null);}
-                            }>
-                            <span className={styles.name} >{doctor.user.full_name}</span>
-                            <span className={styles.specialization} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</span>
-                            <span className={styles.experience} >Стаж {doctor.experience_years} лет</span>
-                            <span className={styles.bio} >{doctor.bio}</span>
-                        </button>
-                    ))}
-                </div>
-                }
-
-
-
-                {(step === 3) && <h2>Выберите дату и время</h2>}
-                {(step === 3) && <input type="date" value={date} 
-                    onChange={(e) => {
-                        setDate(e.target.value);
-                        setSlotStart(null);
-                    }}/>
-                }
-                {(step === 3 && isSearching) && <p>Ищем ближайшее свободное время…</p>}
-                {(step === 3 && !isSearching && !date) && <p>В ближайшие две недели свободного времени нет. Выберите дату в календаре или другого врача.</p>}
-                {(step === 3) &&
-                    <div className={styles.timegrid}>
-                        {slots.map((slot) => (
-                            <button key={slot.start} className={getCardClass(slot.start, slotStart)} onClick={() => setSlotStart(slot.start)}>
-                                {slot.start.slice(11, 16)}
+                <section className={styles.main}>
+                    {(step === 1) && <h2>Выберите услугу</h2>}
+                    {(step === 1) && consultationService && services.some(isLocked) && (
+                        <div className={styles.notice}>
+                            <span>{services.filter(isLocked).map((s) => s.name).join(', ')} — только после осмотра.</span>
+                            <button
+                                type="button"
+                                className={styles.noticeButton}
+                                onClick={() => {
+                                    setServiceId(consultationService.id);
+                                    setDoctorId(null);
+                                    setSlotStart(null);
+                                    setStep(2);
+                                }}
+                            >
+                                Записаться на осмотр
                             </button>
-                        ))}
+                        </div>
+                    )}
+                    {(step === 1) &&
+                        <div className={styles.grid}>
+                            {services.map((service) => (
+                                <button key={service.id} disabled={isLocked(service)} className={getCardClass(service.id, serviceId)}
+                                    onClick={() => {
+                                        setServiceId(service.id);
+                                        setDoctorId(null);
+                                        setSlotStart(null);
+                                    }} >
+                                    <span className={styles.name} >{service.name}</span>
+                                    <span className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</span>
+                                    {isLocked(service) && <span className={styles.lockHint}>Сначала нужен осмотр</span>}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                    {(step === 2) && <h2>Выберите врача</h2>}
+                    {(step === 2) &&
+                        <div className={styles.grid}>
+                            {suitableDoctors.map((doctor) => (
+                                <button key={doctor.user_id} className={getCardClass(doctor.user_id, doctorId)}
+                                    onClick={() => {
+                                        setDoctorId(doctor.user_id);
+                                        setSlotStart(null);
+                                    }
+                                    }>
+                                    <span className={styles.name} >{doctor.user.full_name}</span>
+                                    <span className={styles.specialization} >{doctor.specializations.map((s) => s.specialization.name).join(', ')}</span>
+                                    <span className={styles.experience} >Стаж {doctor.experience_years} лет</span>
+                                    <span className={styles.bio} >{doctor.bio}</span>
+                                </button>
+                            ))}
+                        </div>
+                    }
+
+
+
+                    {(step === 3) && <h2>Выберите дату и время</h2>}
+                    {(step === 3) && <input type="date" value={date}
+                        onChange={(e) => {
+                            setDate(e.target.value);
+                            setSlotStart(null);
+                        }} />
+                    }
+                    {(step === 3 && isSearching) && <p>Ищем ближайшее свободное время…</p>}
+                    {(step === 3 && !isSearching && !date) && <p>В ближайшие две недели свободного времени нет. Выберите дату в календаре или другого врача.</p>}
+                    {(step === 3) &&
+                        <div className={styles.timegrid}>
+                            {slots.map((slot) => (
+                                <button key={slot.start} className={getCardClass(slot.start, slotStart)} onClick={() => setSlotStart(slot.start)}>
+                                    {slot.start.slice(11, 16)}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                    {(step === 3 && date && slots.length === 0) && <p>На эту дату нет свободного времени</p>}
+
+
+                    {(step === 4) && <h2>Подтверждение</h2>}
+                    {(step === 4) &&
+                        <div className={styles.confirm}>
+                            <label className={styles.field}>
+                                Комментарий для врача (необязательно)
+                                <textarea rows="3" placeholder="Например: болит зуб слева внизу" className={styles.textarea} />
+                            </label>
+                            <p className={styles.note}>Отменить запись онлайн можно не позднее чем за 24 часа.</p>
+                        </div>
+                    }
+                    {(step === 5) && <div className={styles.doneScreen}>
+                        <h2>Вы записаны</h2>
+                        <p>Запись появилась в личном кабинете.</p>
+                        <Link to="/account" className={styles.doneLink}>Перейти к моим записям</Link>
+                    </div>}
+                    {bookingError && <p className={styles.bookingError}>{bookingError}</p>}
+                    <div className={styles.actions}>
+                        {(step > 1 && step < 5) && <button className={styles.secondary} onClick={() => setStep(step - 1)}>Назад</button>}
+                        {(step < 4) && (
+                            <button
+                                onClick={() => {
+                                    if (step === 2) {
+                                        setDate('');
+                                        setSlots([]);
+                                        setIsSearching(true);
+                                        findNearestDate(0);
+                                    }
+                                    setStep(step + 1);
+                                }}
+                                disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}
+                            >
+                                Далее
+                            </button>
+                        )}
+                        {(step === 4) && (
+                            <button onClick={submitBooking} disabled={isSending}>
+                                {isSending ? 'Записываем…' : 'Записаться'}
+                            </button>
+                        )}
                     </div>
-                } 
-                {(step === 3 && date && slots.length === 0) && <p>На эту дату нет свободного времени</p>}
-
-
-                {(step === 4) && <h2>Подтверждение</h2>}
-                {(step === 4) && 
+                </section>
+                <aside className={styles.summary}>
+                    <h3>Ваша запись</h3>
                     <div className={styles.confirm}>
-                        <label className={styles.field}>
-                            Комментарий для врача (необязательно)
-                            <textarea rows="3" placeholder="Например: болит зуб слева внизу" className={styles.textarea} />
-                        </label>
-                        <p className={styles.note}>Отменить запись онлайн можно не позднее чем за 24 часа.</p>
-                    </div>
-                }
-                {(step === 5) && <div className={styles.doneScreen}>
-                    <h2>Вы записаны</h2>
-                    <p>Запись появилась в личном кабинете.</p>
-                    <Link to="/account" className={styles.doneLink}>Перейти к моим записям</Link>
-                </div>}
-                {bookingError && <p className={styles.bookingError}>{bookingError}</p>}
-                <div className={styles.actions}>
-                    {(step > 1 && step < 5) && <button className={styles.secondary} onClick={() => setStep(step - 1)}>Назад</button>}
-                    {(step < 4) && (
-                        <button
-                            onClick={() => {
-                                if (step === 2) {
-                                    setDate('');
-                                    setSlots([]);
-                                    setIsSearching(true);
-                                    findNearestDate(0);
-                                }
-                                setStep(step + 1);
-                            }}
-                            disabled={(step === 1 && serviceId === null) || (step === 2 && doctorId === null) || (step === 3 && slotStart === null)}
-                        >
-                            Далее
-                        </button>
-                    )}
-                     {(step === 4) && (
-                        <button onClick={submitBooking} disabled={isSending}>
-                            {isSending ? 'Записываем…' : 'Записаться'}
-                        </button>
-                    )}
-                </div>
-            </section>
-            <aside className={styles.summary}>
-                <h3>Ваша запись</h3>
-                <div className={styles.confirm}>
                         <div className={styles.confirmRow}>
                             <span className={styles.label}>Услуга</span>
                             <span className={styles.value}>{selectedService ? selectedService.name : '—'}</span>
@@ -297,14 +298,14 @@ function BookingPage(){
                         </div>
                         <div className={styles.confirmRow}>
                             <span className={styles.label} >Время</span>
-                            <span className={styles.value} >{slotStart ?slotStart.slice(11, 16) : '—'}</span>
+                            <span className={styles.value} >{slotStart ? slotStart.slice(11, 16) : '—'}</span>
                         </div>
                         <div className={styles.confirmRow}>
                             <span className={styles.label} >Стоимость</span>
                             <span className={styles.value} >{selectedService ? `от ${Number(selectedService.price_from).toLocaleString('ru-RU')} ₽` : '—'}</span>
                         </div>
                     </div>
-            </aside>
+                </aside>
             </div>
         </div>
     )
