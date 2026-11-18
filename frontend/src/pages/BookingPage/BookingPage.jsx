@@ -13,8 +13,7 @@ function formatDate(d) {
 function addMinutes(start, minutes) {
     const d = new Date(start);
     d.setMinutes(d.getMinutes() + minutes);
-    const time = d.toTimeString().slice(0, 8);
-    return `${formatDate(d)}T${time}`;
+    return d.toISOString();
 }
 
 const stepNames = ['Услуга', 'Врач', 'Дата и время', 'Подтверждение'];
