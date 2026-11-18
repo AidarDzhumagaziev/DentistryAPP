@@ -130,7 +130,7 @@ async def cancelled_appointment_by_doctor(
         appointment=appointment,
         appointment_status=AppointmentStatus.CANCELLED,
     )
-    return appointment
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
 
 
 @router.patch(
@@ -147,7 +147,7 @@ async def cancelled_appointment_by_patient(
         appointment=appointment,
         appointment_status=AppointmentStatus.CANCELLED,
     )
-    return appointment
+    return await orm_get_appointment(session=session, appointment_id=appointment.id)
 
 
 @router.patch(
