@@ -3,6 +3,7 @@ import styles from './BookingPage.module.css';
 import { Link, useLocation } from 'react-router-dom';
 import { getJson, authFetch } from '../../api/client';
 import { CLINIC } from '../../data/clinic';
+import HealthForm from '../../components/HealthForm/HealthForm';
 
 function formatDate(d) {
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -50,6 +51,7 @@ function BookingPage() {
     const [bookingError, setBookingError] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
     const [days, setDays] = useState([]);
+    const [hasProfile, setHasProfile] = useState(true);
 
     function loadDays() {
         const dates = [];
@@ -100,6 +102,22 @@ function BookingPage() {
             ))
             .finally(() => setIsSending(false));
     }
+    function saveProfileAndBook(values) {
+        setBookingError(null);
+        authFetch('/api/v1/patients/me/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Сервер ответил ошибкой');
+                }
+                setHasProfile(true);
+                submitBooking();
+            })
+            .catch(() => setBookingError('Не удалось сохранить анкету. Попробуйте ещё раз.'));
+    }
     function getStepClass(number) {
         if (number === step) {
             return `${styles.stepPill} ${styles.current}`
@@ -122,10 +140,12 @@ function BookingPage() {
             getJson('/api/v1/services/'),
             authFetch('/api/v1/appointments/me/')
                 .then((r) => (r.ok ? r.json() : [])),
+            authFetch('/api/v1/patients/me/').then((r) => r.ok),
         ])
-            .then(([servicesData, myData]) => {
+            .then(([servicesData, myData, profileOk]) => {
                 setServices(servicesData);
                 setMyAppointments(myData);
+                setHasProfile(profileOk);
 
                 const preset = servicesData.find((s) => s.id === presetServiceId);
 
@@ -172,7 +192,7 @@ function BookingPage() {
                     {(step === 1) && <h2>Выберите услугу</h2>}
                     {(step === 1) && consultationService && services.some(isLocked) && (
                         <div className={styles.notice}>
-                            <span>{services.filter(isLocked).map((s) => s.name).join(', ')} — только после осмотра.</span>
+                            <span>некоторые услуги доступны только после осмотра.</span>
                             <button
                                 type="button"
                                 className={styles.noticeButton}
@@ -268,6 +288,12 @@ function BookingPage() {
                             <p className={styles.note}>Отменить запись онлайн можно не позднее чем за 24 часа.</p>
                         </div>
                     }
+                    {(step === 4 && !hasProfile) && (
+                        <div className={styles.confirm}>
+                            <p className={styles.note}>Перед первой записью заполните анкету здоровья — её увидит врач. Это нужно сделать один раз.</p>
+                            <HealthForm submitLabel={isSending ? 'Записываем…' : 'Сохранить анкету и записаться'} onSave={saveProfileAndBook} />
+                        </div>
+                    )}
                     {(step === 5) && <div className={styles.doneScreen}>
                         <h2>Вы записаны</h2>
                         <p>Запись появилась в личном кабинете.</p>
@@ -292,7 +318,7 @@ function BookingPage() {
                                 Далее
                             </button>
                         )}
-                        {(step === 4) && (
+                        {(step === 4 && hasProfile) && (
                             <button onClick={submitBooking} disabled={isSending}>
                                 {isSending ? 'Записываем…' : 'Записаться'}
                             </button>
