@@ -5,6 +5,7 @@ import AdminCabinets from './AdminCabinets';
 import AdminSchedules from './AdminSchedules';
 import AdminAppointments from './AdminAppointments';
 import FilterButtons from '../../components/FilterButtons/FilterButtons';
+import AdminDoctors from './AdminDoctors';
 
 const sections = [
     { id: 'services', label : 'Услуги' },
@@ -261,7 +262,7 @@ function AdminPage(){
             {section === 'cabinets' && <AdminCabinets />}
             {section === 'schedules' && <AdminSchedules />}
             {section === 'appointments' && <AdminAppointments />}
-            {section === 'doctors' && <p>Раздел в разработке</p>}
+            {section === 'doctors' && <AdminDoctors />}
             </div>
         </div>
     )
