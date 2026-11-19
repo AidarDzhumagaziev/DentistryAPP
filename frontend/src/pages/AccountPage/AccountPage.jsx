@@ -5,6 +5,7 @@ import { authFetch } from '../../api/client';
 import styles from './AccountPage.module.css';
 import HealthForm from '../../components/HealthForm/HealthForm';
 import { CLINIC } from '../../data/clinic';
+import { formatPhone } from '../../utils/phone';
 
 function getDay(start) {
     return new Date(start).getDate();
@@ -194,7 +195,25 @@ function AccountPage() {
                     )}
                 </div>
             )}
-            {tab === 'profile' && <p>Профиль появится скоро.</p>}
+            {tab === 'profile' && (
+                <div className={styles.profileCard}>
+                    {isProfileLoading && <p>Загрузка…</p>}
+                    {!isProfileLoading && profile && (
+                        <dl className={styles.profileList}>
+                            <dt>Имя</dt>
+                            <dd>{profile.user.full_name}</dd>
+                            <dt>Телефон</dt>
+                            <dd>{formatPhone(profile.user.phone.slice(2))}</dd>
+                            <dt>Дата рождения</dt>
+                            <dd>{profile.birth_date.split('-').reverse().join('.')}</dd>
+                        </dl>
+                    )}
+                    {!isProfileLoading && !profile && (
+                        <p className={styles.profileNote}>Данные появятся здесь после заполнения анкеты здоровья.</p>
+                    )}
+                    <p className={styles.profileNote}>Изменить имя или телефон можно по телефону клиники <a href={CLINIC.phoneLink} className={styles.hintPhone}>{CLINIC.phone}</a></p>
+                </div>
+            )}
             {tab === 'health' && (
                 <div>
                     {isProfileLoading && <p>Загрузка…</p>}

@@ -159,6 +159,27 @@
     margin: 12px 0;
     color: var(--color-muted);
 }
+.profileCard {
+    max-width: 520px;
+    padding: 20px 24px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+}
+
+.profileList {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 24px;
+}
+
+.profileList dt {
+    color: var(--color-muted);
+}
+
+.profileList dd {
+    font-weight: 600;
+}
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
 .completed::before { background: #2e7d32; }

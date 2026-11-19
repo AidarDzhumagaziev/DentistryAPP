@@ -2,15 +2,8 @@ import styles from './RegisterPage.module.css';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { formatPhone } from '../../utils/phone';
 
-function formatPhone(d) {
-  let result = '+7';
-  if (d.length > 0) result += ' ' + d.slice(0, 3);
-  if (d.length > 3) result += ' ' + d.slice(3, 6);
-  if (d.length > 6) result += '-' + d.slice(6, 8);
-  if (d.length > 8) result += '-' + d.slice(8, 10);
-  return result;
-}
 
 const serverErrors = {
   'Email already registered': 'Этот email уже зарегистрирован',
