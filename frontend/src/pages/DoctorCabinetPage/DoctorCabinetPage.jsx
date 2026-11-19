@@ -51,12 +51,14 @@ function DoctorCabinetPage() {
     function changeStatus(id, action) {
         authFetch(`/api/v1/appointments/${id}/${action}`, { method: 'PATCH' })
             .then((response) => {
-                if (!response.ok && response.status !== 500) {
+                if (!response.ok) {
                     throw new Error('Сервер ответил ошибкой');
                 }
-                return loadAppointments();
+                return response.json();
             })
-            .then((data) => setAppointments(data))
+            .then((updated) => {
+                setAppointments(appointments.map((a) => (a.id === id ? updated : a)));
+            })
             .catch(() => alert('Не удалось изменить статус'));
     }
 

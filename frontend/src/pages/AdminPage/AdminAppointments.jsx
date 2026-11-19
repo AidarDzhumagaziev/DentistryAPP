@@ -16,16 +16,13 @@ function formatDateTime(value) {
     return `${new Date(value).toLocaleDateString('ru-RU')} ${value.slice(11, 16)}`;
 }
 
-function loadAllAppointments(doctors) {
-    const requests = doctors.map((doctor) =>
-        authFetch(`/api/v1/doctors/${doctor.user_id}/appointments`).then((response) => {
-            if (!response.ok) {
-                throw new Error('Сервер ответил ошибкой');
-            }
-            return response.json();
-        })
-    );
-    return Promise.all(requests).then((lists) => lists.flat());
+function loadAllAppointments() {
+    return authFetch('/api/v1/admin/appointments/?limit=1000').then((response) => {
+        if (!response.ok) {
+            throw new Error('Сервер ответил ошибкой');
+        }
+        return response.json();
+    });
 }
 
 function AdminAppointments() {
@@ -38,12 +35,11 @@ function AdminAppointments() {
     const [date, setDate] = useState('');
 
     useEffect(() => {
-        getJson('/api/v1/doctors/')
-            .then((doctorsData) => {
+        Promise.all([getJson('/api/v1/doctors/'), loadAllAppointments()])
+            .then(([doctorsData, appointmentsData]) => {
                 setDoctors(doctorsData);
-                return loadAllAppointments(doctorsData);
+                setAppointments(appointmentsData);
             })
-            .then((data) => setAppointments(data))
             .catch(() => setError('Не удалось загрузить записи'))
             .finally(() => setIsLoading(false));
     }, []);
@@ -51,13 +47,14 @@ function AdminAppointments() {
     function changeStatus(id, action) {
         authFetch(`/api/v1/appointments/${id}/${action}`, { method: 'PATCH' })
             .then((response) => {
-                // 500 пока не ошибка: статус сохраняется, падает только ответ сервера
-                if (!response.ok && response.status !== 500) {
+                if (!response.ok) {
                     throw new Error('Сервер ответил ошибкой');
                 }
-                return loadAllAppointments(doctors);
+                return response.json();
             })
-            .then((data) => setAppointments(data))
+            .then((updated) => {
+                setAppointments(appointments.map((a) => (a.id === id ? updated : a)));
+            })
             .catch(() => alert('Не удалось изменить статус записи'));
     }
 
