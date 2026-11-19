@@ -192,7 +192,7 @@ function BookingPage() {
                     {(step === 1) && <h2>Выберите услугу</h2>}
                     {(step === 1) && consultationService && services.some(isLocked) && (
                         <div className={styles.notice}>
-                            <span>некоторые услуги доступны только после осмотра.</span>
+                            <span>Некоторые услуги доступны только после осмотра.</span>
                             <button
                                 type="button"
                                 className={styles.noticeButton}
