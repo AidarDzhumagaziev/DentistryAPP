@@ -21,7 +21,7 @@ class PatientCreate(PatientBase):
 
 class PatientRead(PatientBase):
     no_show_count: int
-    notes: str
+    notes: str | None = None
     user: UserShortRead
 
 
