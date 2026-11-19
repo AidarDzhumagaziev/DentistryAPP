@@ -39,6 +39,9 @@ function AccountPage() {
     const [appointments, setAppointments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [profile, setProfile] = useState(null);
+    const [isProfileLoading, setIsProfileLoading] = useState(true);
+    const [profileMessage, setProfileMessage] = useState(null);
 
     useEffect(() => {
         authFetch('/api/v1/appointments/me/')
@@ -52,7 +55,41 @@ function AccountPage() {
             .catch(() => setError('Не удалось загрузить записи'))
             .finally(() => setIsLoading(false));
     }, []);
+    useEffect(() => {
+        authFetch('/api/v1/patients/me/')
+            .then((response) => {
+                if (response.status === 404) {
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error('Сервер ответил ошибкой');
+                }
+                return response.json();
+            })
+            .then((data) => setProfile(data))
+            .catch(() => setProfileMessage('Не удалось загрузить анкету'))
+            .finally(() => setIsProfileLoading(false));
+    }, []);
 
+    function saveProfile(values) {
+        setProfileMessage(null);
+        authFetch('/api/v1/patients/me/', {
+            method: profile ? 'PATCH' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(values),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Сервер ответил ошибкой');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setProfile(data);
+                setProfileMessage('Анкета сохранена');
+            })
+            .catch(() => setProfileMessage('Не удалось сохранить анкету'));
+    }
     function cancel(id) {
         if (!confirm('Отменить запись?')) return;
 
@@ -159,10 +196,16 @@ function AccountPage() {
             )}
             {tab === 'profile' && <p>Профиль появится скоро.</p>}
             {tab === 'health' && (
-                <HealthForm
-                    submitLabel="Сохранить"
-                    onSave={(values) => alert('Сохранение появится, когда сервер будет готов: ' + JSON.stringify(values))}
-                />
+                <div>
+                    {isProfileLoading && <p>Загрузка…</p>}
+                    {!isProfileLoading && !profile && (
+                        <p className={styles.profileNote}>Анкету видит врач перед приёмом. Её нужно заполнить один раз, перед первой записью.</p>
+                    )}
+                    {!isProfileLoading && (
+                        <HealthForm initial={profile} submitLabel="Сохранить" onSave={saveProfile} />
+                    )}
+                    {profileMessage && <p className={styles.profileNote}>{profileMessage}</p>}
+                </div>
             )}
         </div>
     );

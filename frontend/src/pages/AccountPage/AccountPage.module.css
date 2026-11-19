@@ -155,6 +155,10 @@
     color: var(--color-white);
 }
 
+.profileNote {
+    margin: 12px 0;
+    color: var(--color-muted);
+}
 .scheduled::before { background: #9aa4b2; }
 .confirmed::before { background: var(--color-primary); }
 .completed::before { background: #2e7d32; }
