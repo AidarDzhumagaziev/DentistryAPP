@@ -23,7 +23,7 @@ function RegisterPage(){
     function handleSubmit(e) {
         e.preventDefault();
         if (phoneDigits.length !== 10) {
-            setError('Не правильный формат нелефона');
+            setError('Введите телефон полностью');
             return;
         }
         if (password.length < 8) {
