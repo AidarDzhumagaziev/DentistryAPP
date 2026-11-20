@@ -55,6 +55,7 @@ class Appointment(Base, CreatedAtMixin):
     patient: Mapped["Patient"] = relationship(back_populates="appointments")
     service: Mapped["Service"] = relationship(back_populates="appointments")
     cabinet: Mapped["Cabinet"] = relationship(back_populates="appointments")
+    medical_record: Mapped["MedicalRecord"] = relationship(back_populates="appointment")
 
 
 class MedicalRecord(Base, TimeStampMixin):
@@ -68,3 +69,5 @@ class MedicalRecord(Base, TimeStampMixin):
     objective_findings: Mapped[str | None]
     diagnosis: Mapped[str | None]
     treatment_plan: Mapped[str | None]
+
+    appointment: Mapped["Appointment"] = relationship(back_populates="medical_record")
