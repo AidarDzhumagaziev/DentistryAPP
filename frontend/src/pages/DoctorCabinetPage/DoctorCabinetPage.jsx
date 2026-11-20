@@ -1,6 +1,7 @@
 import { statusNames } from '../../data/mockAppointments';
 import { useState, useEffect } from 'react';
 import { authFetch } from '../../api/client';
+import MedicalRecord from '../../components/MedicalRecord/MedicalRecord';
 
 import styles from './DoctorCabinetPage.module.css';
 
@@ -102,6 +103,7 @@ function DoctorCabinetPage() {
                                 <span className={`${styles.status} ${styles[appointment.status]}`}>{statusNames[appointment.status]}</span>
                                 {isFilled(appointment.patient.allergies) && <span className={styles.alert}>Аллергии: {appointment.patient.allergies}</span>}
                                 {isFilled(appointment.patient.chronic_diseas) && <span className={styles.alert}>Хронические болезни: {appointment.patient.chronic_diseas}</span>}
+                                {appointment.status === 'completed' && <MedicalRecord appointmentId={appointment.id} editable />}
                             </div>
 
 

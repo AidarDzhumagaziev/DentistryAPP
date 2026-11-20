@@ -108,8 +108,10 @@
 
 .timeBox{
     display: flex;
+    margin-top: 26px;
     flex-direction: column;
     width: 70px;
+    align-self: flex-start;
 }
 
 .duration{
@@ -128,4 +130,5 @@
     gap: 8px;
     margin-top: 4px;
     flex-wrap: wrap;
+    align-items: center;
 }

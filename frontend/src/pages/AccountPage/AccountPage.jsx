@@ -6,6 +6,7 @@ import styles from './AccountPage.module.css';
 import HealthForm from '../../components/HealthForm/HealthForm';
 import { CLINIC } from '../../data/clinic';
 import { formatPhone } from '../../utils/phone';
+import MedicalRecord from '../../components/MedicalRecord/MedicalRecord';
 
 function getDay(start) {
     return new Date(start).getDate();
@@ -122,6 +123,7 @@ function AccountPage() {
                     <span className={`${styles.status} ${styles[appointment.status]}`}>
                         {statusNames[appointment.status]}
                     </span>
+                    {appointment.status === 'completed' && <MedicalRecord appointmentId={appointment.id} />}
                 </div>
                 {canCancel(appointment) && (
                     <button onClick={() => cancel(appointment.id)} className="danger">Отменить</button>
