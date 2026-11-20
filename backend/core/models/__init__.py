@@ -14,6 +14,7 @@ __all__ = [
     "ScheduleException",
     "Appointment",
     "WaitlistEntry",
+    "MedicalRecord",
 ]
 
 
@@ -25,4 +26,4 @@ from .doctors import Doctor, DoctorSpecialization, Specialization
 from .cabinets import Cabinet
 from .services import Service
 from .schedules import WorkSchedule, ScheduleException, WaitlistEntry
-from .appointments import Appointment
+from .appointments import Appointment, MedicalRecord
