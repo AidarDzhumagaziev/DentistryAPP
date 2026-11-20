@@ -206,7 +206,7 @@ function BookingPage() {
                                     setStep(2);
                                 }}
                             >
-                            <span>Некоторые услуги доступны только после консультации врача.</span>
+                            <span>Записаться на консультацию</span>
                             </button>
                         </div>
                     )}
@@ -284,10 +284,6 @@ function BookingPage() {
                     {(step === 4) && <h2>Подтверждение</h2>}
                     {(step === 4) &&
                         <div className={styles.confirm}>
-                            <label className={styles.field}>
-                                Комментарий для врача (необязательно)
-                                <textarea rows="3" placeholder="Например: болит зуб слева внизу" className={styles.textarea} />
-                            </label>
                             <p className={styles.note}>Отменить запись онлайн можно не позднее чем за 24 часа.</p>
                         </div>
                     }

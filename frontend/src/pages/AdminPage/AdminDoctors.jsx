@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import { authFetch, getJson } from '../../api/client';
 import { initials } from '../../utils/initials';
 import { plural } from '../../utils/plural';
+import { formatPhone } from '../../utils/phone';
 import styles from './AdminPage.module.css';
+
+
+const createErrors = {
+    'Phone already registered': 'Этот телефон уже занят',
+    'Email already registered': 'Эта почта уже занята',
+};
 
 function AdminDoctors() {
     const [doctors, setDoctors] = useState([]);
@@ -11,6 +18,10 @@ function AdminDoctors() {
     const [error, setError] = useState(null);
 
     const [editingId, setEditingId] = useState(null);
+    const [isCreating, setIsCreating] = useState(false);
+    const [fullName, setFullName] = useState('');
+    const [phoneDigits, setPhoneDigits] = useState('');
+    const [email, setEmail] = useState('');
     const [experience, setExperience] = useState('');
     const [bio, setBio] = useState('');
     const [photoUrl, setPhotoUrl] = useState('');
@@ -27,12 +38,32 @@ function AdminDoctors() {
             .finally(() => setIsLoading(false));
     }, []);
 
+    function startCreate() {
+        setEditingId(null);
+        setIsCreating(true);
+        setFullName('');
+        setPhoneDigits('');
+        setEmail('');
+        setExperience('');
+        setBio('');
+        setPhotoUrl('');
+        setSpecIds([]);
+        setFormError(null);
+    }
+
     function startEdit(doctor) {
+        setIsCreating(false);
         setEditingId(doctor.user_id);
         setExperience(String(doctor.experience_years));
         setBio(doctor.bio);
         setPhotoUrl(doctor.photo_url);
         setSpecIds(doctor.specializations.map((s) => s.specialization.id));
+        setFormError(null);
+    }
+
+    function closeForm() {
+        setEditingId(null);
+        setIsCreating(false);
         setFormError(null);
     }
 
@@ -46,6 +77,20 @@ function AdminDoctors() {
 
     function handleSubmit(e) {
         e.preventDefault();
+        if (isCreating) {
+            if (!fullName.trim()) {
+                setFormError('Укажите ФИО врача');
+                return;
+            }
+            if (phoneDigits.length !== 10) {
+                setFormError('Введите телефон полностью');
+                return;
+            }
+            if (!email.includes('@')) {
+                setFormError('Укажите почту врача');
+                return;
+            }
+        }
         const years = Number(experience);
         if (!Number.isInteger(years) || years < 1) {
             setFormError('Стаж — целое число лет, не меньше 1');
@@ -59,27 +104,40 @@ function AdminDoctors() {
             setFormError('Выберите хотя бы одну специализацию');
             return;
         }
-        authFetch(`/api/v1/doctors/${editingId}/`, {
-            method: 'PATCH',
+
+        const doctorData = {
+            experience_years: years,
+            bio: bio.trim(),
+            photo_url: photoUrl.trim(),
+            specializations_ids: specIds,
+        };
+        const url = isCreating ? '/api/v1/admin/doctors/' : `/api/v1/doctors/${editingId}/`;
+        const body = isCreating
+            ? { ...doctorData, user: { full_name: fullName.trim(), phone: '+7' + phoneDigits, email: email.trim().toLowerCase() } }
+            : doctorData;
+
+        authFetch(url, {
+            method: isCreating ? 'POST' : 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                experience_years: years,
-                bio: bio.trim(),
-                photo_url: photoUrl.trim(),
-                specializations_ids: specIds,
-            }),
+            body: JSON.stringify(body),
         })
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Сервер ответил ошибкой');
+                    return response.json().then((data) => {
+                        throw new Error(data.detail);
+                    });
                 }
                 return response.json();
             })
-            .then((updated) => {
-                setDoctors(doctors.map((d) => (d.user_id === updated.user_id ? updated : d)));
-                setEditingId(null);
+            .then((saved) => {
+                if (isCreating) {
+                    setDoctors([...doctors, saved]);
+                } else {
+                    setDoctors(doctors.map((d) => (d.user_id === saved.user_id ? saved : d)));
+                }
+                closeForm();
             })
-            .catch(() => setFormError('Не удалось сохранить врача'));
+            .catch((err) => setFormError(createErrors[err.message] || 'Не удалось сохранить врача'));
     }
 
     if (isLoading) {
@@ -90,17 +148,39 @@ function AdminDoctors() {
     }
 
     const editingDoctor = doctors.find((d) => d.user_id === editingId);
+    const showForm = isCreating || editingDoctor;
 
     return (
         <div>
             <div className={styles.top}>
                 <h1>Врачи</h1>
+                {!showForm && <button onClick={startCreate}>Добавить врача</button>}
             </div>
-            <p className={styles.muted}>Добавить нового врача можно будет, когда сервер научится создавать пользователя-врача.</p>
 
-            {editingDoctor && (
+            {showForm && (
                 <form className={styles.formCard} onSubmit={handleSubmit}>
-                    <h2>Изменить: {editingDoctor.user.full_name}</h2>
+                    <h2>{isCreating ? 'Новый врач' : `Изменить: ${editingDoctor.user.full_name}`}</h2>
+                    {isCreating && (
+                        <div className={styles.formGrid}>
+                            <label className={styles.field}>
+                                ФИО
+                                <input className={styles.input} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                            </label>
+                            <label className={styles.field}>
+                                Телефон
+                                <input type="tel" className={styles.input} value={formatPhone(phoneDigits)}
+                                    onChange={(e) => {
+                                        const digits = e.target.value.replace(/\D/g, '');
+                                        setPhoneDigits(digits.slice(1, 11));
+                                    }}
+                                />
+                            </label>
+                            <label className={styles.field}>
+                                Почта
+                                <input type="email" className={styles.input} value={email} onChange={(e) => setEmail(e.target.value)} />
+                            </label>
+                        </div>
+                    )}
                     <div className={styles.formGrid}>
                         <label className={styles.field}>
                             Стаж, лет
@@ -126,8 +206,8 @@ function AdminDoctors() {
                     </div>
                     {formError && <p className={styles.formError}>{formError}</p>}
                     <div className={styles.rowActions}>
-                        <button type="button" className="secondary" onClick={() => setEditingId(null)}>Отмена</button>
-                        <button type="submit">Сохранить</button>
+                        <button type="button" className="secondary" onClick={closeForm}>Отмена</button>
+                        <button type="submit">{isCreating ? 'Добавить' : 'Сохранить'}</button>
                     </div>
                 </form>
             )}
