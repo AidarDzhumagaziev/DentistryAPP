@@ -22,3 +22,14 @@ async def orm_create_user(
     await session.flush()
     await session.commit()
     return user
+
+
+async def orm_update_user_password(
+    session: AsyncSession,
+    user: User,
+    password_hash: bytes,
+) -> User:
+    user.password_hash = password_hash
+    await session.commit()
+    await session.refresh(user)
+    return user

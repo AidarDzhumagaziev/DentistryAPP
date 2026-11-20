@@ -1,18 +1,26 @@
 from logging import getLogger
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.api_v1.auth.crud import orm_update_user_password
+
 from .dependecies import create_user
 from .schemas import TokenInfo
-from .validation import get_current_auth_user_for_refresh, validate_auth_user
-from api.api_v1.users.schemas import UserRead
+from .validation import (
+    get_current_auth_user,
+    get_current_auth_user_for_refresh,
+    validate_auth_user,
+)
+from api.api_v1.users.schemas import PasswordChange, UserRead
 from .utils import (
     create_access_token,
     create_refresh_token,
+    hash_password,
+    verify_password,
 )
 
 from core.db_helper import db_helper
@@ -57,3 +65,32 @@ async def auth_refresh_jwt(user: User = Depends(get_current_auth_user_for_refres
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
     return TokenInfo(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post(
+    "/me/change-password/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def change_password(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    payload: PasswordChange,
+    current_user: User = Depends(get_current_auth_user),
+):
+    if not verify_password(payload.current_password, current_user.password_hash):
+        logger.warning(
+            "Failed password change attempt for user_id=%s (wrong current password)",
+            current_user.id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверно указан текущий пароль",
+        )
+
+    new_hash = hash_password(payload.new_password)
+    await orm_update_user_password(
+        session=session,
+        user=current_user,
+        password_hash=new_hash,
+    )
+
+    logger.info("Password changed for user_id=%s", current_user.id)
