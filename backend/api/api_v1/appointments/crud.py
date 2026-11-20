@@ -150,3 +150,17 @@ async def orm_get_booked_appointment_in_diaposon(
     )
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def orm_has_prior_consultation(
+    session: AsyncSession,
+    patient_id: int,
+    consultation_service_id: int,
+    before: datetime,
+) -> int | None:
+    stmt = select(Appointment.id).where(
+        Appointment.patient_id == patient_id,
+        Appointment.service_id == consultation_service_id,
+        Appointment.starts_at < before,
+    )
+    return await session.scalar(stmt)

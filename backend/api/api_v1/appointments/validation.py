@@ -1,3 +1,4 @@
+from datetime import datetime
 from logging import getLogger
 
 from fastapi import HTTPException, status
@@ -6,13 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.appointments.crud import (
     orm_get_appointments_by_patient_id_and_datetime,
     orm_get_conflict_between_appointment,
+    orm_has_prior_consultation,
 )
 from api.api_v1.doctors.crud import orm_get_doctor
 from api.api_v1.schedules.crud import (
     orm_get_schedule_exception_by_day,
     orm_get_work_schedule_by_datetime,
 )
-from api.api_v1.services.crud import orm_get_service
+from api.api_v1.services.crud import orm_get_consultation_service, orm_get_service
 
 from common.enums.enums_db import AppointmentStatus
 from core.models import Doctor, Service, Cabinet, Appointment, User, WorkSchedule
@@ -27,6 +29,12 @@ async def validate_appointment(
 ) -> WorkSchedule:
     doctor, service = await _get_appointment_entities(
         session=session, appointment_create=appointment_create
+    )
+    await check_consultation_for_service(
+        session=session,
+        service=service,
+        starts_at=appointment_create.starts_at,
+        patient_id=user.id,
     )
     schedule = await resolve_work_schedule(
         session=session, appointment_create=appointment_create
@@ -147,6 +155,35 @@ async def is_slot_available(
             status_code=status.HTTP_409_CONFLICT,
             detail="Patient has appointment in this diaposon",
         )
+
+
+async def check_consultation_for_service(
+    session: AsyncSession, service: Service, starts_at: datetime, patient_id: int
+):
+    if service.requires_consultation:
+        consultation = await orm_get_consultation_service(
+            session=session, specialization_id=service.specialization_id
+        )
+        if not consultation:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Consultation service is not configured",
+            )
+        has = await orm_has_prior_consultation(
+            session=session,
+            patient_id=patient_id,
+            consultation_service_id=consultation.id,
+            before=starts_at,
+        )
+        if not has:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail={
+                    "code": "CONSULTATION_REQUIRED",
+                    "message": "Consultation is required before this service",
+                    "consultation_service_id": consultation.id,
+                },
+            )
 
 
 def check_valid_status_for_cancelled(appointment: Appointment):
