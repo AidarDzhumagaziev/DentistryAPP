@@ -6,11 +6,14 @@ from fastapi import APIRouter, HTTPException, Path, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import get_current_auth_user, require_role
+from api.api_v1.medical_records.crud import orm_get_medical_record_by_appointment_id
+from api.api_v1.medical_records.schemas import MedicalRecordRead
 from api.api_v1.schedules.crud import orm_get_work_schedule_by_datetime
 from common.enums.enums_db import AppointmentStatus, RoleType
 
 from core.db_helper import db_helper
 from core.models import Appointment, User
+from core.config import settings
 
 from .crud import (
     orm_create_appointment,
@@ -33,7 +36,6 @@ from .schemas import (
     AppointmentCreate,
     AppointmentDoctorRead,
     AppointmentPatientRead,
-    AppointmentUpdate,
 )
 
 logger = getLogger(__name__)
@@ -91,6 +93,23 @@ async def get_appointment(
             status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found"
         )
     return appointment
+
+
+@router.get("/{appointment_id}/medical-record/", response_model=MedicalRecordRead)
+async def get_medical_record(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    appointment: Appointment = Depends(appointment_by_id),
+    current_user: User = Depends(require_role(RoleType.DOCTOR, RoleType.PATIENT)),
+):
+    if current_user.role.name == RoleType.DOCTOR:
+        await _ensure_owns_doctor(appointment=appointment, current_user=current_user)
+    elif current_user.role.name == RoleType.PATIENT:
+        await _ensure_owns_patient(appointment=appointment, current_user=current_user)
+
+    medical_record = await orm_get_medical_record_by_appointment_id(
+        session=session, appointment_id=appointment.id
+    )
+    return medical_record
 
 
 @router.patch(
