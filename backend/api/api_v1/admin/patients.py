@@ -61,7 +61,19 @@ async def admin_create_patient(
         role_id=role_id,
         password_hash=password_hash,
     )
-    return await orm_get_user_by_id(session=session, user_id=patient.id)
+    data = await orm_get_user_by_id(session=session, user_id=patient.id)
+    if data is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed get user data",
+        )
+    return UserRead(
+        email=data.email,
+        phone=data.phone,
+        full_name=data.full_name,
+        id=data.id,
+        role=data.role.name,
+    )
 
 
 @router.get("/", response_model=list[UserRead])
