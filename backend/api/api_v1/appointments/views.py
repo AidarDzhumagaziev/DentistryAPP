@@ -150,6 +150,10 @@ async def get_medical_record(
     medical_record = await orm_get_medical_record_by_appointment_id(
         session=session, appointment_id=appointment.id
     )
+    if medical_record is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Medical record not found"
+        )
     return medical_record
 
 
