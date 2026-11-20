@@ -44,6 +44,7 @@ function AccountPage() {
     const [profile, setProfile] = useState(null);
     const [isProfileLoading, setIsProfileLoading] = useState(true);
     const [profileMessage, setProfileMessage] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         authFetch('/api/v1/appointments/me/')
@@ -71,6 +72,17 @@ function AccountPage() {
             .then((data) => setProfile(data))
             .catch(() => setProfileMessage('Не удалось загрузить анкету'))
             .finally(() => setIsProfileLoading(false));
+    }, []);
+    useEffect(() => {
+        authFetch('/api/v1/users/me/')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Сервер ответил ошибкой');
+                }
+                return response.json();
+            })
+            .then((data) => setUser(data))
+            .catch(() => setUser(null));
     }, []);
 
     function saveProfile(values) {
@@ -200,22 +212,35 @@ function AccountPage() {
             {tab === 'profile' && (
                 <div className={styles.profileCard}>
                     {isProfileLoading && <p>Загрузка…</p>}
-                    {!isProfileLoading && profile && (
+                    {!isProfileLoading && (
                         <dl className={styles.profileList}>
-                            <dt>Имя</dt>
-                            <dd>{profile.user.full_name}</dd>
-                            <dt>Телефон</dt>
-                            <dd>{formatPhone(profile.user.phone.slice(2))}</dd>
-                            <dt>Дата рождения</dt>
-                            <dd>{profile.birth_date.split('-').reverse().join('.')}</dd>
-                            <dt>Аллергии</dt>
-                            <dd>{profile.allergies || '—'}</dd>
-                            <dt>Хронические заболевания</dt>
-                            <dd>{profile.chronic_diseas || '—'}</dd>
+                            {user && (
+                                <>
+                                    <dt>Имя</dt>
+                                    <dd>{user.full_name}</dd>
+                                    <dt>Телефон</dt>
+                                    <dd>{formatPhone(user.phone.slice(2))}</dd>
+                                    <dt>Почта</dt>
+                                    <dd>{user.email}</dd>
+                                </>
+                            )}
+                            {profile && (
+                                <>
+                                    <dt>Дата рождения</dt>
+                                    <dd>{profile.birth_date.split('-').reverse().join('.')}</dd>
+                                    <dt>Аллергии</dt>
+                                    <dd>{profile.allergies || '—'}</dd>
+                                    <dt>Хронические заболевания</dt>
+                                    <dd>{profile.chronic_diseas || '—'}</dd>
+                                </>
+                            )}
                         </dl>
                     )}
                     {!isProfileLoading && !profile && (
-                        <p className={styles.profileNote}>Данные появятся здесь после заполнения анкеты здоровья.</p>
+                        <>
+                            <p className={styles.profileNote}>Анкета здоровья ещё не заполнена.</p>
+                            <button onClick={() => setTab('health')}>Заполнить анкету</button>
+                        </>
                     )}
                 </div>
             )}
