@@ -1,0 +1,181 @@
+.table{
+    background: var(--color-white);
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    border-collapse: collapse;
+}
+.td{
+    border-bottom: 1px solid var(--color-border);
+    padding: 12px;
+}
+.th{
+    padding: 12px;
+    text-align: left;
+    background: #f8fafc;
+    color: var(--color-muted);
+    font-size: 14px;
+}
+.form{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 520px
+    
+}
+.field{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 14px;
+}
+.input{
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.tableWrap{
+    border-radius: 12px;
+    border:1px solid var(--color-border);
+    overflow-x: auto;
+}
+.layout{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+.sidebar{
+    flex: 1 1 200px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.content{
+    flex: 999 1 560px;
+    min-width: 0;
+}
+.menuItem{
+    background: transparent;
+    color: var(--color-text);
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 400;
+}
+.menuItem:hover{
+    background: var(--color-bg);
+}
+.menuActive{
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 700;
+}
+.formCard{
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.checkField{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+}
+.submit{
+    align-self: flex-start;
+}
+.rowActions{
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.appointmentActions button {
+    min-width: 140px;
+}
+.formError {
+    background: #fdecea;
+    color: #b42318;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.empty {
+    color: var(--color-muted);
+    padding: 12px 0;
+}
+.toolbar {
+    max-width: 380px;
+    margin-bottom: 20px;
+}
+.muted {
+    color: var(--color-muted);
+    font-size: 14px;
+}
+.filtersRow {
+    margin-bottom: 16px;
+}
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+.doctorThumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.searchRow {
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+    margin-bottom: 20px;
+}
+.searchRow input {
+    flex: 1;
+}
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.infoList {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 24px;
+    margin: 0;
+}
+.infoList dt {
+    color: var(--color-muted);
+}
+.infoList dd {
+    margin: 0;
+}

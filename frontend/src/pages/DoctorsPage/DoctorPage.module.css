@@ -2,6 +2,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    grid-auto-rows: 1fr
 }
 .card{
     display: flex;
@@ -11,6 +12,11 @@
     border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 10px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 .name{
     font-weight: bold;
@@ -29,6 +35,11 @@
     justify-content: center;
     align-items: center;
     color: var(--color-primary);
+    width: 100%;
+    font-size: 40px;
+    font-weight: 800;
+    object-fit: cover;
+    object-position: top;
 }
 .specialization{
     color: var(--color-primary);
@@ -36,4 +47,17 @@
 }
 .bio{
     color: var(--color-muted);
+}
+.bookButton{
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    align-self: flex-start;
+    margin-top: auto;
+}
+.bookButton:hover{
+    color: var(--color-primary-dark);
 }

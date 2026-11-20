@@ -1,0 +1,187 @@
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.newButton {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.newButton:hover {
+    background: var(--color-primary-dark);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+
+.dateBox {
+    width: 110px;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.day {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.month {
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+.time {
+    font-weight: 700;
+}
+
+.info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.service {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.doctor {
+    color: var(--color-muted);
+    font-size: 14px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-muted);
+    font-size: 13px;
+}
+
+.status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-muted);
+}
+.cancelHint {
+    color: var(--color-muted);
+    font-size: 13px;
+    max-width: 160px;
+    text-align: right;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tab {
+    background: transparent;
+    color: var(--color-muted);
+    border-radius: 0;
+    padding: 12px 18px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.tab:hover {
+    background: transparent;
+    color: var(--color-text);
+}
+
+.tabActive {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+.section {
+    margin-bottom: 32px;
+}
+
+.sectionTitle {
+    font-size: 18px;
+    margin: 0 0 12px;
+}
+.hintPhone {
+    color: var(--color-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.againLink {
+    padding: 12px 22px;
+    border: 1px solid var(--color-primary);
+    border-radius: 22px;
+    color: var(--color-primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.againLink:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.profileNote {
+    margin: 12px 0;
+    color: var(--color-muted);
+}
+.profileCard {
+    max-width: 520px;
+    padding: 20px 24px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+}
+
+.profileList {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 24px;
+}
+
+.profileList dt {
+    color: var(--color-muted);
+}
+
+.profileList dd {
+    font-weight: 600;
+}
+.scheduled::before { background: #9aa4b2; }
+.confirmed::before { background: var(--color-primary); }
+.completed::before { background: #2e7d32; }
+.cancelled::before { background: #c3c8d0; }
+.no_show::before   { background: var(--color-urgent); }

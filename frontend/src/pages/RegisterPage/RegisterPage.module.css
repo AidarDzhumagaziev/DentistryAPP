@@ -1,0 +1,79 @@
+.h1{
+    text-align: center
+}
+.page{
+    display: flex;
+    flex-direction: column;
+
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 32px;
+    gap: 20px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+.form{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.field{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 14px;
+}
+.input{
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: inherit;
+}
+.button{
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-weight: bold;
+    padding: 14px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+.error{
+    background: #fdecea;
+    color: #b42318;
+    font-size: 14px;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid #b42318;
+}
+.passwordBox {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.passwordBox .input {
+  padding-right: 100px;
+}
+
+.showButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 12px;
+  font-size: 13px;
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+
+.showButton:hover {
+  background: var(--color-primary-light);
+}
+.login{
+    text-align: center
+}

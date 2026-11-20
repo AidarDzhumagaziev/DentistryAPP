@@ -19,6 +19,7 @@ services:
     build: ./backend
     environment:
       API_CONFIG__DB__URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      TZ: Europe/Moscow
     ports:
       - "8000:8000"
     volumes:
@@ -26,6 +27,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

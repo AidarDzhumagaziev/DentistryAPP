@@ -1,0 +1,134 @@
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+
+.info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-muted);
+    font-size: 13px;
+}
+
+.status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-muted);
+}
+
+.scheduled::before { background: #9aa4b2; }
+.confirmed::before { background: var(--color-primary); }
+.completed::before { background: #2e7d32; }
+.cancelled::before { background: #c3c8d0; }
+.no_show::before   { background: var(--color-urgent); }
+
+
+.time{
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+.patient{
+    font-weight: bold;
+}
+.service{
+    color: var(--color-muted);
+    font-size: 14px;
+}
+.actions{
+    display: flex;
+    gap: 8px;
+}
+
+.arrows{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.arrow{
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 22px;
+    background: var(--color-white);
+    color: var(--color-primary-dark);
+    border: 1px solid var(--color-border);
+}
+.arrow:hover{
+    background: var(--color-white);
+    border: 1px solid var(--color-primary);
+}
+.dateInput{
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+
+}
+.actions button {
+  min-width: 130px;
+}
+
+.timeBox{
+    display: flex;
+    margin-top: 26px;
+    flex-direction: column;
+    width: 70px;
+    align-self: flex-start;
+}
+
+.duration{
+    font-size: 13px;
+    color: var(--color-muted);
+}
+.alert{
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    background: #fdecea;
+    color: #b42318;
+}
+.tags{
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+}

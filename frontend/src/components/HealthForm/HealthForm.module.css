@@ -1,0 +1,37 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 520px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.input {
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 400;
+    background: var(--color-white);
+    resize: vertical;
+}
+
+.error {
+    background: #fdecea;
+    color: #b42318;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.submit {
+    align-self: flex-start;
+}
