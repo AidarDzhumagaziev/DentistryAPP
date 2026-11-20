@@ -113,6 +113,8 @@ async def create_medical_record(
     appointment: Appointment = Depends(appointment_by_id),
     current_user: User = Depends(require_role(RoleType.DOCTOR)),
 ):
+    await _ensure_owns_doctor(appointment=appointment, current_user=current_user)
+
     medical_record = await orm_get_medical_record_by_appointment_id(
         session=session, appointment_id=appointment.id
     )
@@ -121,7 +123,6 @@ async def create_medical_record(
             status_code=status.HTTP_409_CONFLICT,
             detail="Appointment already has medical record",
         )
-    await _ensure_owns_doctor(appointment=appointment, current_user=current_user)
     if appointment.status != AppointmentStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
