@@ -81,7 +81,9 @@ async def get_available_slots(
 
     slots = _exclude_past(slots=slots, target_date=target_date)
 
-    slots = await _exclude_booked(session=session, slots=slots, doctor_id=doctor_id)
+    slots = await _exclude_booked(
+        session=session, slots=slots, doctor_id=doctor_id, buffer_min=service.buffer_min
+    )
 
     return slots
 
@@ -116,12 +118,15 @@ def _exclude_past(slots: list[SlotRead], target_date: date) -> list[SlotRead]:
     return [s for s in slots if s.start > now]
 
 
-async def _exclude_booked(session: AsyncSession, slots: list[SlotRead], doctor_id: int):
+async def _exclude_booked(
+    session: AsyncSession, slots: list[SlotRead], doctor_id: int, buffer_min: int
+):
     if not slots:
         return []
 
     min_start = min(s.start for s in slots)
     max_end = max(s.end for s in slots)
+    buffer = timedelta(minutes=buffer_min)
 
     booked = await orm_get_booked_appointment_in_diaposon(
         session=session,
@@ -129,7 +134,7 @@ async def _exclude_booked(session: AsyncSession, slots: list[SlotRead], doctor_i
         start_min=min_start,
         end_max=max_end,
     )
-    busy_intervals = [(row.starts_at, row.ends_at) for row in booked]
+    busy_intervals = [(row.starts_at, row.ends_at + buffer) for row in booked]
 
     return [
         slot
