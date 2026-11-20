@@ -3,7 +3,7 @@ from typing import Sequence
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from common.enums.enums_db import AppointmentStatus
 
@@ -57,6 +57,7 @@ async def orm_get_appointment(
             .selectinload(DoctorSpecialization.specialization),
             selectinload(Appointment.service),
             selectinload(Appointment.cabinet),
+            joinedload(Appointment.medical_record),
         )
         .where(Appointment.id == appointment_id)
     )
@@ -119,6 +120,7 @@ async def orm_list_appointments(
         .selectinload(DoctorSpecialization.specialization),
         selectinload(Appointment.service),
         selectinload(Appointment.cabinet),
+        joinedload(Appointment.medical_record),
     )
     if patient_id is not None:
         stmt = stmt.where(Appointment.patient_id == patient_id)
