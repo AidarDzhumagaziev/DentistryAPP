@@ -88,6 +88,7 @@ async def orm_get_appointments_by_patient_id_and_datetime(
         Appointment.patient_id == patient_id,
         Appointment.starts_at < end,
         Appointment.ends_at > start,
+        Appointment.status != AppointmentStatus.CANCELLED,
     )
     return await session.scalar(stmt)
 
