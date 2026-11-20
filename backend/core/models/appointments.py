@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from common.enums.enums_db import AppointmentStatus, _appointment_status_values
 
 from .base import Base
-from .mixins import CreatedAtMixin
+from .mixins import CreatedAtMixin, TimeStampMixin
 
 if TYPE_CHECKING:
     from .doctors import Doctor
@@ -55,3 +55,19 @@ class Appointment(Base, CreatedAtMixin):
     patient: Mapped["Patient"] = relationship(back_populates="appointments")
     service: Mapped["Service"] = relationship(back_populates="appointments")
     cabinet: Mapped["Cabinet"] = relationship(back_populates="appointments")
+    medical_record: Mapped["MedicalRecord"] = relationship(back_populates="appointment")
+
+
+class MedicalRecord(Base, TimeStampMixin):
+    __tablename__ = "medical_records"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    appointment_id: Mapped[int] = mapped_column(
+        ForeignKey("appointments.id"), unique=True
+    )
+
+    complaints: Mapped[str | None]
+    objective_findings: Mapped[str | None]
+    diagnosis: Mapped[str | None]
+    treatment_plan: Mapped[str | None]
+
+    appointment: Mapped["Appointment"] = relationship(back_populates="medical_record")
