@@ -14,3 +14,10 @@ class MedicalRecordCreate(MedicalRecordBase):
 
 class MedicalRecordRead(MedicalRecordBase):
     id: int
+
+
+class MedicalRecordUpdatePartial(MedicalRecordBase):
+    complaints: str | None = None
+    objective_findings: str | None = None
+    diagnosis: str | None = None
+    treatment_plan: str | None = None

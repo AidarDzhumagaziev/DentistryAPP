@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import MedicalRecord
 
-from .schemas import MedicalRecordCreate
+from .schemas import MedicalRecordCreate, MedicalRecordUpdatePartial
 
 
 async def orm_get_medical_record_by_appointment_id(
@@ -28,4 +28,15 @@ async def orm_create_medical_record(
     session.add(medical_record)
     await session.commit()
     await session.flush()
+    return medical_record
+
+
+async def orm_update_medical_record(
+    session: AsyncSession,
+    medical_record: MedicalRecord,
+    medical_record_update: MedicalRecordUpdatePartial,
+) -> MedicalRecord:
+    for name, value in medical_record_update.model_dump(exclude_unset=True).items():
+        setattr(medical_record, name, value)
+    await session.commit()
     return medical_record

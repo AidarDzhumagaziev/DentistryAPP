@@ -9,14 +9,18 @@ from api.api_v1.auth.validation import get_current_auth_user, require_role
 from api.api_v1.medical_records.crud import (
     orm_create_medical_record,
     orm_get_medical_record_by_appointment_id,
+    orm_update_medical_record,
 )
-from api.api_v1.medical_records.schemas import MedicalRecordCreate, MedicalRecordRead
+from api.api_v1.medical_records.schemas import (
+    MedicalRecordCreate,
+    MedicalRecordRead,
+    MedicalRecordUpdatePartial,
+)
 from api.api_v1.schedules.crud import orm_get_work_schedule_by_datetime
 from common.enums.enums_db import AppointmentStatus, RoleType
 
 from core.db_helper import db_helper
-from core.models import Appointment, User
-from core.config import settings
+from core.models import Appointment, User, MedicalRecord
 
 from .crud import (
     orm_create_appointment,
@@ -145,6 +149,23 @@ async def get_medical_record(
 
     medical_record = await orm_get_medical_record_by_appointment_id(
         session=session, appointment_id=appointment.id
+    )
+    return medical_record
+
+
+@router.patch("/{appointment_id}/medical-record", response_model=MedicalRecordRead)
+async def update_medical_record(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    medical_record_update: MedicalRecordUpdatePartial,
+    current_user: User = Depends(require_role(RoleType.DOCTOR)),
+    appointment: Appointment = Depends(appointment_by_id),
+):
+    await _ensure_owns_doctor(appointment=appointment, current_user=current_user)
+
+    medical_record = await orm_update_medical_record(
+        session=session,
+        medical_record=appointment.medical_record,
+        medical_record_update=medical_record_update,
     )
     return medical_record
 
