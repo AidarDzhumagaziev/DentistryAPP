@@ -43,7 +43,9 @@ async def create_doctor(
     doctor_create: DoctorCreate,
 ):
     try:
-        doctor = await orm_create_doctor(session=session, doctor_create=doctor_create)
+        doctor = await orm_create_doctor(
+            session=session, doctor_create=doctor_create, user_id=doctor_create.user_id
+        )
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
