@@ -151,7 +151,7 @@ async def _exclude_booked(
         slot
         for slot in slots
         if not any(
-            slot.start < busy_end and slot.end > busy_start
+            slot.start < busy_end and slot.start + buffer + duration > busy_start
             for busy_start, busy_end in busy_intervals
         )
     ]
