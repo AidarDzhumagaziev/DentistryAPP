@@ -9,7 +9,7 @@ class MedicalRecordBase(BaseModel):
 
 
 class MedicalRecordCreate(MedicalRecordBase):
-    appointment_id: int
+    pass
 
 
 class MedicalRecordRead(MedicalRecordBase):

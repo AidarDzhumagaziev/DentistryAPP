@@ -46,7 +46,6 @@ class ApiV1Prefix(BaseModel):
     slots: str = "/slots"
     patients: str = "/patients"
     appointments: str = "/appointments"
-    medical_records: str = "/medical_records"
 
 
 class ApiPrefix(BaseModel):

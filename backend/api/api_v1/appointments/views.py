@@ -6,8 +6,11 @@ from fastapi import APIRouter, HTTPException, Path, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.auth.validation import get_current_auth_user, require_role
-from api.api_v1.medical_records.crud import orm_get_medical_record_by_appointment_id
-from api.api_v1.medical_records.schemas import MedicalRecordRead
+from api.api_v1.medical_records.crud import (
+    orm_create_medical_record,
+    orm_get_medical_record_by_appointment_id,
+)
+from api.api_v1.medical_records.schemas import MedicalRecordCreate, MedicalRecordRead
 from api.api_v1.schedules.crud import orm_get_work_schedule_by_datetime
 from common.enums.enums_db import AppointmentStatus, RoleType
 
@@ -93,6 +96,40 @@ async def get_appointment(
             status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found"
         )
     return appointment
+
+
+@router.post(
+    "/{appointment_id}/medical-record",
+    response_model=MedicalRecordRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_medical_record(
+    session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+    record_create: MedicalRecordCreate,
+    appointment: Appointment = Depends(appointment_by_id),
+    current_user: User = Depends(require_role(RoleType.DOCTOR)),
+):
+    medical_record = await orm_get_medical_record_by_appointment_id(
+        session=session, appointment_id=appointment.id
+    )
+    if medical_record is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Appointment already has medical record",
+        )
+    await _ensure_owns_doctor(appointment=appointment, current_user=current_user)
+    if appointment.status != AppointmentStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Appointment has not completed yet",
+        )
+
+    medical_record = await orm_create_medical_record(
+        session=session,
+        medical_record_create=record_create,
+        appointment_id=appointment.id,
+    )
+    return medical_record
 
 
 @router.get("/{appointment_id}/medical-record/", response_model=MedicalRecordRead)
