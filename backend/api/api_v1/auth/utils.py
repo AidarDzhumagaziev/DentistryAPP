@@ -50,6 +50,10 @@ def validate_password(password: str, hashed_password: bytes) -> bool:
     return bcrypt.checkpw(password=password.encode(), hashed_password=hashed_password)
 
 
+def verify_password(plain_password: str, hashed_password: bytes) -> bool:
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password)
+
+
 def create_jwt(
     token_type: str,
     token_data: dict,
