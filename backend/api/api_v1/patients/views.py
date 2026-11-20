@@ -46,13 +46,14 @@ async def create_patient(
             status_code=status.HTTP_409_CONFLICT,
             detail="User already has patient profile",
         )
-    return await orm_create_patient(
+    patient = await orm_create_patient(
         session=session,
         user_id=patient_create.user_id,
         birth_date=patient_create.birth_date,
         allergies=patient_create.allergies,
         chronic_diseas=patient_create.chronic_diseas,
     )
+    return await orm_get_patient(session=session, user_id=patient.user_id)
 
 
 @router.get(
