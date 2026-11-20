@@ -14,6 +14,7 @@ from .slots.views import router as slots_router
 from .patients.views import router as patients_router
 from .appointments.views import router as appointments_router
 from .admin import router as admin_router
+from .medical_records.views import router as medical_records_router
 
 router = APIRouter(prefix=settings.api.v1.prefix)
 router.include_router(users_router, prefix=settings.api.v1.users)
@@ -30,3 +31,4 @@ router.include_router(slots_router, prefix=settings.api.v1.slots)
 router.include_router(patients_router, prefix=settings.api.v1.patients)
 router.include_router(appointments_router, prefix=settings.api.v1.appointments)
 router.include_router(admin_router, prefix=settings.api.v1.admin)
+router.include_router(medical_records_router, prefix=settings.api.v1.medical_records)
