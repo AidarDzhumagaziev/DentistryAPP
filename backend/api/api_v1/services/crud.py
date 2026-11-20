@@ -51,3 +51,12 @@ async def orm_update_service(
 async def orm_delete_service(session: AsyncSession, service: Service):
     await session.delete(service)
     await session.commit()
+
+
+async def orm_get_consultation_service(
+    session: AsyncSession, specialization_id: int
+) -> Service | None:
+    stmt = select(Service).where(
+        Service.is_consultation == True, Service.specialization_id == specialization_id
+    )
+    return await session.scalar(stmt)

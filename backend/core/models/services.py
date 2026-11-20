@@ -2,7 +2,16 @@ from typing import TYPE_CHECKING
 
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import CITEXT
 
@@ -25,6 +34,12 @@ class Service(Base, TimeStampMixin):
             name="ck_cabinet_type_in_range_services",
         ),
         CheckConstraint("price_from > 0", name="ck_price_from_more_0_services"),
+        Index(
+            "uq_consultation_per_specialization",
+            "specialization_id",
+            unique=True,
+            postgresql_where=text("is_consultation = TRUE"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -43,5 +58,8 @@ class Service(Base, TimeStampMixin):
         nullable=False, server_default="true", default=True
     )
     cabinet_type: Mapped[CabinetType] = mapped_column(String(50), nullable=False)
+    is_consultation: Mapped[bool] = mapped_column(
+        nullable=False, server_default="false", default=False
+    )
 
     appointments: Mapped[list["Appointment"]] = relationship(back_populates="service")

@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import CITEXT
 
 from .base import Base
 from .mixins import TimeStampMixin
@@ -44,7 +45,7 @@ class Specialization(Base):
     __tablename__ = "specializations"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    name: Mapped[str] = mapped_column(CITEXT, nullable=False)
 
     doctors: Mapped[list["DoctorSpecialization"]] = relationship(
         back_populates="specialization"

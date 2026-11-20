@@ -6,21 +6,21 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from core.models import Doctor, User, DoctorSpecialization
 
-from .schemas import DoctorCreate, DoctorUpdate, DoctorUpdatePartial
+from .schemas import DoctorAdminCreate, DoctorCreate, DoctorUpdate, DoctorUpdatePartial
 
 
 async def orm_create_doctor(
-    session: AsyncSession, doctor_create: DoctorCreate
+    session: AsyncSession, doctor_create: DoctorCreate | DoctorAdminCreate, user_id: int
 ) -> Doctor | None:
     doctor = Doctor(
-        user_id=doctor_create.user_id,
+        user_id=user_id,
         bio=doctor_create.bio,
         experience_years=doctor_create.experience_years,
         photo_url=doctor_create.photo_url,
         is_active=doctor_create.is_active,
     )
     doctor_specializations = [
-        DoctorSpecialization(doctor_id=doctor_create.user_id, specialization_id=s_id)
+        DoctorSpecialization(doctor_id=user_id, specialization_id=s_id)
         for s_id in doctor_create.specializations_ids
     ]
     session.add(doctor)

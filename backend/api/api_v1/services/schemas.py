@@ -13,6 +13,7 @@ class ServiceBase(BaseModel):
     duration_min: int
     buffer_min: int = Field(ge=0, le=60, default=15)
     requires_consultation: bool = False
+    is_consultation: bool = False
     cabinet_type: CabinetType
 
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from api.api_v1.specializations.schemas import SpecializationRead
-from api.api_v1.users.schemas import UserRead, UserShortRead
+from api.api_v1.users.schemas import UserAdminCreate, UserRead, UserShortRead
 
 
 class DoctorBase(BaseModel):
@@ -15,6 +15,11 @@ class DoctorBase(BaseModel):
 
 class DoctorCreate(DoctorBase):
     user_id: int
+    specializations_ids: list[int] = Field(min_length=1)
+
+
+class DoctorAdminCreate(DoctorBase):
+    user: UserAdminCreate
     specializations_ids: list[int] = Field(min_length=1)
 
 

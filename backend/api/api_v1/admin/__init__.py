@@ -6,6 +6,7 @@ from core.config import settings
 
 from .appointments import router as appointments_router
 from .patients import router as patients_router
+from .doctors import router as doctors_router
 
 router = APIRouter(
     dependencies=[Depends(require_role(RoleType.ADMIN))],
@@ -13,3 +14,4 @@ router = APIRouter(
 
 router.include_router(appointments_router, prefix=settings.api.v1.appointments)
 router.include_router(patients_router, prefix=settings.api.v1.patients)
+router.include_router(doctors_router, prefix=settings.api.v1.doctors)
