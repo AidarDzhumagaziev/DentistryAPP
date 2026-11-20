@@ -208,12 +208,15 @@ function AccountPage() {
                             <dd>{formatPhone(profile.user.phone.slice(2))}</dd>
                             <dt>Дата рождения</dt>
                             <dd>{profile.birth_date.split('-').reverse().join('.')}</dd>
+                            <dt>Аллергии</dt>
+                            <dd>{profile.allergies || '—'}</dd>
+                            <dt>Хронические заболевания</dt>
+                            <dd>{profile.chronic_diseas || '—'}</dd>
                         </dl>
                     )}
                     {!isProfileLoading && !profile && (
                         <p className={styles.profileNote}>Данные появятся здесь после заполнения анкеты здоровья.</p>
                     )}
-                    <p className={styles.profileNote}>Изменить имя или телефон можно по телефону клиники <a href={CLINIC.phoneLink} className={styles.hintPhone}>{CLINIC.phone}</a></p>
                 </div>
             )}
             {tab === 'health' && (
