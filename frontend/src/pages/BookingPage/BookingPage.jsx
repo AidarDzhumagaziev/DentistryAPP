@@ -18,18 +18,17 @@ function addMinutes(start, minutes) {
 }
 
 const stepNames = ['Услуга', 'Врач', 'Дата и время', 'Подтверждение'];
-const HALF_YEAR_MS = 183 * 24 * 60 * 60 * 1000;
-const CONSULTATION_NAME = 'Осмотр и консультация';
 
-function hasConsultationIn(appointments) {
-    return appointments.some((a) =>
-        a.status === 'completed' &&
-        a.service.name === CONSULTATION_NAME &&
-        Date.now() - new Date(a.starts_at) < HALF_YEAR_MS
-    );
+function hasConsultationFor(service, services, appointments) {
+    const consultation = services.find((s) => s.is_consultation && s.specialization_id === service.specialization_id);
+    if (!consultation) {
+        return false;
+    }
+    return appointments.some((a) => a.service.id === consultation.id && a.status !== 'cancelled');
 }
 
 const bookingErrors = {
+    'CONSULTATION_REQUIRED': 'Сначала нужна консультация врача этой специальности.',
     'Slot is already booked': 'Это время уже заняли. Выберите другое.',
     'Patient has appointment in this diaposon': 'У вас уже есть запись на это время. Выберите другое.',
 };
@@ -92,7 +91,8 @@ function BookingPage() {
             .then((response) => {
                 if (!response.ok) {
                     return response.json().then((body) => {
-                        throw new Error(body.detail);
+                        const code = typeof body.detail === 'object' ? body.detail.code : body.detail;
+                        throw new Error(code);
                     });
                 }
                 setStep(5);
@@ -149,7 +149,7 @@ function BookingPage() {
 
                 const preset = servicesData.find((s) => s.id === presetServiceId);
 
-                if (preset && preset.requires_consultation && !hasConsultationIn(myData)) {
+                if (preset && preset.requires_consultation && !hasConsultationFor(preset, servicesData, myData)) {
                     setServiceId(null);
                     setDoctorId(null);
                     setStep(1);
@@ -172,13 +172,16 @@ function BookingPage() {
     const selectedService = services.find((s) => s.id === serviceId);
     const selectedDoctor = doctors.find((s) => s.user_id === doctorId);
     const suitableDoctors = doctors.filter((doctor) => selectedService && doctor.specializations.some((s) => s.specialization.id === selectedService.specialization_id))
-    const hasConsultation = hasConsultationIn(myAppointments);
 
     function isLocked(service) {
-        return service.requires_consultation && !hasConsultation;
+        return service.requires_consultation && !hasConsultationFor(service, services, myAppointments);
     }
 
-    const consultationService = services.find((s) => s.name === CONSULTATION_NAME);
+    const lockedService = services.find(isLocked);
+    const consultationService = lockedService
+        ? services.find((s) => s.is_consultation && s.specialization_id === lockedService.specialization_id)
+        : null;
+
     return (
         <div className={styles.page}>
             <h1>Запись</h1>
@@ -192,7 +195,7 @@ function BookingPage() {
                     {(step === 1) && <h2>Выберите услугу</h2>}
                     {(step === 1) && consultationService && services.some(isLocked) && (
                         <div className={styles.notice}>
-                            <span>Некоторые услуги доступны только после осмотра.</span>
+                            <span>Некоторые услуги доступны только после консультации врача.</span>
                             <button
                                 type="button"
                                 className={styles.noticeButton}
@@ -203,7 +206,7 @@ function BookingPage() {
                                     setStep(2);
                                 }}
                             >
-                                Записаться на осмотр
+                            <span>Некоторые услуги доступны только после консультации врача.</span>
                             </button>
                         </div>
                     )}
@@ -218,7 +221,7 @@ function BookingPage() {
                                     }} >
                                     <span className={styles.name} >{service.name}</span>
                                     <span className={styles.price} >от {Number(service.price_from).toLocaleString('ru-RU')} ₽</span>
-                                    {isLocked(service) && <span className={styles.lockHint}>Сначала нужен осмотр</span>}
+                                    {isLocked(service) && <span className={styles.lockHint}>Сначала нужна консультация</span>}
                                 </button>
                             ))}
                         </div>

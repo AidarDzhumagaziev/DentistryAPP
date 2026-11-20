@@ -23,16 +23,21 @@ SELECT s.name
 FROM (VALUES ('Терапевт'), ('Гигиенист'), ('Хирург')) AS s(name)
 WHERE NOT EXISTS (SELECT 1 FROM specializations WHERE specializations.name = s.name);
 
-INSERT INTO services (name, specialization_id, description, price_from, duration_min, buffer_min, requires_consultation, cabinet_type)
-SELECT v.name, sp.id, v.description, v.price_from, v.duration_min, v.buffer_min, v.requires_consultation, v.cabinet_type
+-- is_consultation: консультация своей специализации. Услуги с requires_consultation
+-- сервер разрешает только после консультации той же специализации.
+INSERT INTO services (name, specialization_id, description, price_from, duration_min, buffer_min, requires_consultation, is_consultation, cabinet_type)
+SELECT v.name, sp.id, v.description, v.price_from, v.duration_min, v.buffer_min, v.requires_consultation, v.is_consultation, v.cabinet_type
 FROM (VALUES
-    ('Острая боль', 'Терапевт', 'Экстренный приём в день обращения.', 2000, 30, 10, false, 'general'),
-    ('Осмотр и консультация', 'Терапевт', 'Осмотр, план лечения и расчёт стоимости.', 1000, 30, 10, false, 'general'),
-    ('Лечение кариеса', 'Терапевт', 'Лечение и пломба, с анестезией.', 3500, 60, 15, false, 'general'),
-    ('Профессиональная гигиена', 'Гигиенист', 'Чистка ультразвуком и Air Flow, полировка.', 4000, 60, 10, false, 'general'),
-    ('Удаление зуба мудрости', 'Хирург', 'Проводится в хирургическом кабинете.', 5000, 60, 15, true, 'surgical'),
-    ('Имплантация', 'Хирург', 'Установка импланта в хирургическом кабинете.', 30000, 90, 15, true, 'surgical')
-) AS v(name, specialization, description, price_from, duration_min, buffer_min, requires_consultation, cabinet_type)
+    ('Острая боль', 'Терапевт', 'Экстренный приём в день обращения.', 2000, 30, 10, false, false, 'general'),
+    ('Осмотр и консультация', 'Терапевт', 'Осмотр, план лечения и расчёт стоимости.', 1000, 30, 10, false, true, 'general'),
+    ('Лечение кариеса', 'Терапевт', 'Лечение и пломба, с анестезией.', 3500, 60, 15, false, false, 'general'),
+    ('Лечение каналов', 'Терапевт', 'Лечение пульпита и периодонтита под микроскопом.', 7000, 90, 15, true, false, 'general'),
+    ('Художественная реставрация', 'Терапевт', 'Восстановление формы и цвета зуба композитом.', 6000, 60, 15, true, false, 'general'),
+    ('Профессиональная гигиена', 'Гигиенист', 'Чистка ультразвуком и Air Flow, полировка.', 4000, 60, 10, false, false, 'general'),
+    ('Консультация хирурга', 'Хирург', 'Осмотр, снимок и план операции.', 1500, 30, 10, false, true, 'surgical'),
+    ('Удаление зуба мудрости', 'Хирург', 'Проводится в хирургическом кабинете.', 5000, 60, 15, true, false, 'surgical'),
+    ('Имплантация', 'Хирург', 'Установка импланта в хирургическом кабинете.', 30000, 90, 15, true, false, 'surgical')
+) AS v(name, specialization, description, price_from, duration_min, buffer_min, requires_consultation, is_consultation, cabinet_type)
 JOIN specializations sp ON sp.name = v.specialization
 ON CONFLICT (name) DO NOTHING;
 
@@ -95,7 +100,7 @@ WHERE NOT EXISTS (
 -- Тестовые пациенты с анкетой и записями в разных статусах.
 -- Даты считаются от дня запуска скрипта, поэтому записи всегда «свежие».
 -- Если дата попала на выходной, запись переносится на ближайший будний день.
---   patient1@dentatime.ru  Иван Петров    — есть завершённый осмотр (консультация пройдена)
+--   patient1@dentatime.ru  Иван Петров    — прошёл осмотр терапевта и консультацию хирурга (может записаться на имплантацию)
 --   patient2@dentatime.ru  Ольга Сидорова — вчерашняя подтверждённая запись к Анне (в кабинете врача видны
 --                          кнопки «Завершить» и «Неявка») и одна запись, которая ждёт подтверждения админом
 INSERT INTO users (phone, email, password_hash, role_id, full_name)
@@ -123,6 +128,7 @@ SELECT d.id, pt.id, s.id, c.id,
        a.status
 FROM (VALUES
     ('+79000000010', '+79000000001', 'Осмотр и консультация',    101, -30, '10:00', 'completed'),
+    ('+79000000010', '+79000000002', 'Консультация хирурга',     201, -20, '11:00', 'completed'),
     ('+79000000010', '+79000000004', 'Лечение кариеса',          102, -10, '15:00', 'cancelled'),
     ('+79000000011', '+79000000001', 'Лечение кариеса',          101,  -1, '15:00', 'confirmed'),
     ('+79000000010', '+79000000001', 'Лечение кариеса',          101,   2, '11:00', 'confirmed'),

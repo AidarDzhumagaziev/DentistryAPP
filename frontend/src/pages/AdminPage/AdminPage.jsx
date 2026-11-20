@@ -29,6 +29,7 @@ function AdminPage(){
     const [cabinetType, setCabinetType] = useState('general');
     const [specializationId, setSpecializationId] = useState('');
     const [needConsult, setNeedConsult] = useState(false);
+    const [isConsultation, setIsConsultation] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [section, setSection] = useState('services');
     const [editingId, setEditingId] = useState(null);
@@ -49,6 +50,7 @@ function AdminPage(){
         setCabinetType('general');
         setSpecializationId('');
         setNeedConsult(false);
+        setIsConsultation(false);
         setEditingId(null);
         setShowForm(false);
     }
@@ -68,11 +70,23 @@ function AdminPage(){
         setCabinetType(service.cabinet_type);
         setSpecializationId(service.specialization_id);
         setNeedConsult(service.requires_consultation);
+        setIsConsultation(service.is_consultation);
         setEditingId(service.id);
         setShowForm(true);
     }
     function handleSubmit(e){
         e.preventDefault();
+        if (isConsultation && needConsult) {
+            alert('Консультации не может требоваться консультация — снимите одну из галочек');
+            return;
+        }
+        const otherConsultation = services.find((s) =>
+            s.is_consultation && s.specialization_id === Number(specializationId) && s.id !== editingId
+        );
+        if (isConsultation && otherConsultation) {
+            alert(`У этой специальности уже есть консультация: «${otherConsultation.name}»`);
+            return;
+        }
         const url = editingId ? `/api/v1/services/${editingId}/` : '/api/v1/services/';
         const method = editingId ? 'PUT' : 'POST';
 
@@ -88,6 +102,7 @@ function AdminPage(){
                 buffer_min: Number(buffer),
                 cabinet_type: cabinetType,
                 requires_consultation: needConsult,
+                is_consultation: isConsultation,
             })
         })
         .then((response) => {
@@ -216,6 +231,10 @@ function AdminPage(){
                             <input type="checkbox" checked={needConsult} onChange={(e) => setNeedConsult(e.target.checked)} />
                             Нужна консультация
                         </label>
+                        <label className={styles.checkField}>
+                            <input type="checkbox" checked={isConsultation} onChange={(e) => setIsConsultation(e.target.checked)} />
+                            Это консультация специальности
+                        </label>
                         <button type="submit" className={styles.submit}>{editingId ? 'Сохранить' : 'Добавить'}</button>
                     </form>
                 </div>)}
@@ -243,7 +262,10 @@ function AdminPage(){
                         <td className={styles.td}>{service.name}</td>
                         <td className={styles.td}>от {Number(service.price_from).toLocaleString('ru-RU')} ₽</td>
                         <td className={styles.td}>{service.duration_min} мин</td>
-                        <td className={styles.td}>{service.requires_consultation ? 'Да' : 'Нет'}</td>
+                        <td className={styles.td}>
+                            {service.is_consultation && 'Консультация'}
+                            {service.requires_consultation && 'Нужна консультация'}
+                        </td>
                         <td className={styles.td}>
                             <div className={styles.rowActions}>
                                 <button onClick={() => startEdit(service)} className="secondary">Изменить</button>
