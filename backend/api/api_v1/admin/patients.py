@@ -70,4 +70,18 @@ async def admin_search_patients(
     phone: str | None = None,
     full_name: str | None = None,
 ):
-    return await orm_search_patients(session=session, phone=phone, full_name=full_name)
+    patient_list = await orm_search_patients(
+        session=session, phone=phone, full_name=full_name
+    )
+    patients = [
+        UserRead(
+            email=patient.email,
+            phone=patient.phone,
+            full_name=patient.full_name,
+            id=patient.id,
+            is_active=patient.is_active,
+            role=patient.role.name,
+        )
+        for patient in patient_list
+    ]
+    return patients
