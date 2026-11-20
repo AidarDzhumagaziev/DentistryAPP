@@ -38,6 +38,12 @@ class UserShortRead(BaseModel):
     phone: str = Field(min_length=12, max_length=12)
 
 
+class UserProfileRead(BaseModel):
+    full_name: str
+    phone: str = Field(min_length=12, max_length=12)
+    email: EmailStr
+
+
 class UserAdminCreate(UserBase):
     full_name: str
     phone: str = Field(min_length=12, max_length=12)
