@@ -79,7 +79,7 @@ async def orm_search_patients(
     stmt = (
         select(User)
         .join(Role, Role.id == User.role_id)
-        .where(Role.name == RoleType.ADMIN)
+        .where(Role.name == RoleType.PATIENT)
     )
     if phone:
         normalized = (
