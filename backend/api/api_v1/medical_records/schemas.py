@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class MedicalRecordBase(BaseModel):
-    appointment_id: int
     complaints: str | None
     objective_findings: str | None
     diagnosis: str | None
@@ -10,8 +9,8 @@ class MedicalRecordBase(BaseModel):
 
 
 class MedicalRecordCreate(MedicalRecordBase):
-    pass
+    appointment_id: int
 
 
 class MedicalRecordRead(MedicalRecordBase):
-    pass
+    id: int
