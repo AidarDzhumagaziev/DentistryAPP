@@ -78,6 +78,7 @@ async def orm_search_patients(
 ):
     stmt = (
         select(User)
+        .options(selectinload(User.role))
         .join(Role, Role.id == User.role_id)
         .where(Role.name == RoleType.PATIENT)
     )
